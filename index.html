@@ -104,35 +104,40 @@
         </section>
       </article>
 
-      
-        <article class="account" data-page="account">
+      <article class="account" data-page="account">
   <header><h2 class="h2 article-title">Account</h2></header>
 
   <section class="auth-section" id="auth-container">
     <div class="contact-form">
-      <h3 class="h3 form-title" id="auth-title">Login</h3>
+      <h3 class="h3 form-title" id="auth-title">Welcome</h3>
+      
       <form id="auth-form" class="form">
         <div class="input-wrapper">
           <input type="email" id="auth-email" class="form-input" placeholder="Email address" required>
           <input type="password" id="auth-password" class="form-input" placeholder="Password" required>
         </div>
-        <button class="form-btn" type="submit" id="auth-btn">
-          <ion-icon name="log-in-outline"></ion-icon><span>Login</span>
-        </button>
+
+        <div class="flex-buttons" style="display: flex; gap: 10px; margin-top: 25px;">
+          <button class="form-btn" type="button" id="login-btn" style="flex: 1; justify-content: center;">
+            <ion-icon name="log-in-outline"></ion-icon><span>Login</span>
+          </button>
+          <button class="form-btn" type="button" id="register-btn" style="flex: 1; justify-content: center; background: var(--onyx); border: 1px solid var(--jet);">
+            <ion-icon name="person-add-outline"></ion-icon><span>Register</span>
+          </button>
+        </div>
+
+        <p style="margin-top: 20px; text-align: center; font-size: 13px;">
+          Lupa password? <span id="reset-password-link" style="color: var(--orange-yellow-crayola); cursor: pointer;">Reset di sini</span>
+        </p>
       </form>
-      <p style="margin-top: 20px; font-size: var(--fs-6); color: var(--light-gray);">
-        <span id="toggle-text">Belum punya akun?</span> 
-        <span id="toggle-link" style="color: var(--orange-yellow-crayola); cursor: pointer; font-weight: var(--fw-600);">Daftar di sini</span>
-      </p>
     </div>
   </section>
 
   <section id="profile-container" style="display: none;">
     <div class="contact-form">
       <h3 class="h3 form-title">My Profile</h3>
-      <div class="about-text" id="user-info">
-        </div>
-      <button class="form-btn" id="logout-btn" style="margin-top: 20px; color: #ff5f5f;">
+      <div id="user-info" class="about-text" style="margin-bottom: 20px;"></div>
+      <button class="form-btn" id="logout-btn" style="color: #ff5f5f;">
         <ion-icon name="log-out-outline"></ion-icon><span>Logout</span>
       </button>
     </div>
