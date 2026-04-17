@@ -5,14 +5,12 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>eFoodico - Community</title>
+  <title>eFoodico</title>
   <link rel="shortcut icon" href="./assets/images/eec.png" type="image/x-icon">
   <link rel="stylesheet" href="./assets/css/style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
-  
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
 <body>
@@ -23,82 +21,104 @@
           <img src="./assets/images/eec.png" alt="eFoodico" width="80">
         </figure>
         <div class="info-content">
-          <h1 class="name" style="color: #ffffff;">eFoodico</h1>
-          <p class="title" style="color: #ffffff; opacity: 0.8;">Keep Improving!</p>
+          <h1 class="name" title="eFoodico">eFoodico</h1>
+          <p class="title">Keep Improving!</p>
         </div>
+        <button class="info_more-btn" data-sidebar-btn>
+          <span>Show Contacts</span>
+          <ion-icon name="chevron-down"></ion-icon>
+        </button>
+      </div>
+
+      <div class="sidebar-info_more">
+        <div class="separator"></div>
+        <ul class="contacts-list">
+          <li class="contact-item">
+            <div class="icon-box"><ion-icon name="mail-outline"></ion-icon></div>
+            <div class="contact-info">
+              <p class="contact-title">Email</p>
+              <a href="mailto:darzrm@gmail.com" class="contact-link">darzrm@gmail.com</a>
+            </div>
+          </li>
+          <li class="contact-item">
+            <div class="icon-box"><ion-icon name="phone-portrait-outline"></ion-icon></div>
+            <div class="contact-info">
+              <p class="contact-title">Phone</p>
+              <a href="tel:+6283841129519" class="contact-link">(+62) 838-4112-9519</a>
+            </div>
+          </li>
+        </ul>
+        <div class="separator"></div>
+        <ul class="social-list">
+          <li class="social-item"><a href="#" class="social-link"><ion-icon name="logo-whatsapp"></ion-icon></a></li>
+          <li class="social-item"><a href="#" class="social-link"><ion-icon name="logo-instagram"></ion-icon></a></li>
+          <li class="social-item"><a href="#" class="social-link"><ion-icon name="logo-tiktok"></ion-icon></a></li>
+        </ul>
       </div>
     </aside>
 
     <div class="main-content">
       <nav class="navbar">
         <ul class="navbar-list">
-          <li class="navbar-item"><button class="navbar-link active" data-nav-link="about">Home</button></li>
-          <li class="navbar-item"><button class="navbar-link" data-nav-link="blog">Blog</button></li>
-          <li class="navbar-item"><button class="navbar-link" data-nav-link="account">Account</button></li>
+          <li class="navbar-item"><button class="navbar-link active" data-nav-link>Home</button></li>
+          <li class="navbar-item"><button class="navbar-link" data-nav-link>Event</button></li>
+          <li class="navbar-item"><button class="navbar-link" data-nav-link>Blog</button></li>
+          <li class="navbar-item"><button class="navbar-link" data-nav-link>Account</button></li>
         </ul>
       </nav>
 
-      <article class="about active" data-page="about">
-        <header><h2 class="h2 article-title" style="color: #ffffff;">About</h2></header>
+      <article class="home active" data-page="home">
+        <header><h2 class="h2 article-title">Home</h2></header>
         <section class="about-text">
-          <p style="color: #ffffff;">Selamat datang di eFoodico Community. Tempat berbagi inspirasi desain dan teknik jaringan.</p>
+          <p>A community of efootball edit.</p>
+
+        </section>
+      </article>
+
+      <article class="event" data-page="event">
+        <header><h2 class="h2 article-title">Event</h2></header>
+        <section class="about-text">
+          <p>Information about event.</p>
         </section>
       </article>
 
       <article class="blog" data-page="blog">
-        <header><h2 class="h2 article-title" style="color: #ffffff;">Blog</h2></header>
-        
-        <section class="blog-posts" id="blog-list-container">
-          <ul class="blog-posts-list" id="posts-list">
-            </ul>
-        </section>
-
-        <section id="blog-detail" style="display: none;">
-          <button class="form-btn" id="back-to-blog" style="width: auto; margin-bottom: 25px; color: #ffffff; background: var(--onyx);">
-            &larr; Kembali
-          </button>
-          
-          <div id="post-full-content" style="color: #ffffff;"></div>
-          
-          <div class="separator" style="margin: 30px 0;"></div>
-          
-          <div class="comment-section">
-            <h3 class="h3" style="color: #ffffff; margin-bottom: 20px;">Komentar</h3>
-            <div class="contact-form">
-              <textarea id="comment-input" class="form-input" placeholder="Tulis komentar..." style="color: #ffffff;"></textarea>
-              <button class="form-btn" id="submit-comment" style="margin-top: 10px;">Kirim</button>
-            </div>
-            <div id="comments-display-container" style="margin-top: 25px;"></div>
-          </div>
+        <header><h2 class="h2 article-title">Blog</h2></header>
+        <section class="blog-posts">
+          <ul class="blog-posts-list">
+            <li class="blog-post-item">
+              <a href="#">
+                <figure class="blog-banner-box"><img src="./assets/images/b1.jpg" loading="lazy" alt="Blog banner"></figure>
+                <div class="blog-content">
+                  <div class="blog-meta">
+                    <p class="blog-category">Announcement</p>
+                    <span class="dot"></span>
+                    <time datetime="2023-09-07">Sept 7, 2023</time>
+                  </div>
+                  <h3 class="h3 blog-item-title">Hello From EEC</h3>
+                  <p class="blog-text">Komunitas ini resmi berdiri hari ini!</p>
+                </div>
+              </a>
+            </li>
+          </ul>
         </section>
       </article>
 
       <article class="account" data-page="account">
-        <header><h2 class="h2 article-title" style="color: #ffffff;">Account</h2></header>
-        
-        <div id="auth-ui">
-          <section class="contact-form">
+        <header><h2 class="h2 article-title">Account</h2></header>
+        <section class="contact-form">
+          <h3 class="h3 form-title">Contact Form</h3>
+          <form action="#" class="form" data-form>
             <div class="input-wrapper">
-              <input type="email" id="acc-email" class="form-input" placeholder="Email Address" required style="color: #ffffff;">
-              <input type="password" id="acc-password" class="form-input" placeholder="Password" required style="color: #ffffff;">
+              <input type="text" name="fullname" class="form-input" placeholder="Full name" required data-form-input>
+              <input type="email" name="email" class="form-input" placeholder="Email address" required data-form-input>
             </div>
-            <div style="display: flex; gap: 10px; margin-top: 15px;">
-              <button class="form-btn" id="btn-login">Login</button>
-              <button class="form-btn" id="btn-register" style="background: var(--onyx);">Register</button>
-            </div>
-          </section>
-        </div>
-
-        <div id="profile-ui" style="display: none;">
-          <section class="about-text">
-            <div class="content-card" style="padding: 25px; border: 1px solid var(--jet); border-radius: 14px; background: var(--bg-gradient-jet);">
-              <p style="color: #ffffff; margin-bottom: 12px;"><strong>Username:</strong> <span id="display-username"></span></p>
-              <p style="color: #ffffff; margin-bottom: 12px;"><strong>Email:</strong> <span id="display-email"></span></p>
-              <p style="color: #ffffff; margin-bottom: 12px;"><strong>Points:</strong> <span id="display-points">0</span> pts</p>
-            </div>
-            <button class="form-btn" id="btn-logout" style="margin-top: 20px; background: #e03131; color: #ffffff;">Logout</button>
-          </section>
-        </div>
+            <textarea name="message" class="form-input" placeholder="Your Message" required data-form-input></textarea>
+            <button class="form-btn" type="submit" disabled data-form-btn>
+              <ion-icon name="paper-plane"></ion-icon><span>Send Message</span>
+            </button>
+          </form>
+        </section>
       </article>
     </div>
   </main>
@@ -107,4 +127,5 @@
   <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
   <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
 </body>
+
 </html>
