@@ -109,8 +109,8 @@ for (let i = 0; i < navigationLinks.length; i++) {
 }
 
 // --- KONFIGURASI SUPABASE ---
-const SUPABASE_URL = 'https://URL_PROJECT_ANDA.supabase.co';
-const SUPABASE_KEY = 'KEY_ANON_ANDA';
+const SUPABASE_URL = 'https://pddlqipctqacvzmoydgy.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBkZGxxaXBjdHFhY3Z6bW95ZGd5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0MzEyNjksImV4cCI6MjA5MjAwNzI2OX0.MRq6Z0Njg-w6ALw5lJo7r8Ijn6xRAF-aq6PvJnmuGpw';
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 // --- SELEKTOR ELEMEN ---
