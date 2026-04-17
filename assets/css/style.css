@@ -2538,3 +2538,89 @@ textarea.form-input::-webkit-resizer { display: none; }
   align-items: center;
   gap: 10px;
 }
+
+/* --- GLOBAL FIXES --- */
+* { text-transform: none !important; }
+
+/* --- BUBBLE CHAT SYSTEM --- */
+.comment-section {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  padding: 10px 0;
+}
+
+#comment-display {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  width: 100%;
+}
+
+.comment-card {
+  background: var(--onyx);
+  border: 1px solid var(--jet);
+  padding: 12px 16px;
+  border-radius: 0 16px 16px 16px;
+  max-width: 85%;
+  align-self: flex-start; /* Default: Left */
+  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+}
+
+/* KHUSUS CHAT SENDIRI (KANAN) */
+.comment-card.is-me {
+  align-self: flex-end; /* Paksa ke kanan */
+  background: #2c2c2c; 
+  border-color: var(--orange-yellow-crayola);
+  border-radius: 16px 16px 0 16px;
+}
+
+.comment-username {
+  color: var(--orange-yellow-crayola);
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 6px;
+  display: block;
+}
+
+.comment-text {
+  color: var(--white-2);
+  font-size: 14px;
+  line-height: 1.5;
+  word-break: break-word;
+}
+
+.comment-date {
+  font-size: 10px;
+  color: var(--light-gray-70);
+  display: block;
+  text-align: right;
+  margin-top: 10px;
+}
+
+/* --- ACCOUNT CARD --- */
+.account-card {
+  background: var(--eerie-black-2);
+  border: 1px solid var(--jet);
+  padding: 30px;
+  border-radius: 20px;
+  width: 100%;
+}
+
+/* --- NOTIFIKASI KONTRAST TINGGI --- */
+.eec-notif {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ffffff; /* Putih solid */
+  color: #000000; /* Teks Hitam */
+  padding: 12px 24px;
+  border-radius: 50px;
+  font-weight: 600;
+  z-index: 9999;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
