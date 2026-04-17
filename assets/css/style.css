@@ -2464,160 +2464,65 @@ textarea.form-input::-webkit-resizer { display: none; }
   to { transform: translateX(0); opacity: 1; }
 }
 
-  /* --- RESET TEXT TRANSFORM --- */
+  /* --- GABUNGAN PERBAIKAN FINAL --- */
+
+/* 1. Matikan Paksa Auto-Caps di Seluruh Web */
 * { text-transform: none !important; }
 
-/* --- CLEAN BUBBLE CHAT --- */
-.comment-section {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  padding: 20px 0;
-}
-
+/* 2. Sistem Bubble Chat (Memperbaiki Kanan-Kiri) */
 #comment-display {
-  display: flex;
-  flex-direction: column;
-  gap: 12px;
-  width: 100%;
-}
-
-.comment-card {
-  background: var(--onyx);
-  border: 1px solid var(--jet);
-  padding: 10px 15px;
-  border-radius: 0 15px 15px 15px;
-  max-width: 85%;
-  align-self: flex-start; /* Others on Left */
-}
-
-/* My Chat on Right */
-.comment-card.is-me {
-  align-self: flex-end;
-  background: #2b2b2b;
-  border: 1px solid var(--orange-yellow-crayola);
-  border-radius: 15px 15px 0 15px;
-}
-
-.comment-username {
-  color: var(--orange-yellow-crayola);
-  font-size: 13px;
-  font-weight: 600;
-  margin-bottom: 4px;
-  display: block;
-}
-
-.comment-text {
-  color: var(--white-2);
-  font-size: 14px;
-  word-wrap: break-word;
-}
-
-.comment-date {
-  font-size: 10px;
-  color: var(--light-gray-70);
-  display: block;
-  text-align: right;
-  margin-top: 8px;
-}
-
-/* --- HIGH CONTRAST NOTIF --- */
-.eec-notif {
-  position: fixed;
-  bottom: 30px;
-  left: 50%;
-  transform: translateX(-50%);
-  background: #ffffff;
-  color: #000000;
-  padding: 12px 25px;
-  border-radius: 50px;
-  font-weight: 600;
-  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-  z-index: 10000;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-}
-
-/* --- GLOBAL FIXES --- */
-* { text-transform: none !important; }
-
-/* --- BUBBLE CHAT SYSTEM --- */
-.comment-section {
-  display: flex;
-  flex-direction: column;
-  gap: 20px;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 12px !important;
+  width: 100% !important;
   padding: 10px 0;
 }
 
-#comment-display {
-  display: flex;
-  flex-direction: column;
-  gap: 15px;
-  width: 100%;
-}
-
 .comment-card {
-  background: var(--onyx);
-  border: 1px solid var(--jet);
+  background: var(--onyx) !important;
+  border: 1px solid var(--jet) !important;
   padding: 12px 16px;
   border-radius: 0 16px 16px 16px;
   max-width: 85%;
-  align-self: flex-start; /* Default: Left */
-  box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+  align-self: flex-start; /* Default chat orang lain di kiri */
 }
 
-/* KHUSUS CHAT SENDIRI (KANAN) */
+/* Khusus Chat Sendiri (Paksa ke Kanan) */
 .comment-card.is-me {
-  align-self: flex-end; /* Paksa ke kanan */
-  background: #2c2c2c; 
-  border-color: var(--orange-yellow-crayola);
-  border-radius: 16px 16px 0 16px;
+  align-self: flex-end !important;
+  background: #252525 !important; /* Warna gelap elegan */
+  border: 1px solid var(--orange-yellow-crayola) !important;
+  border-radius: 16px 16px 0 16px !important;
 }
 
-.comment-username {
-  color: var(--orange-yellow-crayola);
-  font-size: 13px;
-  font-weight: 600;
-  margin-bottom: 6px;
-  display: block;
-}
-
-.comment-text {
-  color: var(--white-2);
-  font-size: 14px;
-  line-height: 1.5;
-  word-break: break-word;
-}
-
-.comment-date {
-  font-size: 10px;
-  color: var(--light-gray-70);
-  display: block;
-  text-align: right;
-  margin-top: 10px;
-}
-
-/* --- ACCOUNT CARD --- */
+/* 3. Perbaikan Profil Akun (Tetap Tema Gelap) */
 .account-card {
-  background: var(--eerie-black-2);
-  border: 1px solid var(--jet);
-  padding: 30px;
-  border-radius: 20px;
-  width: 100%;
+  background: var(--eerie-black-2) !important;
+  border: 1px solid var(--jet) !important;
+  padding: 25px !important;
+  border-radius: 20px !important;
+  color: var(--white-2) !important;
 }
 
-/* --- NOTIFIKASI KONTRAST TINGGI --- */
+.account-detail-list {
+  background: var(--onyx) !important;
+  border: 1px solid var(--jet) !important;
+  padding: 15px;
+  border-radius: 12px;
+  margin: 15px 0;
+}
+
+/* 4. Notifikasi Kontras Tinggi (Sangat Jelas) */
 .eec-notif {
   position: fixed;
-  bottom: 30px;
+  bottom: 85px; /* Di atas navbar mobile */
   left: 50%;
   transform: translateX(-50%);
-  background: #ffffff; /* Putih solid */
-  color: #000000; /* Teks Hitam */
+  background: #ffffff !important; 
+  color: #000000 !important;
   padding: 12px 24px;
   border-radius: 50px;
-  font-weight: 600;
+  font-weight: 700;
   z-index: 9999;
   box-shadow: 0 10px 30px rgba(0,0,0,0.5);
   display: flex;
