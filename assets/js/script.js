@@ -3,8 +3,8 @@
 /**
  * CONFIG SUPABASE
  */
-const SUPABASE_URL = 'URL_PROYEK_KAMU';
-const SUPABASE_KEY = 'ANON_KEY_KAMU';
+const SUPABASE_URL = 'https://edqrjrqdhaolfoehbaow.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkcXJqcnFkaGFvbGZvZWhiYW93Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0MjM1NTEsImV4cCI6MjA5MTk5OTU1MX0.02MISDYOGcf6DFy8ZPzgHkA_N4zglPFUi1b_FN15ueY';
 const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 let currentUser = null;
