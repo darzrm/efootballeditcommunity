@@ -1920,3 +1920,86 @@ textarea.form-input::-webkit-resizer { display: none; }
 }
 .wa-name { color: var(--orange-yellow-crayola); font-weight: 600; font-size: 14px; display: block; }
 .wa-time { font-size: 10px; color: var(--light-gray-70); float: right; margin-top: 5px; }
+/* Warna Global */
+:root {
+  --bg-dark: #121212;
+  --card-bg: #1e1e1e;
+  --text-white: #ffffff;
+  --text-gray: #b0b0b0;
+  --accent: #3498db;
+  --error: #e74c3c;
+}
+
+body {
+  background-color: var(--bg-dark);
+  font-family: 'Poppins', sans-serif;
+  color: var(--text-white);
+  margin: 0;
+}
+
+/* Typography Clean - Tidak ada kuning */
+h1, h2, h3, p, span, time, button, input, textarea {
+  color: var(--text-white) !important;
+}
+
+.article-title { padding-bottom: 15px; border-bottom: 2px solid var(--accent); margin-bottom: 20px; }
+
+/* Blog Style */
+.blog-posts-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 20px;
+}
+
+.blog-post-item {
+  background: var(--card-bg);
+  padding: 15px;
+  border-radius: 12px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.blog-post-item:hover { transform: translateY(-5px); }
+
+.blog-banner-box {
+  width: 100%;
+  border-radius: 8px;
+  overflow: hidden;
+  margin-bottom: 15px;
+}
+
+.blog-banner-box img { width: 100%; object-fit: cover; }
+
+/* Auth & Account */
+.contact-form { background: var(--card-bg); padding: 20px; border-radius: 12px; }
+
+.form-input {
+  width: 100%;
+  background: #2a2a2a;
+  border: 1px solid #3d3d3d;
+  padding: 12px;
+  margin-bottom: 15px;
+  border-radius: 8px;
+}
+
+.btn-group { display: flex; gap: 10px; }
+
+.form-btn {
+  background: var(--accent);
+  padding: 10px 20px;
+  border-radius: 8px;
+  border: none;
+  cursor: pointer;
+}
+
+.btn-secondary { background: #444; }
+.btn-logout { background: var(--error); margin-top: 15px; }
+
+/* Comments */
+.comment-bubble {
+  background: #252525;
+  padding: 12px;
+  border-radius: 10px;
+  margin-top: 10px;
+  border-left: 3px solid var(--accent);
+}
