@@ -5,7 +5,7 @@ const SUPABASE_URL = 'https://edqrjrqdhaolfoehbaow.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkcXJqcnFkaGFvbGZvZWhiYW93Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0MjM1NTEsImV4cCI6MjA5MTk5OTU1MX0.02MISDYOGcf6DFy8ZPzgHkA_N4zglPFUi1b_FN15ueY';
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// 2. NAVIGASI
+// 2. NAVIGASI HALAMAN
 const navigationLinks = document.querySelectorAll("[data-nav-link]");
 const pages = document.querySelectorAll("[data-page]");
 
@@ -26,7 +26,7 @@ for (let i = 0; i < navigationLinks.length; i++) {
   });
 }
 
-// 3. BLOG SYSTEM (LIST & DETAIL)
+// 3. BLOG & KOMENTAR
 async function loadBlogPosts() {
   const list = document.getElementById('posts-list');
   const { data: posts, error } = await supabaseClient.from('news_posts').select('*').order('created_at', { ascending: false });
@@ -61,7 +61,7 @@ window.openBlogDetail = async (id) => {
   
   document.getElementById('post-full-content').innerHTML = `
     <h2 class="h2 article-title" style="color: #ffffff; margin-bottom: 15px;">${post.title}</h2>
-    <p style="white-space: pre-wrap;">${post.content}</p>
+    <p style="white-space: pre-wrap; line-height: 1.6;">${post.content}</p>
   `;
 
   loadComments(id);
@@ -79,7 +79,7 @@ async function loadComments(postId) {
   
   container.innerHTML = comments.map(c => `
     <div style="background: var(--onyx); padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 3px solid #ffffff;">
-      <p style="color: #ffffff; font-weight: 600; font-size: 14px;">${c.username} <span style="font-weight: 400; opacity: 0.6; font-size: 12px;">- ${c.email}</span></p>
+      <p style="color: #ffffff; font-weight: 600;">${c.username} <small style="opacity:0.5;">- ${c.email}</small></p>
       <p style="color: #ffffff; margin-top: 5px;">${c.content}</p>
     </div>
   `).join('');
@@ -90,23 +90,19 @@ async function sendComment(postId) {
   if (!session) return alert("Login dulu di menu Account!");
   
   const text = document.getElementById('comment-input').value;
-  if (!text) return;
+  if (!text.trim()) return;
 
   const { data: profile } = await supabaseClient.from('profiles').select('username').eq('id', session.user.id).single();
 
   await supabaseClient.from('comments').insert([{
-    post_id: postId,
-    user_id: session.user.id,
-    username: profile.username,
-    email: session.user.email,
-    content: text
+    post_id: postId, user_id: session.user.id, username: profile.username, email: session.user.email, content: text
   }]);
 
   document.getElementById('comment-input').value = '';
   loadComments(postId);
 }
 
-// 4. ACCOUNT SYSTEM (LOGIN & REGISTER)
+// 4. AUTH (LOGIN & REGISTER)
 async function checkUserSession() {
   const { data: { session } } = await supabaseClient.auth.getSession();
   const authUI = document.getElementById('auth-ui');
@@ -117,8 +113,8 @@ async function checkUserSession() {
     authUI.style.display = 'none';
     profileUI.style.display = 'block';
     document.getElementById('display-email').innerText = session.user.email;
-    document.getElementById('display-username').innerText = profile.username;
-    document.getElementById('display-points').innerText = profile.points;
+    document.getElementById('display-username').innerText = profile?.username || "User";
+    document.getElementById('display-points').innerText = profile?.points || 0;
   } else {
     authUI.style.display = 'block';
     profileUI.style.display = 'none';
@@ -135,9 +131,10 @@ document.getElementById('btn-register')?.addEventListener('click', async () => {
   const { data, error } = await supabaseClient.auth.signUp({ email, password });
   if (error) return alert(error.message);
 
-  // Buat profil di tabel profiles
-  await supabaseClient.from('profiles').insert([{ id: data.user.id, username: username, points: 0 }]);
-  alert("Registrasi Berhasil! Silakan cek email atau langsung login.");
+  if (data.user) {
+    await supabaseClient.from('profiles').insert([{ id: data.user.id, username: username, points: 0 }]);
+    alert("Berhasil Daftar! Silakan Login.");
+  }
 });
 
 document.getElementById('btn-login')?.addEventListener('click', async () => {
@@ -152,5 +149,5 @@ document.getElementById('btn-logout')?.addEventListener('click', async () => {
   location.reload();
 });
 
-// Jalankan pengecekan session di awal
+// Jalankan pengecekan session saat load
 checkUserSession();
