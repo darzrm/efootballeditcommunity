@@ -5,7 +5,7 @@ const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJ
 const _supabase = supabase.createClient(SB_URL, SB_KEY);
 
 /**
- * System Notification (Top & Minimalist)
+ * NOTIFIKASI SIMPEL DI ATAS
  */
 window.showNotif = (msg) => {
     const old = document.querySelector('.eec-notif');
@@ -18,135 +18,99 @@ window.showNotif = (msg) => {
     
     setTimeout(() => { 
         notif.style.opacity = '0';
-        notif.style.top = '10px'; 
         setTimeout(() => notif.remove(), 500); 
-    }, 2500);
+    }, 2000);
 };
 
 /**
- * Global Modal
- */
-window.showModal = (title, html, onConfirm) => {
-    document.getElementById('modal-title').innerText = title;
-    document.getElementById('modal-body').innerHTML = html;
-    document.getElementById('modal-confirm-btn').onclick = onConfirm;
-    document.getElementById('global-modal').classList.add('active');
-};
-
-window.closeGlobalModal = () => document.getElementById('global-modal').classList.remove('active');
-
-/**
- * Account Management
- */
-const updateUI = async () => {
-    const { data: { session } } = await _supabase.auth.getSession();
-    const container = document.getElementById('account-content');
-    if (!container || !session) return;
-
-    const user = session.user.user_metadata.display_name || "Member";
-    const isAdmin = (session.user.email === 'darzrm@gmail.com');
-    const joinDate = new Date(session.user.created_at).toLocaleDateString('en-GB');
-
-    container.innerHTML = `
-        <div style="text-align: center; width:100%;">
-            <h3 class="h3">${user}</h3>
-            <p class="blog-text">${session.user.email} | <b>${isAdmin ? 'Admin' : 'Member'}</b></p>
-            <div style="display:flex; gap:10px; justify-content:center; margin-top:20px;">
-                <button class="form-btn" onclick="handleLogout()">Logout</button>
-            </div>
-        </div>`;
-};
-
-window.handleLogout = async () => {
-    await _supabase.auth.signOut();
-    showNotif("Logged out");
-    setTimeout(() => location.reload(), 1000);
-};
-
-/**
- * Comments System
- */
-const loadComments = async (blogId) => {
-    const display = document.getElementById('comment-display');
-    if (!display) return;
-
-    const { data: { session } } = await _supabase.auth.getSession();
-    const { data: comments, error } = await _supabase.from('comments')
-        .select('*').eq('blog_id', blogId).order('created_at', { ascending: true });
-
-    if (error) return;
-
-    display.innerHTML = comments.map(c => {
-        const isMe = session && session.user.id === c.user_id;
-        const isAdmin = c.email === 'darzrm@gmail.com';
-        const date = new Date(c.created_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
-
-        return `
-            <div class="comment-card ${isMe ? 'is-me' : ''}">
-                <div class="comment-header">
-                    <span class="comment-username">${c.username}</span>
-                    <span class="comment-email">${c.email || ''}</span>
-                    ${isAdmin ? '<span style="font-size:8px; background:#ff4b4b; padding:1px 4px; border-radius:3px;">ADMIN</span>' : ''}
-                </div>
-                <p class="comment-text">${c.content}</p>
-                <div class="comment-footer">
-                    <span class="comment-date">${date}</span>
-                </div>
-            </div>
-        `;
-    }).join('');
-};
-
-/**
- * Initialization
+ * NAVIGASI HALAMAN (Termasuk Perbaikan My Account)
  */
 document.addEventListener('DOMContentLoaded', () => {
-    updateUI();
-    
-    // Sidebar Toggle
-    const sidebarBtn = document.querySelector("[data-sidebar-btn]");
-    const sidebar = document.querySelector("[data-sidebar]");
-    if (sidebarBtn) sidebarBtn.onclick = () => sidebar.classList.toggle("active");
+    const navLinks = document.querySelectorAll("[data-nav-link]");
+    const pages = document.querySelectorAll("[data-page]");
 
-    // Nav Logic
-    document.querySelectorAll("[data-nav-link]").forEach(link => {
+    navLinks.forEach(link => {
         link.onclick = function() {
-            const page = this.innerText.toLowerCase();
-            document.querySelectorAll("[data-page]").forEach(p => p.classList.toggle('active', p.dataset.page === page));
-            document.querySelectorAll("[data-nav-link]").forEach(l => l.classList.toggle('active', l === this));
-            if (page === 'account') updateUI();
+            const target = this.innerText.toLowerCase().trim();
+            
+            pages.forEach(p => {
+                if(p.dataset.page === target) {
+                    p.classList.add('active');
+                } else {
+                    p.classList.remove('active');
+                }
+            });
+
+            navLinks.forEach(l => l.classList.toggle('active', l === this));
+            window.scrollTo(0, 0);
+
+            if(target === 'account') {
+                if (typeof updateUI === 'function') updateUI();
+            }
         };
     });
-
-    // Submit Comment
-    const form = document.getElementById('comment-form');
-    if (form) {
-        form.onsubmit = async (e) => {
-            e.preventDefault();
-            const { data: { session } } = await _supabase.auth.getSession();
-            const input = document.getElementById('comment-input');
-            if (!session || !input.value.trim()) return;
-
-            const { error } = await _supabase.from('comments').insert([{
-                content: input.value,
-                user_id: session.user.id,
-                username: session.user.user_metadata.display_name || "Member",
-                email: session.user.email,
-                blog_id: 'hello-eec'
-            }]);
-
-            if (!error) { input.value = ''; loadComments('hello-eec'); showNotif("Sent!"); }
-        };
-    }
+    
+    // Inisialisasi ikon Lucide
+    lucide.createIcons();
 });
 
+/**
+ * BLOG & DESKRIPSI (Perbaikan Deskripsi yang Hilang)
+ */
 window.openBlog = (id) => {
     document.getElementById('blog-list-container').style.display = 'none';
-    document.getElementById('blog-detail-container').style.display = 'block';
+    const detail = document.getElementById('blog-detail-container');
+    detail.style.display = 'block';
+    
+    // Mengisi kembali deskripsi blog
+    document.getElementById('blog-content-detail').innerHTML = `
+        <h3 class="h3" style="margin-bottom: 10px;">Hello from EEC</h3>
+        <p class="blog-text" style="color: var(--light-gray); line-height: 1.6;">
+            Wadah bagi para desainer eFootball untuk berbagi karya, inspirasi, dan teknik editing terbaru. 
+            Mari bangun komunitas yang positif!
+        </p>
+    `;
+    
     loadComments(id);
 };
 
 window.closeBlog = () => {
     document.getElementById('blog-list-container').style.display = 'block';
     document.getElementById('blog-detail-container').style.display = 'none';
+};
+
+/**
+ * LOAD KOMENTAR DENGAN IKON MEMBER/ADMIN
+ */
+window.loadComments = async (blogId) => {
+    const { data: comments } = await _supabase
+        .from('comments')
+        .select('*')
+        .eq('blog_id', blogId)
+        .order('created_at', { ascending: true });
+
+    const display = document.getElementById('comment-display');
+    display.innerHTML = '';
+
+    comments.forEach(comment => {
+        const isAdmin = comment.email === "admin@eec.com"; // Sesuaikan email admin
+        
+        // Pilih Ikon Berdasarkan Status
+        const iconName = isAdmin ? 'user-round-check' : 'user-round';
+        const statusLabel = isAdmin ? 'Admin' : 'Member';
+        const statusClass = isAdmin ? 'status-admin' : 'status-member';
+
+        const card = document.createElement('div');
+        card.className = `comment-card`;
+        card.innerHTML = `
+            <div class="comment-header">
+                <i data-lucide="${iconName}" class="user-icon ${statusClass}"></i>
+                <span class="comment-username">${comment.username}</span>
+                <span class="user-status ${statusClass}">${statusLabel}</span>
+            </div>
+            <p class="comment-text">${comment.content}</p>
+        `;
+        display.appendChild(card);
+    });
+    lucide.createIcons(); // Penting: Gambar ulang ikon setelah HTML dimasukkan
 };
