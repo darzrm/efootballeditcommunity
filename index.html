@@ -1,48 +1,118 @@
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./assets/js/script.js" defer></script> <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./assets/js/script.js"></script> ```
-**Masalahnya:** Browser jadi menjalankan `script.js` dua kali. Ini yang bikin *event listener* tombol Sign In tabrakan dan akhirnya nggak jalan sama sekali. 
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>EEC - eFootball Edit Community</title>
+  <link rel="shortcut icon" href="./assets/images/eec.png" type="image/x-icon">
+  <link rel="stylesheet" href="./assets/css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body>
+  <main>
+    <aside class="sidebar" data-sidebar>
+      <div class="sidebar-info">
+        <figure class="avatar-box"><img src="./assets/images/eec.png" alt="logo" width="80"></figure>
+        <div class="info-content">
+          <h1 class="name">eFoodico</h1>
+          <p class="title">Keep Improve!</p>
+        </div>
+        <button class="info_more-btn" data-sidebar-btn>
+          <span>Show Contacts</span><i data-lucide="chevron-down"></i>
+        </button>
+      </div>
+      <div class="sidebar-info_more">
+        <div class="separator"></div>
+        <ul class="contacts-list">
+          <li class="contact-item">
+            <div class="icon-box"><i data-lucide="mail"></i></div>
+            <div class="contact-info"><p class="contact-title">Email</p><a href="mailto:darzrm@gmail.com" class="contact-link">darzrm@gmail.com</a></div>
+          </li>
+        </ul>
+      </div>
+    </aside>
 
-### 2. Struktur Konten Kosong
-Bagian `<div id="account-content" class="account-card"></div>` sudah benar, tapi pastikan di CSS kamu tidak memberikan `pointer-events: none` atau `opacity: 0` secara tidak sengaja.
+    <div class="main-content">
+      <nav class="navbar">
+        <ul class="navbar-list">
+          <li class="navbar-item"><button class="navbar-link active" data-nav-link>Home</button></li>
+          <li class="navbar-item"><button class="navbar-link" data-nav-link>Events</button></li>
+          <li class="navbar-item"><button class="navbar-link" data-nav-link>News</button></li>
+          <li class="navbar-item"><button class="navbar-link" data-nav-link>Account</button></li>
+        </ul>
+      </nav>
 
----
-
-### Solusi: Pakai HTML yang Sudah Dicuci Bersih Ini
-Ganti bagian bawah HTML kamu (dari tag `<article class="account">` sampai tutup `</html>`) dengan ini agar sinkron dengan script yang saya berikan sebelumnya:
-
-```html
-      <article class="account" data-page="account" style="display: none;">
-        <header>
-          <h2 class="h2 article-title">My Account</h2>
-        </header>
-        
-        <div id="account-content" class="account-card">
-          </div>
+      <article class="home active" data-page="home">
+        <header><h2 class="h2 article-title">Home</h2></header>
+        <section class="about-text"><p>Welcome to EEC official website. A hub for eFootball designers.</p></section>
       </article>
 
-    </div> </main>
+      <article class="events" data-page="events">
+        <header><h2 class="h2 article-title">Events</h2></header>
+        <table class="custom-table">
+          <thead><tr><th>No</th><th>Name</th><th>Point</th></tr></thead>
+          <tbody><tr><td>1</td><td>Admin</td><td>100</td></tr></tbody>
+        </table>
+      </article>
 
-  <div id="global-modal" class="auth-modal-overlay">
-    <div class="auth-modal-card">
-      <h3 class="h3" id="modal-title">Authentication</h3>
-      <div id="modal-body" class="form-group" style="margin: 20px 0;">
+      <article class="news" data-page="news">
+        <header><h2 class="h2 article-title">News</h2></header>
+        <div id="blog-list-container">
+          <ul class="blog-posts-list">
+            <li class="blog-post-item" onclick="openBlog('hello-eec')">
+              <div class="blog-card">
+                <figure class="blog-banner-box"><img src="./assets/images/g1.jpg" alt="News"></figure>
+                <div class="blog-content">
+                  <div class="blog-meta"><p class="blog-category">Announcement</p><span class="dot"></span><time>Sept 7, 2023</time></div>
+                  <h3 class="h3 blog-item-title">Hello from EEC</h3>
+                  <p class="blog-text">Selamat datang di eFootball Edit Community. Ini adalah wadah bagi para desainer untuk berbagi karya dan teknik editing eFootball.</p>
+                </div>
+              </div>
+            </li>
+          </ul>
         </div>
-      <div class="auth-modal-btns">
-        <button class="form-btn" id="modal-confirm-btn">Confirm</button>
-        <button class="form-btn secondary" onclick="closeGlobalModal()">Cancel</button>
-      </div>
+
+        <div id="blog-detail-container" style="display: none;">
+          <button class="form-btn" onclick="closeBlog()" style="margin-bottom: 20px;"><i data-lucide="arrow-left"></i><span>Back</span></button>
+          <div id="blog-content-detail"></div>
+          <div class="separator"></div>
+          <section class="comment-section">
+            <h3 class="h3">Community Comments</h3>
+            <div id="comment-display"></div>
+            <form id="comment-form" class="form" style="display: none;">
+              <textarea id="comment-input" class="form-input" placeholder="Write your comment..." required></textarea>
+              <button class="form-btn" type="submit">Post Comment</button>
+            </form>
+          </section>
+        </div>
+      </article>
+
+ 
+<article class="account" data-page="account">
+  <header>
+    <h2 class="h2 article-title">My Account</h2>
+  </header>
+  <div id="account-content" class="account-card">
+    </div>
+</article>
+
+
+<div id="global-modal" class="auth-modal-overlay">
+  <div class="auth-modal-card">
+    <h3 class="h3" id="modal-title">Title</h3>
+    <div id="modal-body" class="form-group" style="margin: 20px 0;"></div>
+    <div class="auth-modal-btns">
+      <button class="form-btn" id="modal-confirm-btn">Confirm</button>
+      <button class="form-btn secondary" onclick="closeGlobalModal()">Cancel</button>
     </div>
   </div>
+</div>
 
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="./assets/js/script.js" defer></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./assets/js/script.js"></script> 
-  
-  <script>
-    // Inisialisasi Ikon Lucide setelah semua elemen dimuat
-    window.addEventListener('load', () => {
-      if (window.lucide) lucide.createIcons();
-    });
-  </script>
+  <script src="./assets/js/script.js"></script>
 </body>
 </html>
