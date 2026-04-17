@@ -4,150 +4,120 @@ const SB_URL = "https://ijdzjhmtlblpsaxcseym.supabase.co";
 const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlqZHpqaG10bGJscHNheGNzZXltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzOTQ4MTcsImV4cCI6MjA5MTk3MDgxN30.46pqbTLsqVIzIA4tu0DuxovIt0pJZNAypWHWxRDV5IY";
 const _supabase = supabase.createClient(SB_URL, SB_KEY);
 
-let currentSession = null;
-
-// Unified Modal Logic
-window.showModal = (title, bodyHTML, onConfirm) => {
-    const modal = document.getElementById('global-modal');
+// Modal Utility
+window.showModal = (title, html, onConfirm) => {
     document.getElementById('modal-title').innerText = title;
-    document.getElementById('modal-body').innerHTML = bodyHTML;
-    const confirmBtn = document.getElementById('modal-confirm-btn');
-    
-    confirmBtn.onclick = async () => {
-        await onConfirm();
-        closeGlobalModal();
-    };
-    modal.classList.add('active');
+    document.getElementById('modal-body').innerHTML = html;
+    document.getElementById('modal-confirm-btn').onclick = onConfirm;
+    document.getElementById('global-modal').classList.add('active');
 };
-
 window.closeGlobalModal = () => document.getElementById('global-modal').classList.remove('active');
 
-// Account UI Refresh
+// Account UI
 const updateUI = async () => {
     const { data: { session } } = await _supabase.auth.getSession();
-    currentSession = session;
-    const accContent = document.getElementById('account-content');
-    if (!accContent) return;
+    const container = document.getElementById('account-content');
+    if (!container) return;
 
     if (session) {
-        const username = localStorage.getItem('eec_username') || "Member";
-        const isAdmin = (username === 'dariraa');
-        const badge = isAdmin ? '<i data-lucide="crown" class="admin-badge"></i>' : '';
-
-        accContent.innerHTML = `
-            <div class="profile-icon"><i data-lucide="user-circle" style="width:60px; height:60px;"></i></div>
-            <h3 class="h3" style="display:flex; justify-content:center; align-items:center; gap:8px;">${username} ${badge}</h3>
-            <p class="blog-text" style="opacity:0.7;">${session.user.email}</p>
-            <div style="display:grid; gap:10px; max-width:250px; margin:20px auto 0;">
-                <button class="form-btn" onclick="openEditProfile()">Edit Username</button>
+        const user = localStorage.getItem('eec_username') || "Member";
+        const isAdmin = (user === 'dariraa');
+        container.innerHTML = `
+            <div class="profile-icon"><i data-lucide="circle-user" style="width:80px; height:80px;"></i></div>
+            <h3 class="h3" style="display:flex; align-items:center; gap:8px; justify-content:center;">
+                ${user} ${isAdmin ? '<i data-lucide="crown" style="color:#ffdb70; width:20px;"></i>' : ''}
+            </h3>
+            <p class="blog-text" style="opacity:0.6;">${session.user.email}</p>
+            <div style="display:grid; gap:10px; width:100%; max-width:260px; margin:20px auto 0;">
+                <button class="form-btn" onclick="openEditName()">Update Username</button>
                 <button class="form-btn secondary" onclick="handleLogout()">Logout</button>
             </div>
         `;
-        document.getElementById('comment-form').style.display = 'block';
     } else {
-        accContent.innerHTML = `
-            <h3 class="h3">Welcome to EEC</h3>
-            <p class="blog-text">Please login to join our community.</p>
-            <button class="form-btn" style="margin:20px auto 0;" onclick="openLoginModal()">Login / Register</button>
+        container.innerHTML = `
+            <h3 class="h3">Join the Community</h3>
+            <p class="blog-text">Sign in to share your thoughts.</p>
+            <button class="form-btn" style="margin-top:20px;" onclick="openLogin()">Login / Sign Up</button>
         `;
-        document.getElementById('comment-form').style.display = 'none';
     }
     lucide.createIcons();
 };
 
-// Auth Actions with Modal
-window.openLoginModal = () => {
-    const body = `
-        <input type="email" id="m-email" class="form-input" placeholder="Email">
-        <input type="password" id="m-pass" class="form-input" placeholder="Password">
-        <input type="text" id="m-user" class="form-input" placeholder="Username (for Sign Up)">
-        <p class="blog-text" style="font-size:11px;">Note: Use email & pass to login, or fill all to register.</p>
+window.handleLogout = async () => { await _supabase.auth.signOut(); location.reload(); };
+
+window.openLogin = () => {
+    const html = `
+        <input type="email" id="f-email" class="form-input" placeholder="Email">
+        <input type="password" id="f-pass" class="form-input" placeholder="Password">
+        <input type="text" id="f-user" class="form-input" placeholder="Username (Sign Up only)">
     `;
-    showModal("Login / Register", body, async () => {
-        const email = document.getElementById('m-email').value;
-        const pass = document.getElementById('m-pass').value;
-        const user = document.getElementById('m-user').value;
-
-        // Try Login first
-        const { data, error: lErr } = await _supabase.auth.signInWithPassword({ email, password: pass });
+    showModal("Account Access", html, async () => {
+        const email = document.getElementById('f-email').value;
+        const pass = document.getElementById('f-pass').value;
+        const user = document.getElementById('f-user').value;
+        const { error: lErr } = await _supabase.auth.signInWithPassword({ email, password: pass });
         if (lErr) {
-            // If login fails, try Sign Up
             const { error: sErr } = await _supabase.auth.signUp({ email, password: pass });
-            if (sErr) alert(sErr.message);
-            else {
-                localStorage.setItem('eec_username', user || "Member");
-                alert("Account created! Please login.");
-            }
-        } else {
-            location.reload();
-        }
+            if (!sErr) { localStorage.setItem('eec_username', user); alert("Success! Please Login."); location.reload(); }
+            else alert(sErr.message);
+        } else { location.reload(); }
     });
 };
 
-window.handleLogout = async () => {
-    await _supabase.auth.signOut();
-    location.reload();
-};
-
-window.openEditProfile = () => {
-    showModal("Edit Username", `<input type="text" id="new-username" class="form-input" placeholder="New Username">`, async () => {
-        const val = document.getElementById('new-username').value;
+window.openEditName = () => {
+    showModal("Change Username", `<input type="text" id="f-newname" class="form-input" placeholder="New Name">`, async () => {
+        const val = document.getElementById('f-newname').value;
         if (val) {
+            const { data: { session } } = await _supabase.auth.getSession();
             localStorage.setItem('eec_username', val);
-            if (currentSession) {
-                await _supabase.from('comments').update({ username: val }).eq('user_id', currentSession.user.id);
-            }
+            if (session) await _supabase.from('comments').update({ username: val }).eq('user_id', session.user.id);
             location.reload();
         }
     });
 };
 
-// Comments Logic
+// Comments
 const loadComments = async (blogId) => {
-    const display = document.getElementById('comment-display');
+    const list = document.getElementById('comment-display');
     const { data: { session } } = await _supabase.auth.getSession();
-    const currentUsername = localStorage.getItem('eec_username');
-    const isAdmin = (currentUsername === 'dariraa');
+    const isAdmin = (localStorage.getItem('eec_username') === 'dariraa');
 
-    const { data, error } = await _supabase.from('comments').select('*').eq('blog_id', blogId).order('created_at', { ascending: false });
+    const { data } = await _supabase.from('comments').select('*').eq('blog_id', blogId).order('created_at', { ascending: false });
 
-    if (data) {
-        display.innerHTML = data.map(c => {
-            const canDelete = isAdmin || (session && session.user.id === c.user_id);
-            const userBadge = (c.username === 'dariraa') ? '<i data-lucide="crown" class="admin-badge"></i>' : '';
-            
-            return `
-                <div class="comment-card">
-                    <div class="comment-header">
-                        <div class="comment-info">
-                            <span class="comment-user">${c.username} ${userBadge}</span>
-                            <span class="comment-email">${c.email || 'Member'}</span>
-                        </div>
-                        ${canDelete ? `<button class="btn-delete" onclick="handleDelete('${c.id}')"><i data-lucide="trash-2" style="width:16px;"></i></button>` : ''}
+    list.innerHTML = data?.map(c => {
+        const isOwner = (session && session.user.id === c.user_id);
+        const date = new Date(c.created_at).toLocaleDateString('en-GB', { day:'2-digit', month:'short', year:'numeric' });
+        
+        return `
+            <div class="comment-card" style="border-bottom: 1px solid var(--jet); padding: 15px 0; background:none;">
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <div style="display:flex; flex-direction:column;">
+                        <span class="comment-user" style="color:var(--orange-yellow-crayola); font-weight:600; font-size:14px; display:flex; align-items:center; gap:5px;">
+                            ${c.username} ${c.username === 'dariraa' ? '<i data-lucide="crown" style="width:14px; color:#ffdb70;"></i>' : ''}
+                        </span>
+                        <span style="font-size:10px; color:var(--light-gray-70);">${c.email || ''}</span>
                     </div>
-                    <p class="comment-text">${c.content}</p>
-                    <time class="comment-date">${new Date(c.created_at).toLocaleString('en-US')}</time>
+                    ${(isAdmin || isOwner) ? `<button onclick="doDelete('${c.id}')" style="background:none; border:none; color:#ff4b4b; cursor:pointer;"><i data-lucide="trash-2" style="width:18px;"></i></button>` : ''}
                 </div>
-            `;
-        }).join('');
-        lucide.createIcons();
-    }
+                <p style="color:var(--light-gray); font-size:14px; margin-top:8px;">${c.content}</p>
+                <time style="font-size:9px; color:var(--light-gray-70); margin-top:5px; display:block;">${date}</time>
+            </div>
+        `;
+    }).join('') || '<p class="blog-text">No comments yet.</p>';
+    lucide.createIcons();
 };
 
-window.handleDelete = async (id) => {
-    if (confirm("Delete this comment permanently?")) {
+window.doDelete = async (id) => {
+    if (confirm("Permanently delete this comment?")) {
         const { error } = await _supabase.from('comments').delete().eq('id', id);
         if (!error) loadComments('hello-eec');
-        else alert("Failed to delete: " + error.message);
+        else alert("Delete failed: " + error.message);
     }
 };
 
-// Initialization
+// Nav & Init
 document.addEventListener("DOMContentLoaded", () => {
     updateUI();
-    lucide.createIcons();
-
-    // Nav Logic
     document.querySelectorAll("[data-nav-link]").forEach(btn => {
         btn.onclick = function() {
             const target = this.innerText.toLowerCase();
@@ -157,30 +127,23 @@ document.addEventListener("DOMContentLoaded", () => {
         }
     });
 
-    // Sidebar Toggle
-    const sidebarBtn = document.querySelector("[data-sidebar-btn]");
-    if (sidebarBtn) sidebarBtn.onclick = () => document.querySelector("[data-sidebar]").classList.toggle("active");
+    document.getElementById('comment-form').onsubmit = async (e) => {
+        e.preventDefault();
+        const { data: { session } } = await _supabase.auth.getSession();
+        const input = document.getElementById('comment-input');
+        if (!session) return alert("Login required!");
 
-    // Comment Form
-    const cForm = document.getElementById('comment-form');
-    if (cForm) {
-        cForm.onsubmit = async (e) => {
-            e.preventDefault();
-            if (!currentSession) return;
-            const input = document.getElementById('comment-input');
-            const { error } = await _supabase.from('comments').insert([{
-                content: input.value,
-                user_id: currentSession.user.id,
-                email: currentSession.user.email,
-                username: localStorage.getItem('eec_username') || "Member",
-                blog_id: 'hello-eec'
-            }]);
-            if (!error) { input.value = ''; loadComments('hello-eec'); }
-        };
-    }
+        await _supabase.from('comments').insert([{
+            content: input.value,
+            user_id: session.user.id,
+            username: localStorage.getItem('eec_username') || "Member",
+            email: session.user.email,
+            blog_id: 'hello-eec'
+        }]);
+        input.value = ''; loadComments('hello-eec');
+    };
 });
 
-// Blog Navigation
 window.openBlog = (id) => {
     document.getElementById('blog-list-container').style.display = 'none';
     document.getElementById('blog-detail-container').style.display = 'block';
@@ -188,7 +151,6 @@ window.openBlog = (id) => {
     detail.innerHTML = `<h3 class="h3">Hello from EEC</h3><p class="blog-text">Selamat datang di eFootball Edit Community. Ini adalah wadah bagi para desainer untuk berbagi karya dan teknik editing eFootball.</p>`;
     loadComments(id);
 };
-
 window.closeBlog = () => {
     document.getElementById('blog-list-container').style.display = 'block';
     document.getElementById('blog-detail-container').style.display = 'none';
