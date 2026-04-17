@@ -113,68 +113,65 @@ const SUPABASE_URL = 'https://pddlqipctqacvzmoydgy.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBkZGxxaXBjdHFhY3Z6bW95ZGd5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0MzEyNjksImV4cCI6MjA5MjAwNzI2OX0.MRq6Z0Njg-w6ALw5lJo7r8Ijn6xRAF-aq6PvJnmuGpw';
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// --- SELEKTOR ELEMEN ---
-const authContainer = document.getElementById('auth-container');
-const profileContainer = document.getElementById('profile-container');
-const authForm = document.getElementById('auth-form');
-const authTitle = document.getElementById('auth-title');
-const authBtn = document.getElementById('auth-btn');
-const toggleLink = document.getElementById('toggle-link');
-const toggleText = document.getElementById('toggle-text');
-const userInfo = document.getElementById('user-info');
-const logoutBtn = document.getElementById('logout-btn');
+// Ambil elemen
+const btnLogin = document.getElementById('login-btn');
+const btnRegister = document.getElementById('register-btn');
+const btnReset = document.getElementById('reset-password-link');
+const inputEmail = document.getElementById('auth-email');
+const inputPass = document.getElementById('auth-password');
 
-let isLoginMode = true;
+// Fungsi Login
+btnLogin.addEventListener('click', async () => {
+  const email = inputEmail.value;
+  const password = inputPass.value;
+  
+  if(!email || !password) return alert("Isi email dan password!");
 
-// 1. Fungsi Cek Status Login
-async function checkUser() {
+  const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+  if (error) alert("Error: " + error.message);
+  else {
+    alert("Login Berhasil!");
+    location.reload(); // Refresh untuk update status login
+  }
+});
+
+// Fungsi Register
+btnRegister.addEventListener('click', async () => {
+  const email = inputEmail.value;
+  const password = inputPass.value;
+
+  if(!email || !password) return alert("Isi email dan password!");
+
+  const { data, error } = await supabaseClient.auth.signUp({ email, password });
+  if (error) alert("Error: " + error.message);
+  else alert("Registrasi berhasil! Cek email (jika konfirmasi aktif) atau silakan login.");
+});
+
+// Fungsi Reset Password
+btnReset.addEventListener('click', async () => {
+  const email = inputEmail.value;
+  if(!email) return alert("Masukkan email kamu terlebih dahulu di kotak input!");
+
+  const { error } = await supabaseClient.auth.resetPasswordForEmail(email);
+  if (error) alert("Error: " + error.message);
+  else alert("Link reset password telah dikirim ke email kamu!");
+});
+
+// Update Fungsi CheckUser agar lebih akurat
+async function checkUserStatus() {
   const { data: { user } } = await supabaseClient.auth.getUser();
+  const authCont = document.getElementById('auth-container');
+  const profCont = document.getElementById('profile-container');
+  const userDiv = document.getElementById('user-info');
+
   if (user) {
-    authContainer.style.display = 'none';
-    profileContainer.style.display = 'block';
-    userInfo.innerHTML = `
-      <p>Email: <span style="color: var(--orange-yellow-crayola)">${user.email}</span></p>
-      <p>Status: <span style="color: var(--orange-yellow-crayola)">Logged In</span></p>
+    authCont.style.display = 'none';
+    profCont.style.display = 'block';
+    userDiv.innerHTML = `
+      <p style="color: var(--light-gray)">Halo,</p>
+      <p style="font-weight: bold; color: var(--orange-yellow-crayola); font-size: 18px;">${user.email}</p>
+      <p style="margin-top:10px; font-size: 14px;">Kamu sudah terdaftar di komunitas.</p>
     `;
-  } else {
-    authContainer.style.display = 'block';
-    profileContainer.style.display = 'none';
   }
 }
-checkUser();
-
-// 2. Toggle Login/Register
-toggleLink.addEventListener('click', () => {
-  isLoginMode = !isLoginMode;
-  authTitle.innerText = isLoginMode ? 'Login' : 'Daftar Akun';
-  authBtn.innerHTML = isLoginMode ? '<ion-icon name="log-in-outline"></ion-icon><span>Login</span>' : '<ion-icon name="person-add-outline"></ion-icon><span>Daftar</span>';
-  toggleText.innerText = isLoginMode ? 'Belum punya akun?' : 'Sudah punya akun?';
-  toggleLink.innerText = isLoginMode ? 'Daftar di sini' : 'Login di sini';
-});
-
-// 3. Handle Submit (Login & Register)
-authForm.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const email = document.getElementById('auth-email').value;
-  const password = document.getElementById('auth-password').value;
-
-  if (isLoginMode) {
-    const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
-    if (error) alert("Gagal Login: " + error.message);
-    else {
-      alert("Berhasil Login!");
-      checkUser();
-    }
-  } else {
-    const { error } = await supabaseClient.auth.signUp({ email, password });
-    if (error) alert("Gagal Daftar: " + error.message);
-    else alert("Pendaftaran berhasil! Silakan cek email atau langsung login.");
-  }
-});
-
-// 4. Handle Logout
-logoutBtn.addEventListener('click', async () => {
-  await supabaseClient.auth.signOut();
-  alert("Berhasil Logout!");
-  checkUser();
-});
+checkUserStatus();
