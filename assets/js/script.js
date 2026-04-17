@@ -123,14 +123,14 @@ const showToast = (icon, title) => {
   });
 };
 
-// DOM Elements
+// --- Elements ---
 const guestCont = document.getElementById('guest-container');
 const authCont = document.getElementById('auth-container');
 const profCont = document.getElementById('profile-container');
-const userDiv = document.getElementById('user-info');
+const userInfoDiv = document.getElementById('user-info-display');
 
-// Navigation Logic
-document.getElementById('show-auth-btn')?.addEventListener('click', () => {
+// --- Navigation Flow ---
+document.getElementById('go-to-auth')?.addEventListener('click', () => {
   guestCont.style.display = 'none';
   authCont.style.display = 'block';
 });
@@ -140,49 +140,36 @@ document.getElementById('back-to-guest')?.addEventListener('click', () => {
   guestCont.style.display = 'block';
 });
 
-// Login
+// --- Auth Logic ---
 document.getElementById('login-btn')?.addEventListener('click', async () => {
   const email = document.getElementById('auth-email').value;
   const password = document.getElementById('auth-password').value;
   const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
-  if (error) showToast('error', error.message);
-  else { showToast('success', 'Successfully logged in!'); checkUserStatus(); }
-});
-
-// Register
-document.getElementById('register-btn')?.addEventListener('click', async () => {
-  const email = document.getElementById('auth-email').value;
-  const password = document.getElementById('auth-password').value;
-  const username = document.getElementById('auth-username').value;
-  if (!username) return showToast('warning', 'Please enter a username');
-  const { error } = await supabaseClient.auth.signUp({ 
-    email, password, options: { data: { display_name: username } } 
-  });
-  if (error) showToast('error', error.message);
-  else showToast('success', 'Account created! You can login now.');
-});
-
-// Change Username
-document.getElementById('btn-change-username')?.addEventListener('click', async () => {
-  const newName = document.getElementById('new-username').value;
-  if (!newName) return showToast('warning', 'New username is required');
-  const { error } = await supabaseClient.auth.updateUser({ data: { display_name: newName } });
-  if (error) showToast('error', error.message);
+  
+  if (error) Swal.fire({ icon: 'error', title: 'Login Failed', text: error.message, background: '#1e1e1f', color: '#fff' });
   else {
-    showToast('success', 'Username updated successfully!');
-    document.getElementById('new-username').value = "";
+    Swal.fire({ icon: 'success', title: 'Welcome Back!', toast: true, position: 'top-end', showConfirmButton: false, timer: 3000 });
     checkUserStatus();
   }
 });
 
-// Logout
-document.getElementById('logout-btn')?.addEventListener('click', async () => {
-  await supabaseClient.auth.signOut();
-  showToast('info', 'Logged out from eFoodico');
-  setTimeout(() => location.reload(), 1000);
+document.getElementById('register-btn')?.addEventListener('click', async () => {
+  const email = document.getElementById('auth-email').value;
+  const password = document.getElementById('auth-password').value;
+  const username = document.getElementById('auth-username').value;
+
+  if (!username) return Swal.fire({ icon: 'warning', title: 'Wait!', text: 'Username is required for registration' });
+
+  const { error } = await supabaseClient.auth.signUp({
+    email, password,
+    options: { data: { display_name: username } }
+  });
+
+  if (error) Swal.fire({ icon: 'error', title: 'Registration Failed', text: error.message });
+  else Swal.fire({ icon: 'success', title: 'Success!', text: 'Account created! Please login.' });
 });
 
-// UI Sync & Stats
+// --- Stats & UI Update ---
 async function checkUserStatus() {
   const { data: { user } } = await supabaseClient.auth.getUser();
 
@@ -191,33 +178,35 @@ async function checkUserStatus() {
     authCont.style.display = 'none';
     profCont.style.display = 'block';
 
-    const joinedDate = new Date(user.created_at).toLocaleString('en-GB', {
+    const joinedAt = new Date(user.created_at).toLocaleString('en-GB', {
       day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
     });
 
-    userDiv.innerHTML = `
+    // Centered Stats Layout
+    userInfoDiv.innerHTML = `
       <div style="margin-bottom: 25px;">
         <div style="width: 80px; height: 80px; background: var(--onyx); margin: 0 auto 15px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid var(--orange-yellow-crayola);">
           <ion-icon name="person" style="font-size: 40px; color: var(--orange-yellow-crayola);"></ion-icon>
         </div>
-        <h4 class="h4" style="font-size: 26px; color: var(--orange-yellow-crayola);">${user.user_metadata.display_name || 'Member'}</h4>
+        <h4 class="h4" style="font-size: 28px; color: var(--orange-yellow-crayola);">${user.user_metadata.display_name || 'Member'}</h4>
         <p style="font-size: 14px; color: var(--light-gray);">${user.email}</p>
       </div>
 
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
-        <div style="background: rgba(255,255,255,0.03); padding: 15px; border-radius: 15px; border: 1px solid var(--jet);">
-          <p style="font-size: 11px; color: var(--light-gray); text-transform: uppercase; letter-spacing: 1px;">Current Points</p>
+        <div style="background: rgba(255,255,255,0.03); padding: 15px; border-radius: 12px; border: 1px solid var(--jet);">
+          <p style="font-size: 10px; color: var(--light-gray); text-transform: uppercase; letter-spacing: 1px;">Current Points</p>
           <p style="font-size: 20px; font-weight: bold; color: #38bdf8;">0 PTS</p>
         </div>
-        <div style="background: rgba(255,255,255,0.03); padding: 15px; border-radius: 15px; border: 1px solid var(--jet);">
-          <p style="font-size: 11px; color: var(--light-gray); text-transform: uppercase; letter-spacing: 1px;">Account Role</p>
+        <div style="background: rgba(255,255,255,0.03); padding: 15px; border-radius: 12px; border: 1px solid var(--jet);">
+          <p style="font-size: 10px; color: var(--light-gray); text-transform: uppercase; letter-spacing: 1px;">Account Role</p>
           <p style="font-size: 20px; font-weight: bold; color: #fbbf24;">MEMBER</p>
         </div>
       </div>
 
-      <div style="background: var(--onyx); padding: 12px; border-radius: 10px; font-size: 12px; color: var(--light-gray);">
-        Joined Since: <span style="color: #fff; margin-left: 5px;">${joinedDate}</span>
-      </div>
+      <p style="font-size: 12px; color: var(--light-gray);">
+        Joined eFoodico on:<br>
+        <span style="color: #fff; font-weight: 500;">${joinedAt}</span>
+      </p>
     `;
   } else {
     guestCont.style.display = 'block';
@@ -226,4 +215,21 @@ async function checkUserStatus() {
   }
 }
 
+// Tambahkan event listener logout & ganti username di sini (pastikan ID sesuai)
+document.getElementById('logout-btn')?.addEventListener('click', async () => {
+  await supabaseClient.auth.signOut();
+  location.reload();
+});
+
+document.getElementById('btn-change-username')?.addEventListener('click', async () => {
+  const newName = document.getElementById('new-username').value;
+  const { error } = await supabaseClient.auth.updateUser({ data: { display_name: newName } });
+  if (error) alert(error.message);
+  else {
+    Swal.fire({ icon: 'success', title: 'Username Updated' });
+    checkUserStatus();
+  }
+});
+
+// Run on load
 checkUserStatus();
