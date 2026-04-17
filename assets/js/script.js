@@ -1,153 +1,109 @@
 'use strict';
 
-// 1. KONEKSI SUPABASE
-const SUPABASE_URL = 'https://edqrjrqdhaolfoehbaow.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVkcXJqcnFkaGFvbGZvZWhiYW93Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0MjM1NTEsImV4cCI6MjA5MTk5OTU1MX0.02MISDYOGcf6DFy8ZPzgHkA_N4zglPFUi1b_FN15ueY';
-const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+/**
+ * Element toggle function
+ */
+const elementToggleFunc = function (elem) { elem.classList.toggle("active"); }
 
-// 2. NAVIGASI HALAMAN
+/**
+ * Sidebar variables & toggle (Mobile)
+ */
+const sidebar = document.querySelector("[data-sidebar]");
+const sidebarBtn = document.querySelector("[data-sidebar-btn]");
+
+if (sidebarBtn) {
+  sidebarBtn.addEventListener("click", function () { elementToggleFunc(sidebar); });
+}
+
+/**
+ * Filter & Custom Select (Hanya jalan jika elemennya ada)
+ */
+const select = document.querySelector("[data-select]");
+const selectItems = document.querySelectorAll("[data-select-item]");
+const selectValue = document.querySelector("[data-select-value]");
+const filterBtn = document.querySelectorAll("[data-filter-btn]");
+const filterItems = document.querySelectorAll("[data-filter-item]");
+
+if (select) {
+  select.addEventListener("click", function () { elementToggleFunc(this); });
+}
+
+const filterFunc = function (selectedValue) {
+  for (let i = 0; i < filterItems.length; i++) {
+    if (selectedValue === "all") {
+      filterItems[i].classList.add("active");
+    } else if (selectedValue === filterItems[i].dataset.category) {
+      filterItems[i].classList.add("active");
+    } else {
+      filterItems[i].classList.remove("active");
+    }
+  }
+}
+
+for (let i = 0; i < selectItems.length; i++) {
+  selectItems[i].addEventListener("click", function () {
+    let selectedValue = this.innerText.toLowerCase();
+    selectValue.innerText = this.innerText;
+    elementToggleFunc(select);
+    filterFunc(selectedValue);
+  });
+}
+
+if (filterBtn.length > 0) {
+  let lastClickedBtn = filterBtn[0];
+  for (let i = 0; i < filterBtn.length; i++) {
+    filterBtn[i].addEventListener("click", function () {
+      let selectedValue = this.innerText.toLowerCase();
+      selectValue.innerText = this.innerText;
+      filterFunc(selectedValue);
+      lastClickedBtn.classList.remove("active");
+      this.classList.add("active");
+      lastClickedBtn = this;
+    });
+  }
+}
+
+/**
+ * Contact Form Validation
+ */
+const form = document.querySelector("[data-form]");
+const formInputs = document.querySelectorAll("[data-form-input]");
+const formBtn = document.querySelector("[data-form-btn]");
+
+if (form) {
+  for (let i = 0; i < formInputs.length; i++) {
+    formInputs[i].addEventListener("input", function () {
+      if (form.checkValidity()) {
+        formBtn.removeAttribute("disabled");
+      } else {
+        formBtn.setAttribute("disabled", "");
+      }
+    });
+  }
+}
+
+/**
+ * Page Navigation (Perbaikan Utama)
+ */
 const navigationLinks = document.querySelectorAll("[data-nav-link]");
 const pages = document.querySelectorAll("[data-page]");
 
 for (let i = 0; i < navigationLinks.length; i++) {
   navigationLinks[i].addEventListener("click", function () {
-    const target = this.getAttribute("data-nav-link").toLowerCase().trim();
-    pages.forEach((page, index) => {
-      if (target === page.dataset.page) {
-        page.classList.add("active");
-        navigationLinks[index].classList.add("active");
-        if (target === 'blog') loadBlogPosts();
-        if (target === 'account') checkUserSession();
+
+    // Gunakan innerText dan trim() agar spasi di HTML tidak merusak pencarian
+    const clickedPage = this.innerText.toLowerCase().trim();
+
+    for (let j = 0; j < pages.length; j++) {
+      if (clickedPage === pages[j].dataset.page) {
+        pages[j].classList.add("active");
+        navigationLinks[j].classList.add("active");
+        window.scrollTo(0, 0);
       } else {
-        page.classList.remove("active");
-        navigationLinks[index].classList.remove("active");
+        pages[j].classList.remove("active");
+        navigationLinks[j].classList.remove("active");
       }
-    });
+    }
+
   });
 }
-
-// 3. BLOG & KOMENTAR
-async function loadBlogPosts() {
-  const list = document.getElementById('posts-list');
-  const { data: posts, error } = await supabaseClient.from('news_posts').select('*').order('created_at', { ascending: false });
-  
-  if (error) return console.error(error);
-
-  list.innerHTML = posts.map(post => `
-    <li class="blog-post-item" onclick="openBlogDetail(${post.id})">
-      <a href="javascript:void(0)">
-        <figure class="blog-banner-box">
-          <img src="./assets/images/b1.jpg" alt="${post.title}">
-        </figure>
-        <div class="blog-content">
-          <div class="blog-meta">
-            <p class="blog-category" style="color: #ffffff;">News</p>
-            <span class="dot"></span>
-            <time style="color: #ffffff;">${new Date(post.created_at).toLocaleDateString()}</time>
-          </div>
-          <h3 class="h3 blog-item-title" style="color: #ffffff;">${post.title}</h3>
-          <p class="blog-text" style="color: #ffffff; opacity: 0.7;">${post.content.substring(0, 100)}...</p>
-        </div>
-      </a>
-    </li>
-  `).join('');
-}
-
-window.openBlogDetail = async (id) => {
-  const { data: post } = await supabaseClient.from('news_posts').select('*').eq('id', id).single();
-  
-  document.getElementById('blog-list-container').style.display = 'none';
-  document.getElementById('blog-detail').style.display = 'block';
-  
-  document.getElementById('post-full-content').innerHTML = `
-    <h2 class="h2 article-title" style="color: #ffffff; margin-bottom: 15px;">${post.title}</h2>
-    <p style="white-space: pre-wrap; line-height: 1.6;">${post.content}</p>
-  `;
-
-  loadComments(id);
-  document.getElementById('submit-comment').onclick = () => sendComment(id);
-};
-
-document.getElementById('back-to-blog').onclick = () => {
-  document.getElementById('blog-list-container').style.display = 'block';
-  document.getElementById('blog-detail').style.display = 'none';
-};
-
-async function loadComments(postId) {
-  const { data: comments } = await supabaseClient.from('comments').select('*').eq('post_id', postId).order('created_at', { ascending: false });
-  const container = document.getElementById('comments-display-container');
-  
-  container.innerHTML = comments.map(c => `
-    <div style="background: var(--onyx); padding: 15px; border-radius: 8px; margin-bottom: 10px; border-left: 3px solid #ffffff;">
-      <p style="color: #ffffff; font-weight: 600;">${c.username} <small style="opacity:0.5;">- ${c.email}</small></p>
-      <p style="color: #ffffff; margin-top: 5px;">${c.content}</p>
-    </div>
-  `).join('');
-}
-
-async function sendComment(postId) {
-  const { data: { session } } = await supabaseClient.auth.getSession();
-  if (!session) return alert("Login dulu di menu Account!");
-  
-  const text = document.getElementById('comment-input').value;
-  if (!text.trim()) return;
-
-  const { data: profile } = await supabaseClient.from('profiles').select('username').eq('id', session.user.id).single();
-
-  await supabaseClient.from('comments').insert([{
-    post_id: postId, user_id: session.user.id, username: profile.username, email: session.user.email, content: text
-  }]);
-
-  document.getElementById('comment-input').value = '';
-  loadComments(postId);
-}
-
-// 4. AUTH (LOGIN & REGISTER)
-async function checkUserSession() {
-  const { data: { session } } = await supabaseClient.auth.getSession();
-  const authUI = document.getElementById('auth-ui');
-  const profileUI = document.getElementById('profile-ui');
-
-  if (session) {
-    const { data: profile } = await supabaseClient.from('profiles').select('*').eq('id', session.user.id).single();
-    authUI.style.display = 'none';
-    profileUI.style.display = 'block';
-    document.getElementById('display-email').innerText = session.user.email;
-    document.getElementById('display-username').innerText = profile?.username || "User";
-    document.getElementById('display-points').innerText = profile?.points || 0;
-  } else {
-    authUI.style.display = 'block';
-    profileUI.style.display = 'none';
-  }
-}
-
-document.getElementById('btn-register')?.addEventListener('click', async () => {
-  const email = document.getElementById('acc-email').value;
-  const password = document.getElementById('acc-password').value;
-  const username = prompt("Masukkan Username Anda:");
-
-  if (!username) return;
-
-  const { data, error } = await supabaseClient.auth.signUp({ email, password });
-  if (error) return alert(error.message);
-
-  if (data.user) {
-    await supabaseClient.from('profiles').insert([{ id: data.user.id, username: username, points: 0 }]);
-    alert("Berhasil Daftar! Silakan Login.");
-  }
-});
-
-document.getElementById('btn-login')?.addEventListener('click', async () => {
-  const email = document.getElementById('acc-email').value;
-  const password = document.getElementById('acc-password').value;
-  const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
-  if (error) alert(error.message); else checkUserSession();
-});
-
-document.getElementById('btn-logout')?.addEventListener('click', async () => {
-  await supabaseClient.auth.signOut();
-  location.reload();
-});
-
-// Jalankan pengecekan session saat load
-checkUserSession();
