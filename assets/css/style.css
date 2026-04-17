@@ -1,4 +1,4 @@
-/*-----------------------------------*\
+q/*-----------------------------------*\
   #style.css
 \*-----------------------------------*/
 
@@ -2463,10 +2463,11 @@ textarea.form-input::-webkit-resizer { display: none; }
   from { transform: translateX(100%); opacity: 0; }
   to { transform: translateX(0); opacity: 1; }
 }
-/* --- RESET AUTO TEXT TRANSFORM --- */
+
+  /* --- RESET TEXT TRANSFORM --- */
 * { text-transform: none !important; }
 
-/* --- WHATSAPP BUBBLE FIX --- */
+/* --- CLEAN BUBBLE CHAT --- */
 .comment-section {
   display: flex;
   flex-direction: column;
@@ -2478,6 +2479,7 @@ textarea.form-input::-webkit-resizer { display: none; }
   display: flex;
   flex-direction: column;
   gap: 12px;
+  width: 100%;
 }
 
 .comment-card {
@@ -2486,14 +2488,13 @@ textarea.form-input::-webkit-resizer { display: none; }
   padding: 10px 15px;
   border-radius: 0 15px 15px 15px;
   max-width: 85%;
-  align-self: flex-start; /* Others on left */
-  position: relative;
+  align-self: flex-start; /* Others on Left */
 }
 
-/* KHUSUS CHAT SENDIRI KE KANAN */
+/* My Chat on Right */
 .comment-card.is-me {
   align-self: flex-end;
-  background: #323232; /* Gelap elegan, bukan kuning mencolok */
+  background: #2b2b2b;
   border: 1px solid var(--orange-yellow-crayola);
   border-radius: 15px 15px 0 15px;
 }
@@ -2506,21 +2507,27 @@ textarea.form-input::-webkit-resizer { display: none; }
   display: block;
 }
 
+.comment-text {
+  color: var(--white-2);
+  font-size: 14px;
+  word-wrap: break-word;
+}
+
 .comment-date {
   font-size: 10px;
   color: var(--light-gray-70);
   display: block;
   text-align: right;
-  margin-top: 5px;
+  margin-top: 8px;
 }
 
-/* --- HIGH CONTRAST NOTIFICATION --- */
+/* --- HIGH CONTRAST NOTIF --- */
 .eec-notif {
   position: fixed;
   bottom: 30px;
   left: 50%;
   transform: translateX(-50%);
-  background: #ffffff; /* Putih bersih agar sangat terlihat */
+  background: #ffffff;
   color: #000000;
   padding: 12px 25px;
   border-radius: 50px;
@@ -2530,18 +2537,4 @@ textarea.form-input::-webkit-resizer { display: none; }
   display: flex;
   align-items: center;
   gap: 10px;
-}
-
-/* --- BLOG IMAGE STYLE --- */
-.blog-banner-box {
-  width: 100%;
-  border-radius: 15px;
-  overflow: hidden;
-  margin-bottom: 15px;
-}
-
-.blog-banner-box img {
-  width: 100%;
-  height: auto;
-  object-fit: cover;
 }
