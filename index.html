@@ -1,118 +1,59 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>EEC - eFootball Edit Community</title>
-  <link rel="shortcut icon" href="./assets/images/eec.png" type="image/x-icon">
-  <link rel="stylesheet" href="./assets/css/style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
-  <script src="https://unpkg.com/lucide@latest"></script>
-</head>
-<body>
-  <main>
-    <aside class="sidebar" data-sidebar>
-      <div class="sidebar-info">
-        <figure class="avatar-box"><img src="./assets/images/eec.png" alt="logo" width="80"></figure>
-        <div class="info-content">
-          <h1 class="name">eFoodico</h1>
-          <p class="title">Keep Improve!</p>
-        </div>
-        <button class="info_more-btn" data-sidebar-btn>
-          <span>Show Contacts</span><i data-lucide="chevron-down"></i>
-        </button>
-      </div>
-      <div class="sidebar-info_more">
-        <div class="separator"></div>
-        <ul class="contacts-list">
-          <li class="contact-item">
-            <div class="icon-box"><i data-lucide="mail"></i></div>
-            <div class="contact-info"><p class="contact-title">Email</p><a href="mailto:darzrm@gmail.com" class="contact-link">darzrm@gmail.com</a></div>
-          </li>
-        </ul>
-      </div>
-    </aside>
+<nav class="navbar">
+  <ul class="navbar-list">
+    <li class="navbar-item"><button class="navbar-link active" data-nav-link>Home</button></li>
+    <li class="navbar-item"><button class="navbar-link" data-nav-link>Events</button></li>
+    <li class="navbar-item"><button class="navbar-link" data-nav-link>News</button></li>
+    <li class="navbar-item"><button class="navbar-link" data-nav-link>Account</button></li>
+  </ul>
+</nav>
 
-    <div class="main-content">
-      <nav class="navbar">
-        <ul class="navbar-list">
-          <li class="navbar-item"><button class="navbar-link active" data-nav-link>Home</button></li>
-          <li class="navbar-item"><button class="navbar-link" data-nav-link>Events</button></li>
-          <li class="navbar-item"><button class="navbar-link" data-nav-link>News</button></li>
-          <li class="navbar-item"><button class="navbar-link" data-nav-link>Account</button></li>
-        </ul>
-      </nav>
-
-      <article class="home active" data-page="home">
-        <header><h2 class="h2 article-title">Home</h2></header>
-        <section class="about-text"><p>Welcome to EEC official website. A hub for eFootball designers.</p></section>
-      </article>
-
-      <article class="events" data-page="events">
-        <header><h2 class="h2 article-title">Events</h2></header>
-        <table class="custom-table">
-          <thead><tr><th>No</th><th>Name</th><th>Point</th></tr></thead>
-          <tbody><tr><td>1</td><td>Admin</td><td>100</td></tr></tbody>
-        </table>
-      </article>
-
-      <article class="news" data-page="news">
-        <header><h2 class="h2 article-title">News</h2></header>
-        <div id="blog-list-container">
-          <ul class="blog-posts-list">
-            <li class="blog-post-item" onclick="openBlog('hello-eec')">
-              <div class="blog-card">
-                <figure class="blog-banner-box"><img src="./assets/images/g1.jpg" alt="News"></figure>
-                <div class="blog-content">
-                  <div class="blog-meta"><p class="blog-category">Announcement</p><span class="dot"></span><time>Sept 7, 2023</time></div>
-                  <h3 class="h3 blog-item-title">Hello from EEC</h3>
-                  <p class="blog-text">Selamat datang di eFootball Edit Community. Ini adalah wadah bagi para desainer untuk berbagi karya dan teknik editing eFootball.</p>
-                </div>
-              </div>
-            </li>
-          </ul>
-        </div>
-
-        <div id="blog-detail-container" style="display: none;">
-          <button class="form-btn" onclick="closeBlog()" style="margin-bottom: 20px;"><i data-lucide="arrow-left"></i><span>Back</span></button>
-          <div id="blog-content-detail"></div>
-          <div class="separator"></div>
-          <section class="comment-section">
-            <h3 class="h3">Community Comments</h3>
-            <div id="comment-display"></div>
-            <form id="comment-form" class="form" style="display: none;">
-              <textarea id="comment-input" class="form-input" placeholder="Write your comment..." required></textarea>
-              <button class="form-btn" type="submit">Post Comment</button>
-            </form>
-          </section>
-        </div>
-      </article>
-
- 
-<article class="account" data-page="account">
-  <header>
-    <h2 class="h2 article-title">My Account</h2>
-  </header>
-  <div id="account-content" class="account-card">
-    </div>
+<article class="home active" data-page="home">
+  <header><h2 class="h2 article-title">Home</h2></header>
+  <section class="about-text">
+    <p>Selamat datang di Komunitas Design. Wadah kreatif bagi para kreator untuk berbagi inspirasi dan berkembang bersama.</p>
+  </section>
 </article>
 
+<article class="events" data-page="events">
+  <header><h2 class="h2 article-title">Leaderboard & Events</h2></header>
+  <section class="event-list">
+    <div id="member-list" class="member-container"></div>
+  </section>
+</article>
 
-<div id="global-modal" class="auth-modal-overlay">
-  <div class="auth-modal-card">
-    <h3 class="h3" id="modal-title">Title</h3>
-    <div id="modal-body" class="form-group" style="margin: 20px 0;"></div>
-    <div class="auth-modal-btns">
-      <button class="form-btn" id="modal-confirm-btn">Confirm</button>
-      <button class="form-btn secondary" onclick="closeGlobalModal()">Cancel</button>
+<article class="news" data-page="news">
+  <header><h2 class="h2 article-title">News</h2></header>
+  <section class="blog-posts">
+    <div class="blog-post-item">
+      <h3 class="h3">Update Komunitas Terbaru</h3>
+      <p>Klik untuk melihat detail dan berdiskusi.</p>
+      
+      <div class="comment-section">
+        <form class="comment-form">
+          <textarea placeholder="Tulis komentar..." class="form-input"></textarea>
+          <button type="submit" class="form-btn">Kirim</button>
+        </form>
+        
+        <div id="comments-container">
+          <div class="comment-bubble">
+            <div class="comment-header">
+              <span class="username">Admin</span>
+              <span class="email">admin@design.com</span>
+            </div>
+            <p class="comment-text">Halo! Selamat bergabung di kolom komentar.</p>
+            <span class="comment-time">17 April 2026, 16:50</span>
+          </div>
+        </div>
+      </div>
     </div>
-  </div>
-</div>
+  </section>
+</article>
 
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="./assets/js/script.js" defer></script>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <script src="./assets/js/script.js"></script>
-</body>
+<article class="account" data-page="account">
+  <header><h2 class="h2 article-title">My Account</h2></header>
+  <div id="auth-forms">
+    </div>
+  <div id="user-stats" class="stats-card">
+    </div>
+</article>
 </html>
