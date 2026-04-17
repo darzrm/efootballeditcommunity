@@ -75,51 +75,77 @@
         </section>
       </article>
 
-      <article class="event" data-page="event">
-        <header><h2 class="h2 article-title">Event</h2></header>
-        <section class="about-text">
-          <p>Information about event.</p>
-        </section>
-      </article>
+<article class="event" data-page="event">
+  <header><h2 class="h2 article-title">Leaderboard & Points</h2></header>
+  <section class="about-text">
+    <div class="leaderboard-container">
+      <table class="leaderboard-table">
+        <thead>
+          <tr>
+            <th>Rank</th>
+            <th>Username</th>
+            <th>Points</th>
+            <th>Action</th> </tr>
+        </thead>
+        <tbody id="leaderboard-body">
+          </tbody>
+      </table>
+    </div>
+  </section>
+</article>
 
-      <article class="blog" data-page="blog">
-        <header><h2 class="h2 article-title">Blog</h2></header>
-        <section class="blog-posts">
-          <ul class="blog-posts-list">
-            <li class="blog-post-item">
-              <a href="#">
-                <figure class="blog-banner-box"><img src="./assets/images/b1.jpg" loading="lazy" alt="Blog banner"></figure>
-                <div class="blog-content">
-                  <div class="blog-meta">
-                    <p class="blog-category">Announcement</p>
-                    <span class="dot"></span>
-                    <time datetime="2023-09-07">Sept 7, 2023</time>
-                  </div>
-                  <h3 class="h3 blog-item-title">Hello From EEC</h3>
-                  <p class="blog-text">Komunitas ini resmi berdiri hari ini!</p>
-                </div>
-              </a>
-            </li>
-          </ul>
-        </section>
-      </article>
+<article class="blog" data-page="blog">
+  <header><h2 class="h2 article-title">Blog Feed</h2></header>
+  
+  <div id="blog-list-container">
+    <ul class="blog-posts-list" id="posts-list">
+      </ul>
+  </div>
 
-      <article class="account" data-page="account">
-        <header><h2 class="h2 article-title">Account</h2></header>
-        <section class="contact-form">
-          <h3 class="h3 form-title">Contact Form</h3>
-          <form action="#" class="form" data-form>
-            <div class="input-wrapper">
-              <input type="text" name="fullname" class="form-input" placeholder="Full name" required data-form-input>
-              <input type="email" name="email" class="form-input" placeholder="Email address" required data-form-input>
-            </div>
-            <textarea name="message" class="form-input" placeholder="Your Message" required data-form-input></textarea>
-            <button class="form-btn" type="submit" disabled data-form-btn>
-              <ion-icon name="paper-plane"></ion-icon><span>Send Message</span>
-            </button>
-          </form>
-        </section>
-      </article>
+  <div id="blog-detail" style="display: none;">
+    <button class="form-btn" id="back-to-blog" style="width: max-content; margin-bottom: 20px;">
+      <ion-icon name="arrow-back-outline"></ion-icon> <span>Back</span>
+    </button>
+    <div id="post-full-content"></div>
+    
+    <div class="separator"></div>
+    
+    <div class="comment-section">
+      <h3 class="h3">Comments</h3>
+      <div class="yt-form">
+        <textarea id="comment-input" class="form-input" placeholder="Tulis komentar..."></textarea>
+        <button class="form-btn" id="submit-comment">Kirim</button>
+      </div>
+      <div id="wa-comments-container"></div>
+    </div>
+  </div>
+</article>
+
+<article class="account" data-page="account">
+  <header><h2 class="h2 article-title">Account</h2></header>
+  
+  <div id="auth-ui">
+    <div class="contact-form">
+      <input type="email" id="email" class="form-input" placeholder="Email Address">
+      <input type="password" id="password" class="form-input" placeholder="Password">
+      <button class="form-btn" id="login-btn">Login</button>
+      <button class="form-btn" id="regis-btn" style="margin-top:10px; background: var(--onyx);">Register</button>
+    </div>
+  </div>
+
+  <div id="profile-ui" style="display: none;">
+    <div class="about-text">
+      <div class="content-card" style="padding-top: 25px;">
+        <p><strong>Username:</strong> <span id="user-name">-</span></p>
+        <p><strong>Role:</strong> <span id="user-role">-</span></p>
+        <p><strong>Total Points:</strong> <span id="user-points">0</span></p>
+        <p><strong>Join Date:</strong> <span id="user-join">-</span></p>
+      </div>
+      <button class="form-btn" id="logout-btn" style="margin-top: 20px; background: var(--bittersweet-shimmer);">Logout</button>
+    </div>
+  </div>
+</article>
+
     </div>
   </main>
 
