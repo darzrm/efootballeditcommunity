@@ -2463,3 +2463,85 @@ textarea.form-input::-webkit-resizer { display: none; }
   from { transform: translateX(100%); opacity: 0; }
   to { transform: translateX(0); opacity: 1; }
 }
+/* --- RESET AUTO TEXT TRANSFORM --- */
+* { text-transform: none !important; }
+
+/* --- WHATSAPP BUBBLE FIX --- */
+.comment-section {
+  display: flex;
+  flex-direction: column;
+  gap: 15px;
+  padding: 20px 0;
+}
+
+#comment-display {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.comment-card {
+  background: var(--onyx);
+  border: 1px solid var(--jet);
+  padding: 10px 15px;
+  border-radius: 0 15px 15px 15px;
+  max-width: 85%;
+  align-self: flex-start; /* Others on left */
+  position: relative;
+}
+
+/* KHUSUS CHAT SENDIRI KE KANAN */
+.comment-card.is-me {
+  align-self: flex-end;
+  background: #323232; /* Gelap elegan, bukan kuning mencolok */
+  border: 1px solid var(--orange-yellow-crayola);
+  border-radius: 15px 15px 0 15px;
+}
+
+.comment-username {
+  color: var(--orange-yellow-crayola);
+  font-size: 13px;
+  font-weight: 600;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.comment-date {
+  font-size: 10px;
+  color: var(--light-gray-70);
+  display: block;
+  text-align: right;
+  margin-top: 5px;
+}
+
+/* --- HIGH CONTRAST NOTIFICATION --- */
+.eec-notif {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ffffff; /* Putih bersih agar sangat terlihat */
+  color: #000000;
+  padding: 12px 25px;
+  border-radius: 50px;
+  font-weight: 600;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+  z-index: 10000;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* --- BLOG IMAGE STYLE --- */
+.blog-banner-box {
+  width: 100%;
+  border-radius: 15px;
+  overflow: hidden;
+  margin-bottom: 15px;
+}
+
+.blog-banner-box img {
+  width: 100%;
+  height: auto;
+  object-fit: cover;
+}
