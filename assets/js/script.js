@@ -14,17 +14,14 @@ let isSignUpMode = false;
  * 2. FUNGSI UI & MODAL AUTH
  */
 
-// Buka Modal
 window.openAuthModal = function() {
     document.getElementById('custom-auth-modal').classList.add('active');
 }
 
-// Tutup Modal
 window.closeAuthModal = function() {
     document.getElementById('custom-auth-modal').classList.remove('active');
 }
 
-// Ganti Username
 window.changeUsername = function() {
     const current = localStorage.getItem('eec_username') || "User";
     const newName = prompt("Masukkan Username Baru:", current);
@@ -36,7 +33,32 @@ window.changeUsername = function() {
 }
 
 /**
- * 3. FUNGSI BACKEND (CHECK USER & KOMENTAR)
+ * 3. FUNGSI ADMIN (HAPUS KOMENTAR)
+ */
+window.deleteComment = async function(commentId) {
+    const currentUsername = localStorage.getItem('eec_username');
+    
+    if (currentUsername !== 'dariraa') {
+        alert("Akses Ditolak: Anda bukan admin.");
+        return;
+    }
+
+    if (confirm("Hapus komentar ini?")) {
+        const { error } = await _supabase
+            .from('comments')
+            .delete()
+            .eq('id', commentId);
+
+        if (!error) {
+            loadComments('hello-eec');
+        } else {
+            alert("Gagal menghapus: " + error.message);
+        }
+    }
+}
+
+/**
+ * 4. FUNGSI BACKEND (CHECK USER & KOMENTAR)
  */
 
 async function checkUser() {
@@ -50,9 +72,14 @@ async function checkUser() {
     if (session && btnAuth) {
         const savedName = localStorage.getItem('eec_username') || session.user.email.split('@')[0];
         
+        // Logika Mahkota Admin di Sidebar
+        const crown = (savedName === 'dariraa') ? `<ion-icon name="medal" style="color: #ffdb70; margin-left: 5px;"></ion-icon>` : '';
+
         userStatus.innerHTML = `
             <div style="display: flex; flex-direction: column; gap: 2px;">
-                <span style="color: var(--white-2); font-weight: 600;">${savedName}</span>
+                <span style="color: var(--white-2); font-weight: 600; display: flex; align-items: center;">
+                    ${savedName} ${crown}
+                </span>
                 <span onclick="changeUsername()" style="color: var(--orange-yellow-crayola); font-size: 10px; cursor: pointer; text-decoration: underline;">
                     Ubah Username
                 </span>
@@ -71,6 +98,9 @@ async function loadComments(blogId = 'hello-eec') {
     const display = document.getElementById('comment-display');
     if (!display) return;
 
+    const currentUsername = localStorage.getItem('eec_username');
+    const isAdmin = (currentUsername === 'dariraa');
+
     const { data, error } = await _supabase
         .from('comments')
         .select('*')
@@ -78,18 +108,31 @@ async function loadComments(blogId = 'hello-eec') {
         .order('created_at', { ascending: false });
 
     if (data) {
-        display.innerHTML = data.length ? data.map(c => `
-            <div class="comment-card">
-                <p class="comment-user">${c.username || 'Anonymous'}</p>
-                <p class="comment-date">${new Date(c.created_at).toLocaleString('id-ID')}</p>
-                <p class="blog-text">${c.content}</p>
-            </div>
-        `).join('') : '<p class="blog-text">Belum ada komentar.</p>';
+        display.innerHTML = data.length ? data.map(c => {
+            const isOwnerAdmin = (c.username === 'dariraa');
+            const crownIcon = isOwnerAdmin ? `<ion-icon name="medal" style="color: #ffdb70; margin-left: 5px; vertical-align: middle;"></ion-icon>` : '';
+            const deleteBtn = isAdmin ? `<button onclick="deleteComment('${c.id}')" style="float: right; color: #ff4b4b; background: none; border: 1px solid #ff4b4b; padding: 2px 6px; border-radius: 4px; font-size: 10px; cursor: pointer;">Hapus</button>` : '';
+
+            return `
+                <div class="comment-card" style="background: var(--bg-gradient-jet); padding: 15px; border-radius: 12px; margin-bottom: 15px; border-left: 4px solid var(--orange-yellow-crayola);">
+                    ${deleteBtn}
+                    <p style="color: var(--orange-yellow-crayola); font-weight: 600; font-size: 14px; margin-bottom: 4px;">
+                        ${c.username || 'Anonymous'} ${crownIcon}
+                    </p>
+                    <p style="color: var(--light-gray-70); font-size: 10px; margin-bottom: 8px;">
+                        ${new Date(c.created_at).toLocaleString('id-ID')}
+                    </p>
+                    <p style="color: var(--light-gray); font-size: 14px; line-height: 1.6;">
+                        ${c.content}
+                    </p>
+                </div>
+            `;
+        }).join('') : '<p class="blog-text">Belum ada komentar.</p>';
     }
 }
 
 /**
- * 4. LOGIKA BLOG
+ * 5. LOGIKA BLOG
  */
 window.openBlog = function(blogId) {
     const list = document.getElementById('blog-list-container');
@@ -106,8 +149,8 @@ window.openBlog = function(blogId) {
                     <img src="./assets/images/g1.jpg" style="width: 100%; border-radius: 16px;">
                 </figure>
                 <h3 class="h3 blog-item-title" style="margin-bottom: 10px;">Hello from EEC</h3>
-                <p class="blog-text">
-                    Selamat datang di komunitas EEC! Tempat berkumpulnya para editor eFootball untuk saling berbagi karya dan inspirasi.
+                <p class="blog-text" style="color: var(--light-gray);">
+                    Komunitas editor eFootball resmi dibuka! Mari berbagi aset dan teknik editing bersama.
                 </p>
             `;
         }
@@ -121,19 +164,19 @@ window.closeBlog = function() {
 }
 
 /**
- * 5. INIT & EVENT LISTENERS
+ * 6. INIT & EVENT LISTENERS
  */
 document.addEventListener("DOMContentLoaded", () => {
     checkUser();
 
-    // Toggle Sidebar Mobile
+    // Sidebar Toggle
     const sidebar = document.querySelector("[data-sidebar]");
     const sidebarBtn = document.querySelector("[data-sidebar-btn]");
     if (sidebarBtn) {
         sidebarBtn.addEventListener("click", () => sidebar.classList.toggle("active"));
     }
 
-    // Switch Tab Navbar
+    // Navbar Toggle
     const navigationLinks = document.querySelectorAll("[data-nav-link]");
     const pages = document.querySelectorAll("[data-page]");
     navigationLinks.forEach((link, i) => {
@@ -152,7 +195,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     });
 
-    // Handle Klik Tombol Login/Logout di Sidebar
+    // Auth Button Login/Logout
     const btnAuth = document.getElementById("btn-auth");
     if (btnAuth) {
         btnAuth.addEventListener("click", async () => {
@@ -166,7 +209,7 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Switch Mode Login/Daftar di Modal
+    // Switch Modal Login/Daftar
     const switchAuth = document.getElementById('switch-auth-mode');
     if (switchAuth) {
         switchAuth.onclick = () => {
@@ -179,7 +222,7 @@ document.addEventListener("DOMContentLoaded", () => {
         };
     }
 
-    // Submit Auth Modal
+    // Submit Modal Auth
     const modalSubmit = document.getElementById('modal-submit-btn');
     if (modalSubmit) {
         modalSubmit.onclick = async () => {
