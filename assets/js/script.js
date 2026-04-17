@@ -7,9 +7,24 @@ const SB_URL = "https://ijdzjhmtlblpsaxcseym.supabase.co";
 const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlqZHpqaG10bGJscHNheGNzZXltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzOTQ4MTcsImV4cCI6MjA5MTk3MDgxN30.46pqbTLsqVIzIA4tu0DuxovIt0pJZNAypWHWxRDV5IY";
 const _supabase = supabase.createClient(SB_URL, SB_KEY);
 
+// State untuk Modal
+let isSignUpMode = false;
+
 /**
- * 2. FUNGSI USERNAME (LOCAL STORAGE)
+ * 2. FUNGSI UI & MODAL AUTH
  */
+
+// Buka Modal
+window.openAuthModal = function() {
+    document.getElementById('custom-auth-modal').classList.add('active');
+}
+
+// Tutup Modal
+window.closeAuthModal = function() {
+    document.getElementById('custom-auth-modal').classList.remove('active');
+}
+
+// Ganti Username
 window.changeUsername = function() {
     const current = localStorage.getItem('eec_username') || "User";
     const newName = prompt("Masukkan Username Baru:", current);
@@ -21,7 +36,7 @@ window.changeUsername = function() {
 }
 
 /**
- * 3. FUNGSI BACKEND (LOGIN & KOMENTAR)
+ * 3. FUNGSI BACKEND (CHECK USER & KOMENTAR)
  */
 
 async function checkUser() {
@@ -33,10 +48,8 @@ async function checkUser() {
     const { data: { session } } = await _supabase.auth.getSession();
     
     if (session && btnAuth) {
-        // Ambil nama dari localStorage, jika kosong pakai potongan email
         const savedName = localStorage.getItem('eec_username') || session.user.email.split('@')[0];
         
-        // Update Sidebar UI
         userStatus.innerHTML = `
             <div style="display: flex; flex-direction: column; gap: 2px;">
                 <span style="color: var(--white-2); font-weight: 600;">${savedName}</span>
@@ -66,23 +79,17 @@ async function loadComments(blogId = 'hello-eec') {
 
     if (data) {
         display.innerHTML = data.length ? data.map(c => `
-            <div class="comment-card" style="background: var(--bg-gradient-jet); padding: 15px; border-radius: 12px; margin-bottom: 15px; border-left: 4px solid var(--orange-yellow-crayola);">
-                <p style="color: var(--orange-yellow-crayola); font-weight: 600; font-size: 14px; margin-bottom: 4px;">
-                    ${c.username || 'Anonymous'}
-                </p>
-                <p style="color: var(--light-gray-70); font-size: 10px; margin-bottom: 8px;">
-                    ${new Date(c.created_at).toLocaleString('id-ID')}
-                </p>
-                <p style="color: var(--light-gray); font-size: 14px; line-height: 1.6;">
-                    ${c.content}
-                </p>
+            <div class="comment-card">
+                <p class="comment-user">${c.username || 'Anonymous'}</p>
+                <p class="comment-date">${new Date(c.created_at).toLocaleString('id-ID')}</p>
+                <p class="blog-text">${c.content}</p>
             </div>
         `).join('') : '<p class="blog-text">Belum ada komentar.</p>';
     }
 }
 
 /**
- * 4. LOGIKA BLOG SWITCH
+ * 4. LOGIKA BLOG
  */
 window.openBlog = function(blogId) {
     const list = document.getElementById('blog-list-container');
@@ -99,8 +106,8 @@ window.openBlog = function(blogId) {
                     <img src="./assets/images/g1.jpg" style="width: 100%; border-radius: 16px;">
                 </figure>
                 <h3 class="h3 blog-item-title" style="margin-bottom: 10px;">Hello from EEC</h3>
-                <p class="blog-text" style="color: var(--light-gray);">
-                    Pada hari ini, komunitas EEC resmi dibentuk sebagai awal dari perjalanan kreatif untuk saling menginspirasi dan tumbuh bersama. Kami percaya bahwa setiap kreator memiliki potensi besar.
+                <p class="blog-text">
+                    Selamat datang di komunitas EEC! Tempat berkumpulnya para editor eFootball untuk saling berbagi karya dan inspirasi.
                 </p>
             `;
         }
@@ -114,51 +121,39 @@ window.closeBlog = function() {
 }
 
 /**
- * 5. INISIALISASI (DOM CONTENT LOADED)
+ * 5. INIT & EVENT LISTENERS
  */
 document.addEventListener("DOMContentLoaded", () => {
-    
-    // --- SIDEBAR TOGGLE ---
+    checkUser();
+
+    // Toggle Sidebar Mobile
     const sidebar = document.querySelector("[data-sidebar]");
     const sidebarBtn = document.querySelector("[data-sidebar-btn]");
     if (sidebarBtn) {
         sidebarBtn.addEventListener("click", () => sidebar.classList.toggle("active"));
     }
 
-    // --- NAVIGATION ---
+    // Switch Tab Navbar
     const navigationLinks = document.querySelectorAll("[data-nav-link]");
     const pages = document.querySelectorAll("[data-page]");
-    navigationLinks.forEach((link) => {
+    navigationLinks.forEach((link, i) => {
         link.addEventListener("click", function() {
-            const targetPage = this.innerHTML.toLowerCase();
-            pages.forEach((page, i) => {
-                if (targetPage === page.dataset.page) {
+            const target = this.innerHTML.toLowerCase();
+            pages.forEach((page, j) => {
+                if (target === page.dataset.page) {
                     page.classList.add("active");
-                    navigationLinks[i].classList.add("active");
+                    navigationLinks[j].classList.add("active");
                 } else {
                     page.classList.remove("active");
-                    navigationLinks[i].classList.remove("active");
+                    navigationLinks[j].classList.remove("active");
                 }
             });
             window.scrollTo(0, 0);
         });
     });
 
-    // --- SORT TABEL OTOMATIS ---
-    const tableBody = document.querySelector("#myTable tbody");
-    if (tableBody) {
-        const rows = Array.from(tableBody.querySelectorAll("tr"));
-        rows.sort((a, b) => parseInt(b.children[2].textContent || 0) - parseInt(a.children[2].textContent || 0));
-        tableBody.innerHTML = "";
-        rows.forEach((row, i) => {
-            row.children[0].textContent = i + 1;
-            tableBody.appendChild(row);
-        });
-    }
-
-    // --- AUTH LOGIC ---
-    checkUser();
-    const btnAuth = document.querySelector("#btn-auth");
+    // Handle Klik Tombol Login/Logout di Sidebar
+    const btnAuth = document.getElementById("btn-auth");
     if (btnAuth) {
         btnAuth.addEventListener("click", async () => {
             const { data: { session } } = await _supabase.auth.getSession();
@@ -166,44 +161,70 @@ document.addEventListener("DOMContentLoaded", () => {
                 await _supabase.auth.signOut();
                 location.reload();
             } else {
-                const email = prompt("Email:");
-                const pass = prompt("Password (min. 6 karakter):");
-                if (email && pass) {
-                    const { error: loginErr } = await _supabase.auth.signInWithPassword({ email, password: pass });
-                    if (loginErr) {
-                        const { error: signUpErr } = await _supabase.auth.signUp({ email, password: pass });
-                        if (signUpErr) alert(signUpErr.message);
-                        else alert("Daftar berhasil! Silakan login ulang.");
-                    }
-                    location.reload();
-                }
+                openAuthModal();
             }
         });
     }
 
-    // --- SUBMIT KOMENTAR ---
-    const commentForm = document.querySelector("#comment-form");
+    // Switch Mode Login/Daftar di Modal
+    const switchAuth = document.getElementById('switch-auth-mode');
+    if (switchAuth) {
+        switchAuth.onclick = () => {
+            isSignUpMode = !isSignUpMode;
+            document.getElementById('auth-modal-title').innerText = isSignUpMode ? "Daftar Akun" : "Selamat Datang";
+            document.getElementById('modal-username').style.display = isSignUpMode ? "block" : "none";
+            switchAuth.innerHTML = isSignUpMode ? 
+                "Sudah punya akun? <span style='color:var(--orange-yellow-crayola)'>Login</span>" : 
+                "Belum punya akun? <span style='color:var(--orange-yellow-crayola)'>Daftar</span>";
+        };
+    }
+
+    // Submit Auth Modal
+    const modalSubmit = document.getElementById('modal-submit-btn');
+    if (modalSubmit) {
+        modalSubmit.onclick = async () => {
+            const email = document.getElementById('modal-email').value;
+            const pass = document.getElementById('modal-pass').value;
+            const username = document.getElementById('modal-username').value;
+
+            if (isSignUpMode) {
+                const { error } = await _supabase.auth.signUp({ email, password: pass });
+                if (error) return alert(error.message);
+                localStorage.setItem('eec_username', username || email.split('@')[0]);
+                alert("Daftar berhasil!");
+            } else {
+                const { error } = await _supabase.auth.signInWithPassword({ email, password: pass });
+                if (error) return alert("Email/Password salah!");
+            }
+            location.reload();
+        };
+    }
+
+    // Submit Komentar
+    const commentForm = document.getElementById("comment-form");
     if (commentForm) {
         commentForm.addEventListener("submit", async (e) => {
             e.preventDefault();
             const { data: { session } } = await _supabase.auth.getSession();
-            const input = document.querySelector("#comment-input");
+            const input = document.getElementById("comment-input");
             
             if (!session) return alert("Login dulu!");
 
-            const currentUsername = localStorage.getItem('eec_username') || session.user.email.split('@')
-document.addEventListener("DOMContentLoaded", () => {
-    // Tambahkan log ini untuk memastikan JS jalan
-    console.log("Website siap, Supabase terhubung!");
+            const currentUsername = localStorage.getItem('eec_username') || session.user.email.split('@')[0];
 
-    checkUser();
-    
-    // Logika tombol login yang lebih kuat
-    const btnAuth = document.getElementById("btn-auth");
-    if (btnAuth) {
-        btnAuth.onclick = async () => {
-            console.log("Tombol Auth diklik");
-            // ... isi logika login kamu ...
-        };
+            const { error } = await _supabase.from('comments').insert([{ 
+                content: input.value, 
+                user_id: session.user.id,
+                username: currentUsername,
+                blog_id: 'hello-eec' 
+            }]);
+
+            if (!error) {
+                input.value = "";
+                loadComments('hello-eec');
+            } else {
+                alert("Gagal kirim: " + error.message);
+            }
+        });
     }
 });
