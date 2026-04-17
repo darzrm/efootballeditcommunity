@@ -8,23 +8,21 @@ const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJ
 const _supabase = supabase.createClient(SB_URL, SB_KEY);
 
 /**
- * System Notification (Fixed: Solid & Small)
+ * System Notification (Classic Mobile Style)
  */
-window.showNotif = (msg, icon = 'info') => {
-    const existingNotif = document.querySelector('.eec-notif');
-    if (existingNotif) existingNotif.remove();
+window.showNotif = (msg) => {
+    const old = document.querySelector('.eec-notif');
+    if (old) old.remove();
 
     const notif = document.createElement('div');
     notif.className = 'eec-notif';
-    notif.innerHTML = `<i data-lucide="${icon}" style="width:16px"></i> <span>${msg}</span>`;
+    notif.innerText = msg;
     document.body.appendChild(notif);
-    
-    lucide.createIcons();
     
     setTimeout(() => { 
         notif.style.opacity = '0'; 
         setTimeout(() => notif.remove(), 500); 
-    }, 3000);
+    }, 2500);
 };
 
 /**
@@ -89,7 +87,7 @@ const updateUI = async () => {
 
 window.handleLogout = async () => {
     await _supabase.auth.signOut();
-    showNotif("Logged out successfully", "log-out");
+    showNotif("Logged out");
     setTimeout(() => location.reload(), 1000);
 };
 
@@ -100,12 +98,10 @@ window.openEditProfile = () => {
         if (newName) {
             const { error } = await _supabase.auth.updateUser({ data: { display_name: newName } });
             if (!error) { 
-                showNotif("Profile Updated!", "check"); 
+                showNotif("Updated!"); 
                 closeGlobalModal();
                 updateUI();
-            } else {
-                showNotif(error.message, "alert-circle");
-            }
+            } else showNotif(error.message);
         }
     });
 };
@@ -126,9 +122,9 @@ window.openAuth = () => {
                 email, password: pass, options: { data: { display_name: user || "Member" } } 
             });
             if (!signUpError) { 
-                showNotif("Check email for confirmation!", "mail"); 
+                showNotif("Check email!"); 
                 closeGlobalModal();
-            } else showNotif(signUpError.message, "alert-circle");
+            } else showNotif(signUpError.message);
         } else location.reload();
     });
 };
@@ -160,16 +156,18 @@ const loadComments = async (blogId) => {
             <div class="comment-card ${isMe ? 'is-me' : ''}">
                 <div class="comment-header">
                     <span class="comment-username">${c.username}</span>
-                    <span class="comment-email">• ${c.email || ''}</span>
+                    <span class="comment-email">${c.email || ''}</span>
                     <span class="user-status ${isAdmin ? 'status-admin' : 'status-member'}" style="margin-left:auto">
                         ${isAdmin ? 'Admin' : 'Member'}
                     </span>
                 </div>
-                <p class="comment-text">${c.content}</p>
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:5px;">
-                    <span class="comment-date" style="font-size:9px;">${date}</span>
-                    ${(isMe || (session && session.user.email === 'darzrm@gmail.com')) ? 
-                        `<i data-lucide="trash-2" onclick="deleteComment('${c.id}')" style="width:12px; cursor:pointer; opacity:0.6"></i>` : ''}
+                <div class="comment-body">
+                    <p class="comment-text">${c.content}</p>
+                    <div class="comment-footer">
+                        <span class="comment-date">${date}</span>
+                        ${(isMe || (session && session.user.email === 'darzrm@gmail.com')) ? 
+                            `<i data-lucide="trash-2" onclick="deleteComment('${c.id}')" style="width:11px; cursor:pointer; opacity:0.5"></i>` : ''}
+                    </div>
                 </div>
             </div>
         `;
@@ -178,9 +176,9 @@ const loadComments = async (blogId) => {
 };
 
 window.deleteComment = async (id) => {
-    if (confirm("Delete this comment?")) {
+    if (confirm("Delete?")) {
         const { error } = await _supabase.from('comments').delete().eq('id', id);
-        if (!error) { showNotif("Comment deleted", "trash"); loadComments('hello-eec'); }
+        if (!error) { showNotif("Deleted"); loadComments('hello-eec'); }
     }
 };
 
@@ -191,12 +189,10 @@ document.addEventListener('DOMContentLoaded', () => {
     updateUI();
     lucide.createIcons();
 
-    // Sidebar
     const sidebarBtn = document.querySelector("[data-sidebar-btn]");
     const sidebar = document.querySelector("[data-sidebar]");
     if (sidebarBtn) sidebarBtn.addEventListener("click", () => sidebar.classList.toggle("active"));
 
-    // Nav
     document.querySelectorAll("[data-nav-link]").forEach(link => {
         link.addEventListener("click", function() {
             const page = this.innerText.toLowerCase();
@@ -206,7 +202,6 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Form
     const commentForm = document.getElementById('comment-form');
     if (commentForm) {
         commentForm.onsubmit = async (e) => {
@@ -224,7 +219,7 @@ document.addEventListener('DOMContentLoaded', () => {
             }]);
 
             if (!error) { input.value = ''; loadComments('hello-eec'); }
-            else showNotif("Failed to post", "x-circle");
+            else showNotif("Failed");
         };
     }
 });
