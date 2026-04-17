@@ -2408,3 +2408,58 @@ textarea.form-input::-webkit-resizer { display: none; }
 
 .detail-label { color: var(--light-gray-70); }
 .detail-value { color: var(--white-2); font-weight: 500; }
+/* --- PERBAIKAN LEBAR & BORDER ACCOUNT --- */
+.account-card {
+  background: var(--eerie-black-2);
+  border: 1px solid var(--jet);
+  padding: 30px; /* Diperlebar */
+  border-radius: 20px;
+  width: 100%;
+  max-width: 600px; /* Diperlebar dari sebelumnya */
+  margin: 0 auto;
+}
+
+.account-info-box {
+  background: transparent; /* Hapus background ganda */
+  border: none; /* Hapus border ganda */
+  padding: 0;
+}
+
+.account-detail-list {
+  background: var(--onyx);
+  border: 1px solid var(--jet);
+  padding: 20px;
+  border-radius: 15px;
+  margin: 25px 0;
+}
+
+/* --- TOMBOL POST KOMEN --- */
+#comment-form {
+  margin-top: 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* --- CUSTOM NOTIFICATION (Ganti Alert Jadul) --- */
+.eec-notif {
+  position: fixed;
+  top: 20px;
+  right: 20px;
+  padding: 15px 25px;
+  background: var(--bg-gradient-yellow-1);
+  color: var(--smoky-black);
+  border-radius: 12px;
+  font-weight: 600;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  animation: slideIn 0.5s ease out;
+}
+
+@keyframes slideIn {
+  from { transform: translateX(100%); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
