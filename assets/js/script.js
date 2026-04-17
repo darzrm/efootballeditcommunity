@@ -108,132 +108,123 @@ for (let i = 0; i < navigationLinks.length; i++) {
   });
 }
 
-// --- KONFIGURASI SUPABASE ---
+
+// --- INITIALIZE SUPABASE ---
 const SUPABASE_URL = 'https://pddlqipctqacvzmoydgy.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBkZGxxaXBjdHFhY3Z6bW95ZGd5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0MzEyNjksImV4cCI6MjA5MjAwNzI2OX0.MRq6Z0Njg-w6ALw5lJo7r8Ijn6xRAF-aq6PvJnmuGpw';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBkZGxxaXBjdHFhY3Z6bW95ZGd5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0MzEyNjksImV4cCI6MjA5MjAwNzI2OX0.MRq6Z0Njg-w6ALw5lJo7r8Ijn6xRAF-aq6PvJnmuGpw'; // Gunakan key lengkapmu
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// --- UTILITY: TOAST NOTIFICATION ---
+// --- TOAST NOTIFICATION (SWEETALERT2) ---
 const showToast = (icon, title) => {
-  const Toast = Swal.mixin({
+  Swal.fire({
+    icon: icon,
+    title: title,
     toast: true,
     position: 'top-end',
     showConfirmButton: false,
     timer: 3000,
     timerProgressBar: true,
     background: '#1e1e1f',
-    color: '#fff',
-    didOpen: (toast) => {
-      toast.addEventListener('mouseenter', Swal.stopTimer)
-      toast.addEventListener('mouseleave', Swal.resumeTimer)
-    }
+    color: '#fff'
   });
-  Toast.fire({ icon, title });
 };
 
-// --- CORE LOGIC ---
-const btnLogin = document.getElementById('login-btn');
-const btnRegister = document.getElementById('register-btn');
-const btnLogout = document.getElementById('logout-btn');
-const btnUpdateUser = document.getElementById('btn-change-username');
+// --- DOM ELEMENTS ---
+const authCont = document.getElementById('auth-container');
+const profCont = document.getElementById('profile-container');
+const userDiv = document.getElementById('user-info');
 
-// Login
-btnLogin?.addEventListener('click', async () => {
+// --- AUTH FUNCTIONS ---
+document.getElementById('login-btn')?.addEventListener('click', async () => {
   const email = document.getElementById('auth-email').value;
   const password = document.getElementById('auth-password').value;
   
-  const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-  
-  if (error) showToast('error', 'Login Failed: ' + error.message);
+  const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+  if (error) showToast('error', error.message);
   else {
-    showToast('success', 'Logged in successfully!');
-    setTimeout(() => checkUserStatus(), 1500);
-  }
-});
-
-// Register
-btnRegister?.addEventListener('click', async () => {
-  const email = document.getElementById('auth-email').value;
-  const password = document.getElementById('auth-password').value;
-  const username = document.getElementById('auth-username').value;
-
-  if (!username) return showToast('warning', 'Please enter a username');
-
-  const { data, error } = await supabaseClient.auth.signUp({
-    email, password,
-    options: { data: { display_name: username } }
-  });
-
-  if (error) showToast('error', 'Registration Failed: ' + error.message);
-  else showToast('success', 'Registration successful! Please login.');
-});
-
-// Change Username
-btnUpdateUser?.addEventListener('click', async () => {
-  const newName = document.getElementById('new-username').value;
-  if (!newName) return showToast('warning', 'Enter a new username first');
-
-  const { data, error } = await supabaseClient.auth.updateUser({
-    data: { display_name: newName }
-  });
-
-  if (error) showToast('error', 'Update failed: ' + error.message);
-  else {
-    showToast('success', 'Username updated!');
+    showToast('success', 'Welcome back!');
     checkUserStatus();
   }
 });
 
-// Logout
-btnLogout?.addEventListener('click', async () => {
-  await supabaseClient.auth.signOut();
-  showToast('info', 'Logged out successfully');
-  setTimeout(() => location.reload(), 1500);
+document.getElementById('register-btn')?.addEventListener('click', async () => {
+  const email = document.getElementById('auth-email').value;
+  const password = document.getElementById('auth-password').value;
+  const username = document.getElementById('auth-username').value;
+
+  if (!username) return showToast('warning', 'Please enter a username first');
+
+  const { error } = await supabaseClient.auth.signUp({
+    email, password,
+    options: { data: { display_name: username } }
+  });
+
+  if (error) showToast('error', error.message);
+  else showToast('success', 'Registration successful! You can login now.');
 });
 
-// Check User & Show Stats
+document.getElementById('logout-btn')?.addEventListener('click', async () => {
+  await supabaseClient.auth.signOut();
+  showToast('info', 'Logged out safely');
+  setTimeout(() => location.reload(), 1000);
+});
+
+document.getElementById('btn-change-username')?.addEventListener('click', async () => {
+  const newName = document.getElementById('new-username').value;
+  if (!newName) return showToast('warning', 'Username cannot be empty');
+
+  const { error } = await supabaseClient.auth.updateUser({
+    data: { display_name: newName }
+  });
+
+  if (error) showToast('error', error.message);
+  else {
+    showToast('success', 'Username updated!');
+    document.getElementById('new-username').value = "";
+    checkUserStatus();
+  }
+});
+
+// --- UI SYNC ---
 async function checkUserStatus() {
   const { data: { user } } = await supabaseClient.auth.getUser();
-  const authCont = document.getElementById('auth-container');
-  const profCont = document.getElementById('profile-container');
-  const userDiv = document.getElementById('user-info');
 
   if (user) {
     authCont.style.display = 'none';
     profCont.style.display = 'block';
 
-    // Format Date: "Day Month Year, Hour:Minute"
-    const joinedDate = new Date(user.created_at);
-    const dateString = joinedDate.toLocaleDateString('en-GB', { 
-      day: 'numeric', month: 'long', year: 'numeric', 
-      hour: '2-digit', minute: '2-digit' 
+    const joinedDate = new Date(user.created_at).toLocaleDateString('en-GB', {
+      day: 'numeric', month: 'short', year: 'numeric'
     });
 
     userDiv.innerHTML = `
       <div style="text-align: center; margin-bottom: 20px;">
-        <p style="color: var(--light-gray); font-size: 13px;">Welcome back,</p>
-        <h4 class="h4" style="color: var(--orange-yellow-crayola); font-size: 24px;">
-          ${user.user_metadata.display_name || 'Member'}
+        <h4 class="h4" style="color: var(--orange-yellow-crayola); font-size: 22px;">
+          ${user.user_metadata.display_name || 'New Member'}
         </h4>
-        <p style="font-size: 12px; color: var(--light-gray-70);">${user.email}</p>
+        <p style="font-size: 13px; color: var(--light-gray);">${user.email}</p>
       </div>
 
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-        <div style="background: var(--onyx); padding: 15px; border-radius: 12px; border: 1px solid var(--jet);">
-          <p style="font-size: 11px; color: var(--light-gray); text-transform: uppercase;">Role</p>
+        <div style="background: var(--onyx); padding: 15px; border-radius: 12px; border: 1px solid var(--jet); text-align: center;">
+          <p style="font-size: 10px; color: var(--light-gray); text-transform: uppercase;">Role</p>
           <p style="font-weight: bold; color: #fbbf24;">Member</p>
         </div>
-        <div style="background: var(--onyx); padding: 15px; border-radius: 12px; border: 1px solid var(--jet);">
-          <p style="font-size: 11px; color: var(--light-gray); text-transform: uppercase;">Points</p>
+        <div style="background: var(--onyx); padding: 15px; border-radius: 12px; border: 1px solid var(--jet); text-align: center;">
+          <p style="font-size: 10px; color: var(--light-gray); text-transform: uppercase;">Points</p>
           <p style="font-weight: bold; color: #38bdf8;">0</p>
         </div>
       </div>
 
-      <div style="margin-top: 15px; background: var(--onyx); padding: 12px; border-radius: 12px; border: 1px solid var(--jet); font-size: 12px;">
-        <p style="color: var(--light-gray);">Account Created:</p>
-        <p style="color: #fff;">${dateString}</p>
-      </div>
+      <p style="font-size: 12px; color: var(--light-gray); margin-top: 15px; text-align: center;">
+        Joined: <span style="color: #fff;">${joinedDate}</span>
+      </p>
     `;
+  } else {
+    authCont.style.display = 'block';
+    profCont.style.display = 'none';
   }
 }
+
+// Run on load
 checkUserStatus();
