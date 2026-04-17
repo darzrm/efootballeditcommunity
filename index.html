@@ -109,41 +109,40 @@
     <h2 class="h2 article-title">Account</h2>
   </header>
 
-  <section id="guest-container" style="text-align: center; padding: 40px 20px;">
+  <section id="guest-container" style="text-align: center; padding: 50px 20px;">
     <div class="contact-form">
-      <div style="font-size: 60px; margin-bottom: 20px;">👋</div>
-      <h3 class="h3 form-title">Welcome, Guest!</h3>
-      <p style="color: var(--light-gray); margin-bottom: 30px; line-height: 1.6;">
-        You are not registered on the eFoodico website.<br>Please login or create an account to access your personal dashboard.
+      <h3 class="h3 form-title">Community Access</h3>
+      <p style="color: var(--light-gray); margin-bottom: 30px; line-height: 1.8; font-size: 15px;">
+        You are not registered on the eFoodico website.<br>Please login or create an account to access your dashboard.
       </p>
-      <button class="form-btn" id="go-to-auth" style="margin: 0 auto; padding: 15px 40px;">
-        <span>Login Now</span>
+      <button class="form-btn" id="btn-go-to-auth" style="margin: 0 auto; padding: 12px 40px; justify-content: center;">
+        <span>Get Started</span>
       </button>
     </div>
   </section>
 
   <section id="auth-container" style="display: none;">
     <div class="contact-form">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;">
         <h3 class="h3 form-title" style="margin: 0;">Access Portal</h3>
-        <button id="back-to-guest" style="color: var(--light-gray); font-size: 24px;">
-          <ion-icon name="arrow-back-outline"></ion-icon>
+        <button id="btn-back-to-guest" style="color: var(--light-gray); font-size: 24px; background: none; border: none; cursor: pointer;">
+          <ion-icon name="close-outline"></ion-icon>
         </button>
       </div>
       
       <div class="form">
         <div class="input-wrapper">
-          <input type="text" id="auth-username" class="form-input" placeholder="Username (For Registration Only)">
-          <input type="email" id="auth-email" class="form-input" placeholder="Email address" required>
+          <input type="text" id="auth-username" class="form-input" placeholder="Username (For Registration)">
+          <input type="email" id="auth-email" class="form-input" placeholder="Email Address" required>
           <input type="password" id="auth-password" class="form-input" placeholder="Password" required>
         </div>
 
-        <div style="display: flex; gap: 10px; margin-top: 25px;">
+        <div style="display: flex; gap: 15px; margin-top: 25px;">
           <button class="form-btn" type="button" id="login-btn" style="flex: 1; justify-content: center;">
-            <ion-icon name="log-in-outline"></ion-icon><span>Login</span>
+            <span>Login</span>
           </button>
           <button class="form-btn" type="button" id="register-btn" style="flex: 1; justify-content: center; background: var(--onyx); border: 1px solid var(--jet);">
-            <ion-icon name="person-add-outline"></ion-icon><span>Register</span>
+            <span>Register</span>
           </button>
         </div>
       </div>
@@ -152,23 +151,22 @@
 
   <section id="profile-container" style="display: none;">
     <div class="contact-form" style="text-align: center;">
-      <h3 class="h3 form-title">Account Dashboard</h3>
+      <h3 class="h3 form-title">User Statistics</h3>
       
       <div id="user-info-display">
         </div>
 
-      <div style="border-top: 1px solid var(--jet); padding-top: 25px; margin-top: 20px;">
-        <p style="font-size: 13px; color: var(--light-gray); margin-bottom: 15px;">Update your display name:</p>
+      <div style="border-top: 1px solid var(--jet); padding-top: 30px; margin-top: 20px;">
         <div class="input-wrapper" style="margin-bottom: 15px;">
           <input type="text" id="new-username" class="form-input" placeholder="Enter new username" style="text-align: center;">
         </div>
         <button class="form-btn" id="btn-change-username" style="width: 100%; justify-content: center; background: var(--onyx); border: 1px solid var(--jet);">
-          <ion-icon name="refresh-outline"></ion-icon><span>Update Display Name</span>
+          <span>Update Display Name</span>
         </button>
       </div>
 
-      <button class="form-btn" id="logout-btn" style="color: #ff5f5f; border-color: rgba(255, 95, 95, 0.2); width: 100%; justify-content: center; margin-top: 20px;">
-        <ion-icon name="log-out-outline"></ion-icon><span>Logout Account</span>
+      <button class="form-btn" id="logout-btn" style="color: #ff5f5f; border-color: rgba(255, 95, 95, 0.2); width: 100%; justify-content: center; margin-top: 15px;">
+        <span>Logout Account</span>
       </button>
     </div>
   </section>
