@@ -11,6 +11,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
@@ -30,26 +31,6 @@
           <ion-icon name="chevron-down"></ion-icon>
         </button>
       </div>
-
-      <div class="sidebar-info_more">
-        <div class="separator"></div>
-        <ul class="contacts-list">
-          <li class="contact-item">
-            <div class="icon-box"><ion-icon name="mail-outline"></ion-icon></div>
-            <div class="contact-info">
-              <p class="contact-title">Email</p>
-              <a href="mailto:efoodico@gmail.com" class="contact-link">efoodico@gmail.com</a>
-            </div>
-          </li>
-          <li class="contact-item">
-            <div class="icon-box"><ion-icon name="location-outline"></ion-icon></div>
-            <div class="contact-info">
-              <p class="contact-title">Location</p>
-              <address>Indonesia</address>
-            </div>
-          </li>
-        </ul>
-      </div>
     </aside>
 
     <div class="main-content">
@@ -63,34 +44,32 @@
       </nav>
 
       <article class="about active" data-page="about">
-        <header><h2 class="h2 article-title">About Community</h2></header>
+        <header><h2 class="h2 article-title">About</h2></header>
         <section class="about-text">
-          <p>eFoodico adalah wadah kreatif bagi para editor dan desainer untuk belajar, berbagi karya, dan berkembang bersama melalui sistem kompetisi poin yang sehat.</p>
+          <p>Selamat datang di eFoodico Community. Tempat berbagi inspirasi desain dan editing.</p>
         </section>
       </article>
 
       <article class="event" data-page="event">
         <header><h2 class="h2 article-title">Leaderboard</h2></header>
-        <section class="about-text">
-          <div class="leaderboard-container">
-            <table class="leaderboard-table">
-              <thead>
-                <tr>
-                  <th>Rank</th>
-                  <th>Username</th>
-                  <th>Points</th>
-                  <th>Role</th>
-                </tr>
-              </thead>
-              <tbody id="leaderboard-body">
-                </tbody>
-            </table>
-          </div>
-        </section>
+        <div class="leaderboard-container">
+          <table class="leaderboard-table">
+            <thead>
+              <tr>
+                <th>Rank</th>
+                <th>Username</th>
+                <th>Points</th>
+                <th>Status</th>
+              </tr>
+            </thead>
+            <tbody id="leaderboard-body">
+              </tbody>
+          </table>
+        </div>
       </article>
 
       <article class="blog" data-page="blog">
-        <header><h2 class="h2 article-title">News Feed</h2></header>
+        <header><h2 class="h2 article-title">Community News</h2></header>
         
         <div id="blog-list-container">
           <ul class="blog-posts-list" id="posts-list">
@@ -98,13 +77,12 @@
         </div>
 
         <div id="blog-detail" style="display: none;">
-          <button class="form-btn" id="back-to-blog" style="width: max-content; margin-bottom: 20px;">
+          <button class="form-btn" id="back-to-blog" style="width: auto; margin-bottom: 20px;">
             <ion-icon name="arrow-back-outline"></ion-icon> <span>Kembali</span>
           </button>
           <div id="post-full-content"></div>
           
           <div class="separator"></div>
-          
           <div class="comment-section">
             <h3 class="h3">Comments</h3>
             <div class="yt-form">
@@ -117,13 +95,13 @@
       </article>
 
       <article class="account" data-page="account">
-        <header><h2 class="h2 article-title">My Account</h2></header>
+        <header><h2 class="h2 article-title">Account</h2></header>
         
         <div id="auth-ui">
           <section class="contact-form">
             <div class="input-wrapper">
-              <input type="email" id="email" class="form-input" placeholder="Email Address">
-              <input type="password" id="password" class="form-input" placeholder="Password">
+              <input type="email" id="email" class="form-input" placeholder="Email Address" required>
+              <input type="password" id="password" class="form-input" placeholder="Password" required>
             </div>
             <button class="form-btn" id="login-btn">Login</button>
             <p style="text-align: center; margin: 15px 0; color: var(--light-gray);">Atau</p>
@@ -132,24 +110,23 @@
         </div>
 
         <div id="profile-ui" style="display: none;">
-          <section class="about-text">
-            <div class="content-card" style="padding: 20px; background: var(--border-gradient-onyx); border-radius: 14px;">
-              <p style="margin-bottom: 10px;"><strong>Username:</strong> <span id="user-name" style="color: var(--orange-yellow-crayola)">-</span></p>
-              <p style="margin-bottom: 10px;"><strong>Status:</strong> <span id="user-role">-</span></p>
-              <p style="margin-bottom: 10px;"><strong>Poin Komunitas:</strong> <span id="user-points">0</span> pts</p>
-              <p><strong>Bergabung Sejak:</strong> <span id="user-join">-</span></p>
+          <div class="about-text">
+            <div class="content-card" style="padding: 20px; background: var(--border-gradient-onyx); border-radius: 12px;">
+              <p><strong>Username:</strong> <span id="user-name" style="color: var(--orange-yellow-crayola)">-</span></p>
+              <p><strong>Role:</strong> <span id="user-role">-</span></p>
+              <p><strong>Points:</strong> <span id="user-points">0</span> pts</p>
+              <p><strong>Member Since:</strong> <span id="user-join">-</span></p>
             </div>
-            <button class="form-btn" id="logout-btn" style="margin-top: 20px; background: var(--bittersweet-shimmer);">Logout Akun</button>
-          </section>
+            <button class="form-btn" id="logout-btn" style="margin-top: 20px; background: #e03131;">Logout</button>
+          </div>
         </div>
       </article>
 
     </div>
   </main>
 
+  <script src="./assets/js/script.js"></script>
   <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
   <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
-  <script src="./assets/js/script.js"></script>
 </body>
-
 </html>
