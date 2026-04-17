@@ -193,6 +193,27 @@
   <script src="./assets/js/script.js"></script>
   <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
   <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+<div id="custom-auth-modal" class="auth-modal-overlay">
+  <div class="auth-modal-card">
+    <h3 class="h3" id="auth-modal-title">Selamat Datang!</h3>
+    <p class="blog-text" id="auth-modal-desc">Silahkan masuk ke akun EEC kamu.</p>
+    
+    <div class="form-group">
+      <input type="email" id="modal-email" class="form-input" placeholder="Email">
+      <input type="password" id="modal-pass" class="form-input" placeholder="Password (min. 6 karakter)">
+      <input type="text" id="modal-username" class="form-input" placeholder="Username (Opsional)" style="display: none;">
+    </div>
+
+    <div class="auth-modal-btns">
+      <button class="form-btn" id="modal-submit-btn">Lanjutkan</button>
+      <button class="form-btn secondary" onclick="closeAuthModal()">Batal</button>
+    </div>
+    
+    <p class="blog-text" style="font-size: 12px; margin-top: 15px; text-align: center; cursor: pointer;" id="switch-auth-mode">
+      Belum punya akun? <span style="color: var(--orange-yellow-crayola)">Daftar sekarang</span>
+    </p>
+  </div>
+</div>
 
 </body>
 </html>
