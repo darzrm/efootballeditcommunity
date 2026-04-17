@@ -2611,3 +2611,65 @@ textarea.form-input::-webkit-resizer { display: none; }
   from { transform: translateX(100%); opacity: 0; }
   to { transform: translateX(0); opacity: 1; }
 }
+/* --- FIX NOTIFIKASI (Kecil & Solid) --- */
+.eec-notif {
+  position: fixed;
+  bottom: 85px; /* Di atas navbar mobile */
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ffffff !important; /* Putih Solid */
+  color: #000000 !important; /* Teks Hitam */
+  padding: 8px 16px !important; /* Lebih ramping */
+  border-radius: 50px;
+  font-weight: 600;
+  font-size: 13px;
+  z-index: 99999;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  opacity: 1 !important; /* Hindari transparan */
+  width: max-content;
+  min-width: 150px;
+  justify-content: center;
+  transition: opacity 0.3s ease;
+}
+
+/* --- PERBAIKAN BUBBLE CHAT --- */
+.comment-card {
+  min-width: 180px; /* Supaya tidak terlalu kecil */
+  padding: 15px !important;
+}
+
+.comment-username {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 5px;
+}
+
+.user-status {
+  font-size: 9px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  font-weight: bold;
+}
+
+.status-admin { background: #ff4d4d; color: white; }
+.status-member { background: var(--jet); color: var(--light-gray-70); }
+
+.comment-email {
+  font-size: 11px;
+  color: var(--light-gray-70);
+  display: block;
+  margin-bottom: 8px;
+  font-style: italic;
+}
+
+.comment-date {
+  font-size: 9px !important;
+  opacity: 0.8;
+  margin-top: 10px;
+}
