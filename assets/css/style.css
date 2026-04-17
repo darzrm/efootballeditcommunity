@@ -2944,3 +2944,61 @@ textarea.form-input::-webkit-resizer { display: none; }
   color: var(--light-gray-70);
   font-weight: 400;
 }
+/* NOTIFIKASI SIMPEL DI ATAS */
+.eec-notif {
+  position: fixed;
+  top: 10px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--orange-yellow-crayola);
+  color: var(--smoky-black);
+  padding: 8px 20px;
+  border-radius: 20px;
+  font-weight: 600;
+  font-size: 13px;
+  z-index: 9999;
+  transition: 0.5s ease;
+  box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+}
+
+/* IKON STATUS DI KOMENTAR */
+.user-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.user-icon.status-admin {
+  color: var(--orange-yellow-crayola);
+}
+
+.user-icon.status-member {
+  color: var(--light-gray);
+}
+
+/* BADGE ADMIN */
+.user-status {
+  font-size: 9px;
+  padding: 2px 6px;
+  border-radius: 4px;
+  margin-left: auto;
+  font-weight: bold;
+  text-transform: uppercase;
+}
+
+.status-admin {
+  background: var(--orange-yellow-crayola);
+  color: var(--smoky-black);
+}
+
+.status-member {
+  background: var(--jet);
+  color: var(--light-gray);
+}
+
+/* PERBAIKAN HEADER KOMENTAR */
+.comment-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 5px;
+}
