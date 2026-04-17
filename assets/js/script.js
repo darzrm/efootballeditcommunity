@@ -87,8 +87,8 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 // Konfigurasi Supabase
-const SB_URL = "URL_SUPABASE_KAMU";
-const SB_KEY = "ANON_KEY_KAMU";
+const SB_URL = "https://ijdzjhmtlblpsaxcseym.supabase.co";
+const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlqZHpqaG10bGJscHNheGNzZXltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzOTQ4MTcsImV4cCI6MjA5MTk3MDgxN30.46pqbTLsqVIzIA4tu0DuxovIt0pJZNAypWHWxRDV5IY";
 const _supabase = supabase.createClient(SB_URL, SB_KEY);
 
 // Elemen UI
