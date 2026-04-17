@@ -2147,3 +2147,34 @@ textarea.form-input::-webkit-resizer { display: none; }
 
 /* Modal Body spacing */
 .form-group input { margin-bottom: 10px; width: 100%; }
+/* Komentar Minimalis */
+.comment-card {
+  border-bottom: 1px solid var(--jet);
+  padding: 15px 0;
+  margin-bottom: 5px;
+  background: none;
+}
+.comment-user-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+.comment-username {
+  color: var(--orange-yellow-crayola);
+  font-weight: 600;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 5px;
+}
+.comment-email {
+  color: var(--light-gray-70);
+  font-size: 11px;
+}
+.comment-date {
+  color: var(--light-gray-70);
+  font-size: 10px;
+  margin-top: 5px;
+  display: block;
+}
+.admin-badge { color: #ffdb70; width: 16px; height: 16px; }
