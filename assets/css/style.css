@@ -3062,3 +3062,53 @@ article.account.active {
   box-shadow: 0 10px 20px rgba(0,0,0,0.3);
   transition: 0.4s ease;
 }
+
+/* Posisi Ikon & Nama Sejajar Sempurna */
+.comment-header {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 4px;
+}
+
+.comment-username {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--white-2);
+}
+
+/* Footer Chat (Email & Waktu) */
+.comment-footer {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  padding-top: 4px;
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.comment-footer span {
+  font-size: 9px;
+  color: var(--light-gray-70);
+  opacity: 0.6;
+}
+
+/* Fix Tampilan Halaman Account */
+article.account { display: none; }
+article.account.active { display: block; }
+
+/* Notifikasi Simpel di Atas */
+.eec-notif {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--onyx);
+  border: 1px solid var(--orange-yellow-crayola);
+  color: var(--white-2);
+  padding: 8px 20px;
+  border-radius: 30px;
+  font-size: 12px;
+  z-index: 9999;
+}
