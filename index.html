@@ -104,65 +104,43 @@
         </section>
       </article>
    
-      
-<article class="account" data-page="account">
-  <header>
-    <h2 class="h2 article-title">Account</h2>
-  </header>
+      <article class="account" data-page="account">
+  <header><h2 class="h2 article-title">Account</h2></header>
 
   <section class="auth-section" id="auth-container">
     <div class="contact-form">
       <h3 class="h3 form-title">Community Access</h3>
-      
       <div class="form">
         <div class="input-wrapper">
-          <input type="text" id="auth-username" class="form-input" placeholder="Username (For Registration Only)">
+          <input type="text" id="auth-username" class="form-input" placeholder="Username (For Register)">
           <input type="email" id="auth-email" class="form-input" placeholder="Email address" required>
           <input type="password" id="auth-password" class="form-input" placeholder="Password" required>
         </div>
-
-        <div class="flex-buttons" style="display: flex; gap: 10px; margin-top: 25px;">
-          <button class="form-btn" type="button" id="login-btn" style="flex: 1; justify-content: center;">
-            <ion-icon name="log-in-outline"></ion-icon><span>Login</span>
-          </button>
-          <button class="form-btn" type="button" id="register-btn" style="flex: 1; justify-content: center; background: var(--onyx); border: 1px solid var(--jet);">
-            <ion-icon name="person-add-outline"></ion-icon><span>Register</span>
-          </button>
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+          <button class="form-btn" type="button" id="login-btn" style="flex:1; justify-content: center;">Login</button>
+          <button class="form-btn" type="button" id="register-btn" style="flex:1; justify-content: center; background: var(--onyx);">Register</button>
         </div>
-
-        <p style="margin-top: 20px; text-align: center; font-size: 13px; color: var(--light-gray);">
-          Forgot password? <span id="reset-password-link" style="color: var(--orange-yellow-crayola); cursor: pointer;">Reset here</span>
-        </p>
       </div>
     </div>
   </section>
 
   <section id="profile-container" style="display: none;">
     <div class="contact-form">
-      <h3 class="h3 form-title">User Profile</h3>
+      <h3 class="h3 form-title">User Stats</h3>
+      <div id="user-info" class="about-text" style="margin-bottom: 20px;"></div>
       
-      <div id="user-info" class="about-text" style="margin-bottom: 25px;">
-        </div>
-
-      <div class="input-wrapper" style="margin-bottom: 20px; border-top: 1px solid var(--jet); padding-top: 20px;">
-        <label class="form-label" style="color: var(--light-gray); font-size: 13px; margin-bottom: 10px; display: block;">Update Display Name</label>
-        <input type="text" id="new-username" class="form-input" placeholder="New Username">
-        <button class="form-btn" id="btn-change-username" style="width: 100%; margin-top: 10px; background: var(--onyx);">
-          <ion-icon name="create-outline"></ion-icon><span>Update Name</span>
-        </button>
+      <div class="input-wrapper" style="border-top: 1px solid var(--jet); padding-top: 20px; margin-bottom: 20px;">
+        <input type="text" id="new-username" class="form-input" placeholder="Enter new username">
+        <button class="form-btn" id="btn-change-username" style="width: 100%; margin-top: 10px; background: var(--onyx);">Update Name</button>
       </div>
 
-      <div style="display: flex; flex-direction: column; gap: 10px;">
-        <button class="form-btn" id="logout-btn" style="color: #ff5f5f; border-color: rgba(255, 95, 95, 0.2); width: 100%; justify-content: center;">
-          <ion-icon name="log-out-outline"></ion-icon><span>Logout Account</span>
-        </button>
-      </div>
+      <button class="form-btn" id="logout-btn" style="color: #ff5f5f; width: 100%; justify-content: center;">Logout</button>
     </div>
   </section>
 </article>
-    </div>
-  </main>
+
  
+
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
@@ -171,9 +149,6 @@
 
   <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
   <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
-
-</body>
-</html>
 
 </body>
 </html>
