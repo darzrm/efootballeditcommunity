@@ -3002,3 +3002,63 @@ textarea.form-input::-webkit-resizer { display: none; }
   gap: 8px;
   margin-bottom: 5px;
 }
+/* Header Komentar: Ikon & Nama Sejajar */
+.comment-header {
+  display: flex;
+  align-items: center;
+  gap: 8px; /* Jarak antara ikon dan nama */
+  margin-bottom: 6px;
+}
+
+.user-status-icon {
+  width: 16px !important;
+  height: 16px !important;
+}
+
+.user-status-icon.status-admin {
+  color: var(--orange-yellow-crayola); /* Warna emas untuk admin */
+}
+
+.user-status-icon.status-member {
+  color: var(--light-gray-70); /* Warna abu untuk member */
+}
+
+.comment-username {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--white-2);
+}
+
+/* Footer Komentar: Waktu di pojok kanan bawah */
+.comment-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 5px;
+}
+
+.comment-date {
+  font-size: 9px;
+  color: var(--light-gray-70);
+  opacity: 0.6;
+}
+
+/* Memastikan halaman Account yang aktif terlihat */
+article.account.active {
+  display: block !important;
+}
+
+.eec-notif {
+  position: fixed;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--onyx);
+  border: 1px solid var(--orange-yellow-crayola);
+  color: var(--white-2);
+  padding: 10px 20px;
+  border-radius: 30px;
+  font-size: 12px;
+  z-index: 1000;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+  transition: 0.4s ease;
+}
