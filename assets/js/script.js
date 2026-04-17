@@ -111,9 +111,10 @@ for (let i = 0; i < navigationLinks.length; i++) {
 
 // --- SUPABASE CONFIG ---
 const SUPABASE_URL = 'https://pddlqipctqacvzmoydgy.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBkZGxxaXBjdHFhY3Z6bW95ZGd5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0MzEyNjksImV4cCI6MjA5MjAwNzI2OX0.MRq6Z0Njg-w6ALw5lJo7r8Ijn6xRAF-aq6PvJnmuGpw';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBkZGxxaXBjdHFhY3Z6bW95ZGd5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0MzEyNjksImV4cCI6MjA5MjAwNzI2OX0.MRq6Z0Njg-w6ALw5lJo7r8Ijn6xRAF-aq6PvJnmuGpw'; // Pastikan key benar
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
+// --- TOAST NOTIFICATION ---
 const showToast = (icon, title) => {
   Swal.fire({
     icon: icon, title: title, toast: true, position: 'top-end',
@@ -122,68 +123,107 @@ const showToast = (icon, title) => {
   });
 };
 
-// Elements
+// DOM Elements
+const guestCont = document.getElementById('guest-container');
 const authCont = document.getElementById('auth-container');
 const profCont = document.getElementById('profile-container');
 const userDiv = document.getElementById('user-info');
 
-// Login Logic
+// Navigation Logic
+document.getElementById('show-auth-btn')?.addEventListener('click', () => {
+  guestCont.style.display = 'none';
+  authCont.style.display = 'block';
+});
+
+document.getElementById('back-to-guest')?.addEventListener('click', () => {
+  authCont.style.display = 'none';
+  guestCont.style.display = 'block';
+});
+
+// Login
 document.getElementById('login-btn')?.addEventListener('click', async () => {
   const email = document.getElementById('auth-email').value;
   const password = document.getElementById('auth-password').value;
   const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
   if (error) showToast('error', error.message);
-  else { showToast('success', 'Logged in successfully!'); checkUserStatus(); }
+  else { showToast('success', 'Successfully logged in!'); checkUserStatus(); }
 });
 
-// Register Logic
+// Register
 document.getElementById('register-btn')?.addEventListener('click', async () => {
   const email = document.getElementById('auth-email').value;
   const password = document.getElementById('auth-password').value;
   const username = document.getElementById('auth-username').value;
-  if (!username) return showToast('warning', 'Username required');
-  const { error } = await supabaseClient.auth.signUp({ email, password, options: { data: { display_name: username } } });
+  if (!username) return showToast('warning', 'Please enter a username');
+  const { error } = await supabaseClient.auth.signUp({ 
+    email, password, options: { data: { display_name: username } } 
+  });
   if (error) showToast('error', error.message);
-  else showToast('success', 'Registration successful!');
+  else showToast('success', 'Account created! You can login now.');
 });
 
-// Change Username Logic
+// Change Username
 document.getElementById('btn-change-username')?.addEventListener('click', async () => {
   const newName = document.getElementById('new-username').value;
+  if (!newName) return showToast('warning', 'New username is required');
   const { error } = await supabaseClient.auth.updateUser({ data: { display_name: newName } });
   if (error) showToast('error', error.message);
-  else { showToast('success', 'Username updated!'); checkUserStatus(); }
+  else {
+    showToast('success', 'Username updated successfully!');
+    document.getElementById('new-username').value = "";
+    checkUserStatus();
+  }
 });
 
-// Logout Logic
+// Logout
 document.getElementById('logout-btn')?.addEventListener('click', async () => {
   await supabaseClient.auth.signOut();
-  showToast('info', 'Logged out');
+  showToast('info', 'Logged out from eFoodico');
   setTimeout(() => location.reload(), 1000);
 });
 
+// UI Sync & Stats
 async function checkUserStatus() {
   const { data: { user } } = await supabaseClient.auth.getUser();
+
   if (user) {
+    guestCont.style.display = 'none';
     authCont.style.display = 'none';
     profCont.style.display = 'block';
-    const joined = new Date(user.created_at).toLocaleDateString('en-GB');
+
+    const joinedDate = new Date(user.created_at).toLocaleString('en-GB', {
+      day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
+    });
+
     userDiv.innerHTML = `
-      <h4 class="h4" style="color: var(--orange-yellow-crayola)">${user.user_metadata.display_name || 'Member'}</h4>
-      <p style="font-size: 13px; margin-bottom: 15px;">${user.email}</p>
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
-        <div style="background: var(--onyx); padding: 10px; border-radius: 10px; text-align:center;">
-          <p style="font-size: 10px;">ROLE</p><b>Member</b>
+      <div style="margin-bottom: 25px;">
+        <div style="width: 80px; height: 80px; background: var(--onyx); margin: 0 auto 15px; border-radius: 50%; display: flex; align-items: center; justify-content: center; border: 2px solid var(--orange-yellow-crayola);">
+          <ion-icon name="person" style="font-size: 40px; color: var(--orange-yellow-crayola);"></ion-icon>
         </div>
-        <div style="background: var(--onyx); padding: 10px; border-radius: 10px; text-align:center;">
-          <p style="font-size: 10px;">POINTS</p><b>0</b>
+        <h4 class="h4" style="font-size: 26px; color: var(--orange-yellow-crayola);">${user.user_metadata.display_name || 'Member'}</h4>
+        <p style="font-size: 14px; color: var(--light-gray);">${user.email}</p>
+      </div>
+
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+        <div style="background: rgba(255,255,255,0.03); padding: 15px; border-radius: 15px; border: 1px solid var(--jet);">
+          <p style="font-size: 11px; color: var(--light-gray); text-transform: uppercase; letter-spacing: 1px;">Current Points</p>
+          <p style="font-size: 20px; font-weight: bold; color: #38bdf8;">0 PTS</p>
+        </div>
+        <div style="background: rgba(255,255,255,0.03); padding: 15px; border-radius: 15px; border: 1px solid var(--jet);">
+          <p style="font-size: 11px; color: var(--light-gray); text-transform: uppercase; letter-spacing: 1px;">Account Role</p>
+          <p style="font-size: 20px; font-weight: bold; color: #fbbf24;">MEMBER</p>
         </div>
       </div>
-      <p style="font-size: 12px; margin-top: 15px;">Joined: ${joined}</p>
+
+      <div style="background: var(--onyx); padding: 12px; border-radius: 10px; font-size: 12px; color: var(--light-gray);">
+        Joined Since: <span style="color: #fff; margin-left: 5px;">${joinedDate}</span>
+      </div>
     `;
   } else {
-    authCont.style.display = 'block';
+    guestCont.style.display = 'block';
+    authCont.style.display = 'none';
     profCont.style.display = 'none';
   }
 }
+
 checkUserStatus();
