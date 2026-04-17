@@ -1879,3 +1879,66 @@ textarea.form-input::-webkit-resizer { display: none; }
   .timeline-text { max-width: 700px; }
 
 }
+
+  /**
+	 * TABLE
+	 */
+
+.table-container {
+  margin-top: 20px;
+  background: var(--border-gradient-onyx);
+  padding: 1px;
+  border-radius: 16px;
+  box-shadow: var(--shadow-2);
+}
+
+.custom-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--bg-gradient-jet);
+  border-radius: 16px;
+  overflow: hidden;
+}
+
+/* header tanpa kuning */
+.custom-table thead {
+  background: var(--onyx);
+}
+
+.custom-table th {
+  color: var(--white-2);
+  font-size: var(--fs-6);
+  padding: 12px;
+  text-align: center;
+}
+
+/* isi tabel */
+.custom-table td {
+  color: var(--light-gray);
+  font-size: var(--fs-6);
+  padding: 12px;
+  text-align: center;
+  border-top: 1px solid var(--jet);
+}
+
+/* hover lebih subtle (no yellow) */
+.custom-table tbody tr:hover {
+  background: var(--eerie-black-1);
+  transition: var(--transition-1);
+}
+
+/* nomor tetep standout tapi bukan kuning */
+.custom-table td:first-child {
+  color: var(--white-2);
+  font-weight: var(--fw-500);
+}
+
+/* Tampilan Kartu Komentar */
+.comment-card {
+  background: var(--bg-gradient-jet);
+  border: 1px solid var(--jet);
+  padding: 15px;
+  border-radius: 12px;
+}
+.comment-user { color: var(--orange-yellow-crayola); font-weight: 600; font-size: 13px; }
+.comment-date { font-size: 10px; color: var(--light-gray-70); margin-bottom: 5px; }
