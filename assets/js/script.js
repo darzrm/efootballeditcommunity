@@ -113,25 +113,32 @@ const SUPABASE_URL = 'https://pddlqipctqacvzmoydgy.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBkZGxxaXBjdHFhY3Z6bW95ZGd5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0MzEyNjksImV4cCI6MjA5MjAwNzI2OX0.MRq6Z0Njg-w6ALw5lJo7r8Ijn6xRAF-aq6PvJnmuGpw';
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// Ambil elemen
+// --- LOGIKA AUTENTIKASI SUPABASE ---
 const btnLogin = document.getElementById('login-btn');
 const btnRegister = document.getElementById('register-btn');
 const btnReset = document.getElementById('reset-password-link');
+const btnLogout = document.getElementById('logout-btn');
 const inputEmail = document.getElementById('auth-email');
 const inputPass = document.getElementById('auth-password');
+const inputUser = document.getElementById('auth-username');
+
+// Munculkan input username hanya saat mau daftar (Opsional)
+inputEmail.addEventListener('focus', () => {
+  inputUser.style.display = "block";
+});
 
 // Fungsi Login
 btnLogin.addEventListener('click', async () => {
-  const email = inputEmail.value;
-  const password = inputPass.value;
-  
-  if(!email || !password) return alert("Isi email dan password!");
+  const { data, error } = await supabaseClient.auth.signInWithPassword({
+    email: inputEmail.value,
+    password: inputPass.value,
+  });
 
-  const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
-  if (error) alert("Error: " + error.message);
-  else {
-    alert("Login Berhasil!");
-    location.reload(); // Refresh untuk update status login
+  if (error) {
+    alert("Gagal Login: " + error.message);
+  } else {
+    alert("Selamat Datang!");
+    checkUserStatus();
   }
 });
 
@@ -139,43 +146,54 @@ btnLogin.addEventListener('click', async () => {
 btnRegister.addEventListener('click', async () => {
   const email = inputEmail.value;
   const password = inputPass.value;
+  const username = inputUser.value;
 
-  if(!email || !password) return alert("Isi email dan password!");
+  if (!username) return alert("Isi Username dulu untuk mendaftar!");
 
-  const { data, error } = await supabaseClient.auth.signUp({ email, password });
-  if (error) alert("Error: " + error.message);
-  else alert("Registrasi berhasil! Cek email (jika konfirmasi aktif) atau silakan login.");
+  const { data, error } = await supabaseClient.auth.signUp({
+    email,
+    password,
+    options: { data: { display_name: username } }
+  });
+
+  if (error) {
+    alert("Gagal Daftar: " + error.message);
+  } else {
+    alert("Registrasi Berhasil! Silakan Login.");
+  }
 });
 
-// Fungsi Reset Password
-btnReset.addEventListener('click', async () => {
-  const email = inputEmail.value;
-  if(!email) return alert("Masukkan email kamu terlebih dahulu di kotak input!");
-
-  const { error } = await supabaseClient.auth.resetPasswordForEmail(email);
-  if (error) alert("Error: " + error.message);
-  else alert("Link reset password telah dikirim ke email kamu!");
+// Fungsi Logout
+btnLogout?.addEventListener('click', async () => {
+  await supabaseClient.auth.signOut();
+  location.reload();
 });
 
-// Update Fungsi CheckUser agar lebih akurat
+// Cek Status Login Saat Halaman Dimuat
 async function checkUserStatus() {
   const { data: { user } } = await supabaseClient.auth.getUser();
   const authCont = document.getElementById('auth-container');
   const profCont = document.getElementById('profile-container');
   const userDiv = document.getElementById('user-info');
-document.getElementById('logout-btn')?.addEventListener('click', async () => {
-  await supabaseClient.auth.signOut();
-  alert("Keluar berhasil!");
-  location.reload();
-});
 
   if (user) {
     authCont.style.display = 'none';
     profCont.style.display = 'block';
+    
+    // Ambil data tambahan (Point/Role) dari tabel profiles nanti
     userDiv.innerHTML = `
-      <p style="color: var(--light-gray)">Halo,</p>
-      <p style="font-weight: bold; color: var(--orange-yellow-crayola); font-size: 18px;">${user.email}</p>
-      <p style="margin-top:10px; font-size: 14px;">Kamu sudah terdaftar di komunitas.</p>
+      <p style="font-size: 14px; color: var(--light-gray)">Logged in as:</p>
+      <h4 class="h4" style="color: var(--orange-yellow-crayola); margin-bottom: 10px;">${user.email}</h4>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px;">
+        <div style="background: var(--onyx); padding: 10px; border-radius: 10px; text-align: center;">
+          <p style="font-size: 12px;">Points</p>
+          <p style="font-weight: bold; color: #38bdf8;">0</p>
+        </div>
+        <div style="background: var(--onyx); padding: 10px; border-radius: 10px; text-align: center;">
+          <p style="font-size: 12px;">Role</p>
+          <p style="font-weight: bold; color: #fbbf24;">Member</p>
+        </div>
+      </div>
     `;
   }
 }
