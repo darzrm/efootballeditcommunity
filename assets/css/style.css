@@ -1880,3 +1880,43 @@ textarea.form-input::-webkit-resizer { display: none; }
   .timeline-text { max-width: 700px; }
 
 }
+/* Leaderboard Table */
+.leaderboard-container { overflow-x: auto; margin-top: 20px; }
+.leaderboard-table {
+  width: 100%;
+  border-collapse: collapse;
+  color: var(--white-2);
+  background: var(--eerie-black-1);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.leaderboard-table th, .leaderboard-table td {
+  padding: 15px;
+  text-align: left;
+  border-bottom: 1px solid var(--jet);
+}
+.leaderboard-table th { background: var(--onyx); color: var(--orange-yellow-crayola); font-size: var(--fs-7); }
+
+/* YouTube Form Style */
+.yt-form { margin-bottom: 30px; }
+.yt-form textarea {
+  border: none;
+  border-bottom: 1px solid var(--jet);
+  background: transparent;
+  border-radius: 0;
+  padding: 10px 0;
+  transition: 0.3s;
+}
+.yt-form textarea:focus { border-bottom-color: var(--orange-yellow-crayola); }
+
+/* WhatsApp Bubble Style */
+.wa-bubble {
+  background: var(--onyx);
+  padding: 12px;
+  border-radius: 15px;
+  margin-bottom: 15px;
+  border-left: 4px solid var(--orange-yellow-crayola);
+  max-width: 90%;
+}
+.wa-name { color: var(--orange-yellow-crayola); font-weight: 600; font-size: 14px; display: block; }
+.wa-time { font-size: 10px; color: var(--light-gray-70); float: right; margin-top: 5px; }
