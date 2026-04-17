@@ -2673,3 +2673,75 @@ textarea.form-input::-webkit-resizer { display: none; }
   opacity: 0.8;
   margin-top: 10px;
 }
+
+/* --- FINAL FIX: PROPORSI & WARNA --- */
+
+/* Bubble Chat Agar Memanjang di HP */
+#comment-display {
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 10px !important;
+  width: 100% !important;
+}
+
+.comment-card {
+  background: var(--onyx) !important;
+  border: 1px solid var(--jet) !important;
+  padding: 10px 15px !important;
+  border-radius: 0 15px 15px 15px;
+  /* Atur lebar agar lebih panjang ke samping di HP */
+  width: auto !important;
+  min-width: 70% !important; 
+  max-width: 90% !important;
+  align-self: flex-start;
+}
+
+/* Chat Sendiri: Fix Warna Kuning (Tidak Blank) */
+.comment-card.is-me {
+  align-self: flex-end !important;
+  background: var(--bg-gradient-yellow-1) !important; /* Pakai gradient asli */
+  border: 1px solid var(--orange-yellow-crayola) !important;
+  border-radius: 15px 15px 0 15px !important;
+  color: var(--smoky-black) !important; /* Teks hitam agar terbaca di kuning */
+}
+
+/* Nama & Email Sejajar */
+.comment-header {
+  display: flex;
+  align-items: center;
+  justify-content: flex-start;
+  gap: 8px;
+  margin-bottom: 4px;
+  flex-wrap: nowrap; /* Jangan turun ke bawah */
+}
+
+.comment-username {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--orange-yellow-crayola);
+  white-space: nowrap;
+}
+
+/* Warna nama saat chat sendiri */
+.comment-card.is-me .comment-username {
+  color: #000 !important;
+}
+
+.comment-email {
+  font-size: 10px;
+  color: var(--light-gray-70);
+  opacity: 0.7;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis; /* Jika kepanjangan akan jadi ... */
+}
+
+.comment-card.is-me .comment-email {
+  color: #333 !important;
+}
+
+.comment-text {
+  font-size: 14px;
+  line-height: 1.3;
+  word-break: break-word;
+}
