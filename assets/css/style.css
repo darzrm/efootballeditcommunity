@@ -2763,68 +2763,88 @@ textarea.form-input::-webkit-resizer { display: none; }
   transition: opacity 0.5s;
 }
 
-/* --- BUBBLE CHAT FIX (MODERN DARK) --- */
+
+/* --- NOTIFIKASI MINIMALIS (ATAS) --- */
+.eec-notif {
+  position: fixed;
+  top: 30px; /* Muncul di atas */
+  left: 50%;
+  transform: translateX(-50%);
+  background: var(--onyx) !important; /* Warna tema website */
+  color: var(--orange-yellow-crayola) !important; /* Warna aksen website */
+  border: 1px solid var(--jet);
+  padding: 8px 20px !important;
+  border-radius: 12px;
+  font-size: 13px;
+  font-weight: 500;
+  z-index: 10000;
+  box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  opacity: 1;
+  transition: all 0.4s ease;
+}
+
+/* --- BUBBLE CHAT OPTIMIZED --- */
 .comment-card {
   background: var(--onyx) !important;
   border: 1px solid var(--jet) !important;
-  padding: 8px 12px !important;
-  border-radius: 0 12px 12px 12px;
-  width: auto !important;
-  min-width: 60% !important;
+  padding: 10px 14px !important;
+  border-radius: 0 15px 15px 15px;
+  min-width: 65% !important;
   max-width: 85% !important;
   align-self: flex-start;
 }
 
-/* Chat Sendiri: Dark Gray dengan List Kuning Tipis */
+/* Chat Sendiri (Dark & Clear) */
 .comment-card.is-me {
   align-self: flex-end !important;
-  background: #252525 !important;
-  border: 1px solid rgba(255, 219, 101, 0.3) !important; /* Kuning halus */
-  border-radius: 12px 12px 0 12px !important;
+  background: #1e1e1e !important; /* Hitam pekat agar kontras */
+  border: 1px solid var(--orange-yellow-crayola) !important;
+  border-radius: 15px 15px 0 15px !important;
 }
 
+/* Header: Username & Email Sejajar */
 .comment-header {
   display: flex;
-  align-items: center;
-  gap: 6px;
-  margin-bottom: 2px;
+  align-items: baseline; /* Ini yang bikin teks sejajar bawah */
+  gap: 8px;
+  margin-bottom: 5px;
 }
 
 .comment-username {
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 600;
   color: var(--orange-yellow-crayola);
+  white-space: nowrap;
 }
 
 .comment-email {
-  font-size: 10px;
+  font-size: 10.5px;
   color: var(--light-gray-70);
-  font-style: normal !important; /* Ga miring */
+  opacity: 0.8;
+  font-style: normal;
 }
 
-.comment-body {
-  position: relative;
+/* Warna Font Chat Sendiri Agar Terlihat */
+.comment-card.is-me .comment-text {
+  color: var(--white-1) !important; /* Putih terang */
 }
 
 .comment-text {
-  font-size: 13.5px;
-  line-height: 1.25; /* Jarak antar baris kecil */
-  margin-bottom: 4px;
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--white-2);
 }
 
-/* Waktu di Pojok Kanan Bawah */
 .comment-footer {
   display: flex;
   justify-content: flex-end;
-  align-items: center;
-  gap: 5px;
+  margin-top: 4px;
 }
 
 .comment-date {
-  font-size: 9px !important;
+  font-size: 9px;
   color: var(--light-gray-70);
-  opacity: 0.6;
 }
-
-.status-admin { background: #ff4d4d; color: white; padding: 1px 4px; border-radius: 3px; font-size: 8px; }
-.status-member { border: 1px solid var(--jet); padding: 1px 4px; border-radius: 3px; font-size: 8px; color: var(--light-gray-70); }
