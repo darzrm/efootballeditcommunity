@@ -107,3 +107,74 @@ for (let i = 0; i < navigationLinks.length; i++) {
 
   });
 }
+
+// --- KONFIGURASI SUPABASE ---
+const SUPABASE_URL = 'https://URL_PROJECT_ANDA.supabase.co';
+const SUPABASE_KEY = 'KEY_ANON_ANDA';
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+// --- SELEKTOR ELEMEN ---
+const authContainer = document.getElementById('auth-container');
+const profileContainer = document.getElementById('profile-container');
+const authForm = document.getElementById('auth-form');
+const authTitle = document.getElementById('auth-title');
+const authBtn = document.getElementById('auth-btn');
+const toggleLink = document.getElementById('toggle-link');
+const toggleText = document.getElementById('toggle-text');
+const userInfo = document.getElementById('user-info');
+const logoutBtn = document.getElementById('logout-btn');
+
+let isLoginMode = true;
+
+// 1. Fungsi Cek Status Login
+async function checkUser() {
+  const { data: { user } } = await supabaseClient.auth.getUser();
+  if (user) {
+    authContainer.style.display = 'none';
+    profileContainer.style.display = 'block';
+    userInfo.innerHTML = `
+      <p>Email: <span style="color: var(--orange-yellow-crayola)">${user.email}</span></p>
+      <p>Status: <span style="color: var(--orange-yellow-crayola)">Logged In</span></p>
+    `;
+  } else {
+    authContainer.style.display = 'block';
+    profileContainer.style.display = 'none';
+  }
+}
+checkUser();
+
+// 2. Toggle Login/Register
+toggleLink.addEventListener('click', () => {
+  isLoginMode = !isLoginMode;
+  authTitle.innerText = isLoginMode ? 'Login' : 'Daftar Akun';
+  authBtn.innerHTML = isLoginMode ? '<ion-icon name="log-in-outline"></ion-icon><span>Login</span>' : '<ion-icon name="person-add-outline"></ion-icon><span>Daftar</span>';
+  toggleText.innerText = isLoginMode ? 'Belum punya akun?' : 'Sudah punya akun?';
+  toggleLink.innerText = isLoginMode ? 'Daftar di sini' : 'Login di sini';
+});
+
+// 3. Handle Submit (Login & Register)
+authForm.addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const email = document.getElementById('auth-email').value;
+  const password = document.getElementById('auth-password').value;
+
+  if (isLoginMode) {
+    const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+    if (error) alert("Gagal Login: " + error.message);
+    else {
+      alert("Berhasil Login!");
+      checkUser();
+    }
+  } else {
+    const { error } = await supabaseClient.auth.signUp({ email, password });
+    if (error) alert("Gagal Daftar: " + error.message);
+    else alert("Pendaftaran berhasil! Silakan cek email atau langsung login.");
+  }
+});
+
+// 4. Handle Logout
+logoutBtn.addEventListener('click', async () => {
+  await supabaseClient.auth.signOut();
+  alert("Berhasil Logout!");
+  checkUser();
+});
