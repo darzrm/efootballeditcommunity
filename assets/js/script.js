@@ -192,3 +192,18 @@ document.addEventListener("DOMContentLoaded", () => {
             if (!session) return alert("Login dulu!");
 
             const currentUsername = localStorage.getItem('eec_username') || session.user.email.split('@')
+document.addEventListener("DOMContentLoaded", () => {
+    // Tambahkan log ini untuk memastikan JS jalan
+    console.log("Website siap, Supabase terhubung!");
+
+    checkUser();
+    
+    // Logika tombol login yang lebih kuat
+    const btnAuth = document.getElementById("btn-auth");
+    if (btnAuth) {
+        btnAuth.onclick = async () => {
+            console.log("Tombol Auth diklik");
+            // ... isi logika login kamu ...
+        };
+    }
+});
