@@ -1,6 +1,6 @@
 'use strict';
 
-// --- KONFIGURASI SUPABASE ---
+// --- KONFIGURASI SUPABASE (PASTIKAN URL & KEY BENAR) ---
 const SB_URL = "https://ijdzjhmtlblpsaxcseym.supabase.co";
 const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlqZHpqaG10bGJscHNheGNzZXltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzOTQ4MTcsImV4cCI6MjA5MTk3MDgxN30.46pqbTLsqVIzIA4tu0DuxovIt0pJZNAypWHWxRDV5IY";
 const _supabase = supabase.createClient(SB_URL, SB_KEY);
@@ -11,12 +11,10 @@ const _supabase = supabase.createClient(SB_URL, SB_KEY);
 window.showNotif = (msg) => {
     const old = document.querySelector('.eec-notif');
     if (old) old.remove();
-
     const notif = document.createElement('div');
     notif.className = 'eec-notif';
     notif.innerHTML = `<span>${msg}</span>`;
     document.body.appendChild(notif);
-    
     setTimeout(() => { 
         notif.style.opacity = '0';
         setTimeout(() => notif.remove(), 500); 
@@ -24,7 +22,7 @@ window.showNotif = (msg) => {
 };
 
 /**
- * 2. NAVIGASI HALAMAN (FIX MY ACCOUNT)
+ * 2. NAVIGASI HALAMAN & PERBAIKAN MY ACCOUNT
  */
 document.addEventListener('DOMContentLoaded', () => {
     const navLinks = document.querySelectorAll("[data-nav-link]");
@@ -34,52 +32,115 @@ document.addEventListener('DOMContentLoaded', () => {
         link.onclick = function() {
             const target = this.innerText.toLowerCase().trim();
             
-            // Toggle Halaman Aktif
             pages.forEach(p => {
                 if(p.dataset.page === target) {
                     p.classList.add('active');
+                    p.style.display = 'block'; // Memastikan halaman muncul
                 } else {
                     p.classList.remove('active');
+                    p.style.display = 'none';
                 }
             });
 
-            // Toggle Class Active di Tombol Navigasi
             navLinks.forEach(l => l.classList.toggle('active', l === this));
             window.scrollTo(0, 0);
 
-            // Jika ke halaman account, jalankan fungsi updateUI (jika ada)
-            if(target === 'account') {
-                if (typeof updateUI === 'function') updateUI();
-            }
+            if(target === 'account') updateUI();
         };
     });
 
-    // Inisialisasi ikon Lucide pertama kali
     if (window.lucide) lucide.createIcons();
+    updateUI(); // Cek status login saat refresh
 });
 
 /**
- * 3. LOGIKA BLOG & DESKRIPSI
+ * 3. UPDATE UI ACCOUNT (SOPAN & STABIL)
+ */
+async function updateUI() {
+    const { data: { session } } = await _supabase.auth.getSession();
+    const container = document.getElementById('account-content');
+    if (!container) return;
+
+    if (!session) {
+        container.innerHTML = `
+            <div style="text-align:center; padding:40px;">
+                <p style="color:var(--light-gray); margin-bottom:20px;">Silakan masuk ke akun Anda</p>
+                <button class="form-btn" onclick="showAuthModal('login')">Sign In</button>
+            </div>`;
+        return;
+    }
+
+    const user = session.user;
+    container.innerHTML = `
+        <div class="account-info">
+            <h3 class="h3">${user.user_metadata.display_name || 'Member'}</h3>
+            <p style="color:var(--light-gray-70); font-size:13px; margin-bottom:20px;">${user.email}</p>
+            <button class="form-btn secondary" onclick="handleLogout()">Sign Out</button>
+        </div>`;
+}
+
+/**
+ * 4. LOAD KOMENTAR (IKON SEJAJAR & EMAIL DI SAMPING WAKTU)
+ */
+window.loadComments = async (blogId) => {
+    const { data: comments } = await _supabase
+        .from('comments')
+        .select('*')
+        .eq('blog_id', blogId)
+        .order('created_at', { ascending: true });
+
+    const display = document.getElementById('comment-display');
+    if (!display) return;
+    display.innerHTML = '';
+
+    comments.forEach(comment => {
+        // Deteksi Admin berdasarkan email
+        const isAdmin = comment.email === "admin@eec.com"; 
+        const iconName = isAdmin ? 'user-round-check' : 'user-round';
+        const iconColor = isAdmin ? 'var(--orange-yellow-crayola)' : 'var(--light-gray-70)';
+
+        // Format waktu
+        const timeDetail = new Date(comment.created_at).toLocaleString('id-ID', {
+            day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
+        });
+
+        const card = document.createElement('div');
+        card.className = `comment-card`;
+        
+        // EMAIL diletakkan di footer, Font & Warna sama dengan WAKTU
+        card.innerHTML = `
+            <div class="comment-header" style="display: flex; align-items: center; gap: 6px; margin-bottom: 4px;">
+                <i data-lucide="${iconName}" style="width: 16px; height: 16px; color: ${iconColor}; stroke-width: 2.5px;"></i>
+                <span class="comment-username" style="font-size: 13px; font-weight: 600; color: var(--white-2);">${comment.username}</span>
+            </div>
+            <p class="comment-text" style="font-size: 14px; color: var(--light-gray);">${comment.content}</p>
+            <div class="comment-footer" style="display: flex; justify-content: flex-end; align-items: center; gap: 8px; margin-top: 6px; border-top: 1px solid rgba(255,255,255,0.05); padding-top: 4px;">
+                <span style="font-size: 9px; color: var(--light-gray-70); opacity: 0.6;">${comment.email || ''}</span>
+                <span style="font-size: 9px; color: var(--light-gray-70); opacity: 0.6;">•</span>
+                <span style="font-size: 9px; color: var(--light-gray-70); opacity: 0.6;">${timeDetail}</span>
+            </div>
+        `;
+        display.appendChild(card);
+    });
+    
+    if (window.lucide) lucide.createIcons();
+};
+
+/**
+ * 5. FUNGSI BLOG
  */
 window.openBlog = (id) => {
-    const listContainer = document.getElementById('blog-list-container');
-    const detailContainer = document.getElementById('blog-detail-container');
+    document.getElementById('blog-list-container').style.display = 'none';
+    document.getElementById('blog-detail-container').style.display = 'block';
+    
     const contentDetail = document.getElementById('blog-content-detail');
-
-    if (listContainer) listContainer.style.display = 'none';
-    if (detailContainer) detailContainer.style.display = 'block';
-
-    // Mengembalikan deskripsi blog yang hilang
     if (contentDetail) {
         contentDetail.innerHTML = `
-            <h3 class="h3" style="margin-bottom: 10px;">Hello from EEC</h3>
-            <p class="blog-text" style="color: var(--light-gray); line-height: 1.6;">
-                Wadah bagi para desainer eFootball untuk berbagi karya, inspirasi, dan teknik editing terbaru. 
-                Mari bangun komunitas yang positif!
-            </p>
-        `;
+            <h3 class="h3">Hello from EEC</h3>
+            <p class="blog-text" style="color:var(--light-gray); margin-top:10px;">
+                Wadah bagi para desainer eFootball untuk berbagi karya, inspirasi, dan teknik editing terbaru.
+            </p>`;
     }
-    
     loadComments(id);
 };
 
@@ -89,82 +150,10 @@ window.closeBlog = () => {
 };
 
 /**
- * 4. LOAD KOMENTAR (MINIMALIS: LOGO + NAMA SEJAJAR)
+ * 6. LOGOUT
  */
-window.loadComments = async (blogId) => {
-    const { data: comments } = await _supabase
-        .from('comments')
-        .select('*')
-        .eq('blog_id', blogId)
-        .order('created_at', { ascending: true });
-
-    const { data: { session } } = await _supabase.auth.getSession();
-    const display = document.getElementById('comment-display');
-    if (!display) return;
-    
-    display.innerHTML = '';
-
-    comments.forEach(comment => {
-        const isMe = session?.user?.id === comment.user_id;
-        const isAdmin = comment.email === "admin@eec.com"; 
-        
-        // Pilih Ikon polosan sesuai request
-        const iconName = isAdmin ? 'user-round-check' : 'user-round';
-        const iconClass = isAdmin ? 'status-admin' : 'status-member';
-
-        // Format waktu detail
-        const timeDetail = new Date(comment.created_at).toLocaleString('id-ID', {
-            day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit'
-        });
-
-        const card = document.createElement('div');
-        card.className = `comment-card ${isMe ? 'is-me' : ''}`;
-        
-        card.innerHTML = `
-            <div class="comment-header" style="display: flex; align-items: center; gap: 8px;">
-                <i data-lucide="${iconName}" class="${iconClass}" style="width: 16px; height: 16px;"></i>
-                <span class="comment-username">${comment.username}</span>
-            </div>
-            <p class="comment-text">${comment.content}</p>
-            <div class="comment-footer" style="display: flex; justify-content: flex-end; margin-top: 4px;">
-                <span class="comment-date" style="font-size: 9px; opacity: 0.6;">${timeDetail}</span>
-            </div>
-        `;
-        display.appendChild(card);
-    });
-    
-    // Render ulang ikon lucide agar muncul di komentar
-    if (window.lucide) lucide.createIcons();
+window.handleLogout = async () => {
+    await _supabase.auth.signOut();
+    showNotif("Logged out successfully");
+    updateUI();
 };
-
-/**
- * 5. FORM SUBMIT KOMENTAR
- */
-document.addEventListener('submit', async (e) => {
-    if (e.target.id === 'comment-form') {
-        e.preventDefault();
-        const { data: { session } } = await _supabase.auth.getSession();
-        const input = document.getElementById('comment-input');
-        
-        if (!session) {
-            showNotif("Silakan login terlebih dahulu");
-            return;
-        }
-
-        const { error } = await _supabase.from('comments').insert([{
-            content: input.value,
-            user_id: session.user.id,
-            username: session.user.user_metadata.display_name || "Member",
-            email: session.user.email,
-            blog_id: 'hello-eec'
-        }]);
-
-        if (!error) {
-            input.value = '';
-            loadComments('hello-eec');
-            showNotif("Komentar terkirim!");
-        } else {
-            showNotif("Gagal mengirim komentar");
-        }
-    }
-});
