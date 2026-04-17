@@ -5,12 +5,13 @@
   <meta charset="UTF-8">
   <meta http-equiv="X-UA-Compatible" content="IE=edge">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>eFoodico</title>
+  <title>eFoodico - Community</title>
   <link rel="shortcut icon" href="./assets/images/eec.png" type="image/x-icon">
   <link rel="stylesheet" href="./assets/css/style.css">
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 </head>
 
 <body>
@@ -37,22 +38,16 @@
             <div class="icon-box"><ion-icon name="mail-outline"></ion-icon></div>
             <div class="contact-info">
               <p class="contact-title">Email</p>
-              <a href="mailto:darzrm@gmail.com" class="contact-link">darzrm@gmail.com</a>
+              <a href="mailto:efoodico@gmail.com" class="contact-link">efoodico@gmail.com</a>
             </div>
           </li>
           <li class="contact-item">
-            <div class="icon-box"><ion-icon name="phone-portrait-outline"></ion-icon></div>
+            <div class="icon-box"><ion-icon name="location-outline"></ion-icon></div>
             <div class="contact-info">
-              <p class="contact-title">Phone</p>
-              <a href="tel:+6283841129519" class="contact-link">(+62) 838-4112-9519</a>
+              <p class="contact-title">Location</p>
+              <address>Indonesia</address>
             </div>
           </li>
-        </ul>
-        <div class="separator"></div>
-        <ul class="social-list">
-          <li class="social-item"><a href="#" class="social-link"><ion-icon name="logo-whatsapp"></ion-icon></a></li>
-          <li class="social-item"><a href="#" class="social-link"><ion-icon name="logo-instagram"></ion-icon></a></li>
-          <li class="social-item"><a href="#" class="social-link"><ion-icon name="logo-tiktok"></ion-icon></a></li>
         </ul>
       </div>
     </aside>
@@ -60,98 +55,101 @@
     <div class="main-content">
       <nav class="navbar">
         <ul class="navbar-list">
-          <li class="navbar-item"><button class="navbar-link active" data-nav-link>Home</button></li>
-          <li class="navbar-item"><button class="navbar-link" data-nav-link>Event</button></li>
-          <li class="navbar-item"><button class="navbar-link" data-nav-link>Blog</button></li>
-          <li class="navbar-item"><button class="navbar-link" data-nav-link>Account</button></li>
+          <li class="navbar-item"><button class="navbar-link active" data-nav-link="about">Home</button></li>
+          <li class="navbar-item"><button class="navbar-link" data-nav-link="event">Events</button></li>
+          <li class="navbar-item"><button class="navbar-link" data-nav-link="blog">News</button></li>
+          <li class="navbar-item"><button class="navbar-link" data-nav-link="account">Account</button></li>
         </ul>
       </nav>
 
-      <article class="home active" data-page="home">
-        <header><h2 class="h2 article-title">Home</h2></header>
+      <article class="about active" data-page="about">
+        <header><h2 class="h2 article-title">About Community</h2></header>
         <section class="about-text">
-          <p>A community of efootball edit.</p>
-
+          <p>eFoodico adalah wadah kreatif bagi para editor dan desainer untuk belajar, berbagi karya, dan berkembang bersama melalui sistem kompetisi poin yang sehat.</p>
         </section>
       </article>
 
-<article class="event" data-page="event">
-  <header><h2 class="h2 article-title">Leaderboard & Points</h2></header>
-  <section class="about-text">
-    <div class="leaderboard-container">
-      <table class="leaderboard-table">
-        <thead>
-          <tr>
-            <th>Rank</th>
-            <th>Username</th>
-            <th>Points</th>
-            <th>Action</th> </tr>
-        </thead>
-        <tbody id="leaderboard-body">
-          </tbody>
-      </table>
-    </div>
-  </section>
-</article>
+      <article class="event" data-page="event">
+        <header><h2 class="h2 article-title">Leaderboard</h2></header>
+        <section class="about-text">
+          <div class="leaderboard-container">
+            <table class="leaderboard-table">
+              <thead>
+                <tr>
+                  <th>Rank</th>
+                  <th>Username</th>
+                  <th>Points</th>
+                  <th>Role</th>
+                </tr>
+              </thead>
+              <tbody id="leaderboard-body">
+                </tbody>
+            </table>
+          </div>
+        </section>
+      </article>
 
-<article class="blog" data-page="blog">
-  <header><h2 class="h2 article-title">Blog Feed</h2></header>
-  
-  <div id="blog-list-container">
-    <ul class="blog-posts-list" id="posts-list">
-      </ul>
-  </div>
+      <article class="blog" data-page="blog">
+        <header><h2 class="h2 article-title">News Feed</h2></header>
+        
+        <div id="blog-list-container">
+          <ul class="blog-posts-list" id="posts-list">
+            </ul>
+        </div>
 
-  <div id="blog-detail" style="display: none;">
-    <button class="form-btn" id="back-to-blog" style="width: max-content; margin-bottom: 20px;">
-      <ion-icon name="arrow-back-outline"></ion-icon> <span>Back</span>
-    </button>
-    <div id="post-full-content"></div>
-    
-    <div class="separator"></div>
-    
-    <div class="comment-section">
-      <h3 class="h3">Comments</h3>
-      <div class="yt-form">
-        <textarea id="comment-input" class="form-input" placeholder="Tulis komentar..."></textarea>
-        <button class="form-btn" id="submit-comment">Kirim</button>
-      </div>
-      <div id="wa-comments-container"></div>
-    </div>
-  </div>
-</article>
+        <div id="blog-detail" style="display: none;">
+          <button class="form-btn" id="back-to-blog" style="width: max-content; margin-bottom: 20px;">
+            <ion-icon name="arrow-back-outline"></ion-icon> <span>Kembali</span>
+          </button>
+          <div id="post-full-content"></div>
+          
+          <div class="separator"></div>
+          
+          <div class="comment-section">
+            <h3 class="h3">Comments</h3>
+            <div class="yt-form">
+              <textarea id="comment-input" class="form-input" placeholder="Tulis komentar..."></textarea>
+              <button class="form-btn" id="submit-comment">Kirim</button>
+            </div>
+            <div id="wa-comments-container"></div>
+          </div>
+        </div>
+      </article>
 
-<article class="account" data-page="account">
-  <header><h2 class="h2 article-title">Account</h2></header>
-  
-  <div id="auth-ui">
-    <div class="contact-form">
-      <input type="email" id="email" class="form-input" placeholder="Email Address">
-      <input type="password" id="password" class="form-input" placeholder="Password">
-      <button class="form-btn" id="login-btn">Login</button>
-      <button class="form-btn" id="regis-btn" style="margin-top:10px; background: var(--onyx);">Register</button>
-    </div>
-  </div>
+      <article class="account" data-page="account">
+        <header><h2 class="h2 article-title">My Account</h2></header>
+        
+        <div id="auth-ui">
+          <section class="contact-form">
+            <div class="input-wrapper">
+              <input type="email" id="email" class="form-input" placeholder="Email Address">
+              <input type="password" id="password" class="form-input" placeholder="Password">
+            </div>
+            <button class="form-btn" id="login-btn">Login</button>
+            <p style="text-align: center; margin: 15px 0; color: var(--light-gray);">Atau</p>
+            <button class="form-btn" id="regis-btn" style="background: var(--onyx);">Register</button>
+          </section>
+        </div>
 
-  <div id="profile-ui" style="display: none;">
-    <div class="about-text">
-      <div class="content-card" style="padding-top: 25px;">
-        <p><strong>Username:</strong> <span id="user-name">-</span></p>
-        <p><strong>Role:</strong> <span id="user-role">-</span></p>
-        <p><strong>Total Points:</strong> <span id="user-points">0</span></p>
-        <p><strong>Join Date:</strong> <span id="user-join">-</span></p>
-      </div>
-      <button class="form-btn" id="logout-btn" style="margin-top: 20px; background: var(--bittersweet-shimmer);">Logout</button>
-    </div>
-  </div>
-</article>
+        <div id="profile-ui" style="display: none;">
+          <section class="about-text">
+            <div class="content-card" style="padding: 20px; background: var(--border-gradient-onyx); border-radius: 14px;">
+              <p style="margin-bottom: 10px;"><strong>Username:</strong> <span id="user-name" style="color: var(--orange-yellow-crayola)">-</span></p>
+              <p style="margin-bottom: 10px;"><strong>Status:</strong> <span id="user-role">-</span></p>
+              <p style="margin-bottom: 10px;"><strong>Poin Komunitas:</strong> <span id="user-points">0</span> pts</p>
+              <p><strong>Bergabung Sejak:</strong> <span id="user-join">-</span></p>
+            </div>
+            <button class="form-btn" id="logout-btn" style="margin-top: 20px; background: var(--bittersweet-shimmer);">Logout Akun</button>
+          </section>
+        </div>
+      </article>
 
     </div>
   </main>
 
-  <script src="./assets/js/script.js"></script>
   <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
   <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+  <script src="./assets/js/script.js"></script>
 </body>
 
 </html>
