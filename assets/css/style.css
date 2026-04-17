@@ -2044,3 +2044,49 @@ textarea.form-input::-webkit-resizer { display: none; }
   transition: 0.3s ease;
 }
 .blog-card:hover { transform: translateY(-5px); border-color: var(--orange-yellow-crayola); }
+/* Merapikan Halaman Account */
+.account-card {
+  background: var(--bg-gradient-jet);
+  border: 1px solid var(--jet);
+  padding: 40px 20px;
+  border-radius: 20px;
+  display: flex; /* Tambahkan ini */
+  flex-direction: column; /* Tambahkan ini */
+  align-items: center; /* Mengetengahkan logo dan teks */
+  text-align: center;
+}
+
+.profile-icon {
+  font-size: 80px; /* Ukuran logo lebih besar */
+  color: var(--orange-yellow-crayola);
+  margin-bottom: 15px;
+}
+
+/* Komentar Minimalis */
+.comment-card {
+  background: none; /* Hilangkan background kotak */
+  border-bottom: 1px solid var(--jet); /* Hanya garis bawah */
+  padding: 12px 0;
+  margin-bottom: 0;
+  border-left: none; /* Hilangkan garis kuning samping */
+}
+
+.comment-user {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--orange-yellow-crayola);
+}
+
+.comment-text {
+  color: var(--light-gray);
+  font-size: 14px;
+  margin-top: 4px;
+}
+
+.admin-badge {
+  color: #ffdb70;
+  font-size: 16px;
+}
