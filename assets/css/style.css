@@ -2106,3 +2106,44 @@ textarea.form-input::-webkit-resizer { display: none; }
   justify-content: center;
   text-align: center;
 }
+/* Comment UI Improvement */
+.comment-card {
+  background: var(--onyx);
+  border: 1px solid var(--jet);
+  padding: 15px;
+  border-radius: 12px;
+  margin-bottom: 15px;
+  position: relative;
+}
+.comment-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 8px;
+}
+.comment-info { display: flex; flex-direction: column; gap: 2px; }
+.comment-user { 
+  color: var(--orange-yellow-crayola); 
+  font-weight: 600; 
+  font-size: 14px; 
+  display: flex; 
+  align-items: center; 
+  gap: 5px; 
+}
+.comment-email { color: var(--light-gray-70); font-size: 11px; }
+.comment-date { color: var(--light-gray-70); font-size: 10px; margin-top: 5px; display: block; }
+.comment-text { color: var(--light-gray); font-size: 14px; line-height: 1.5; }
+
+.btn-delete {
+  color: #ff4b4b;
+  background: #ff4b4b15;
+  border: none;
+  padding: 5px;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+.btn-delete:hover { background: #ff4b4b; color: white; }
+
+/* Modal Body spacing */
+.form-group input { margin-bottom: 10px; width: 100%; }
