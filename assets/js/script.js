@@ -190,5 +190,76 @@ async function checkUserStatus() {
   }
 }
 
+/**
+ * ACCOUNT SYSTEM LOGIC
+ */
+window.addEventListener('click', function(event) {
+  const gCont = document.getElementById('guest-container');
+  const aCont = document.getElementById('auth-container');
+
+  // Trigger Get Started
+  if (event.target.closest('#btn-start-auth')) {
+    if (gCont) gCont.style.setProperty('display', 'none', 'important');
+    if (aCont) aCont.style.setProperty('display', 'block', 'important');
+  }
+
+  // Trigger Close/Cancel
+  if (event.target.closest('#btn-cancel-auth')) {
+    if (aCont) aCont.style.setProperty('display', 'none', 'important');
+    if (gCont) gCont.style.setProperty('display', 'block', 'important');
+  }
+});
+
+// Sync Profile Rata Tengah & English
+async function updateAccountUI() {
+  const { data: { user } } = await supabaseClient.auth.getUser();
+  const guest = document.getElementById('guest-container');
+  const auth = document.getElementById('auth-container');
+  const profile = document.getElementById('profile-container');
+  const display = document.getElementById('user-info-display');
+
+  if (user) {
+    if (guest) guest.style.display = 'none';
+    if (auth) auth.style.display = 'none';
+    if (profile) profile.style.display = 'block';
+
+    const date = new Date(user.created_at).toLocaleDateString('en-US', {
+      day: 'numeric', month: 'long', year: 'numeric'
+    });
+
+    display.innerHTML = `
+      <div style="margin-bottom: 25px;">
+        <h4 class="h4" style="font-size: 28px; color: var(--orange-yellow-crayola);">${user.user_metadata.display_name || 'User'}</h4>
+        <p style="font-size: 14px; color: var(--light-gray);">${user.email}</p>
+      </div>
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+        <div style="background: var(--onyx); padding: 20px; border-radius: 12px; border: 1px solid var(--jet);">
+          <p style="font-size: 10px; color: var(--light-gray); text-transform: uppercase;">Points</p>
+          <p style="font-size: 20px; font-weight: 600; color: #38bdf8;">0</p>
+        </div>
+        <div style="background: var(--onyx); padding: 20px; border-radius: 12px; border: 1px solid var(--jet);">
+          <p style="font-size: 10px; color: var(--light-gray); text-transform: uppercase;">Role</p>
+          <p style="font-size: 20px; font-weight: 600; color: #fbbf24;">Member</p>
+        </div>
+      </div>
+
+      <p style="font-size: 12px; color: var(--light-gray);">Joined: <span style="color: #fff;">${date}</span></p>
+    `;
+  } else {
+    if (guest) guest.style.display = 'block';
+    if (profile) profile.style.display = 'none';
+  }
+}
+
+// Jalankan saat load
+updateAccountUI();
+
+// Logout Listener
+document.getElementById('logout-btn')?.addEventListener('click', async () => {
+  await supabaseClient.auth.signOut();
+  window.location.reload();
+});
+
 // Panggil fungsi status saat halaman dimuat
 checkUserStatus();
