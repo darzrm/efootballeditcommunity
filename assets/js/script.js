@@ -163,6 +163,11 @@ async function checkUserStatus() {
   const authCont = document.getElementById('auth-container');
   const profCont = document.getElementById('profile-container');
   const userDiv = document.getElementById('user-info');
+document.getElementById('logout-btn')?.addEventListener('click', async () => {
+  await supabaseClient.auth.signOut();
+  alert("Keluar berhasil!");
+  location.reload();
+});
 
   if (user) {
     authCont.style.display = 'none';
