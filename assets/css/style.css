@@ -1957,3 +1957,18 @@ textarea.form-input::-webkit-resizer { display: none; }
   border-radius: 8px;
   margin-bottom: 10px;
 }
+.comment-user {
+  color: var(--orange-yellow-crayola);
+  font-weight: 600;
+  font-size: 14px;
+  text-transform: capitalize; /* Biar huruf depan otomatis gede */
+  margin-bottom: 2px;
+}
+
+.comment-card {
+  border-left: 3px solid var(--orange-yellow-crayola); /* Kasih aksen garis di pinggir */
+  background: var(--bg-gradient-jet);
+  padding: 15px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
