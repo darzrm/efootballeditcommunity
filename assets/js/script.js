@@ -1,11 +1,14 @@
 'use strict';
 
+/**
+ * Konfigurasi Supabase
+ */
 const SB_URL = "https://ijdzjhmtlblpsaxcseym.supabase.co";
 const SB_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImlqZHpqaG10bGJscHNheGNzZXltIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYzOTQ4MTcsImV4cCI6MjA5MTk3MDgxN30.46pqbTLsqVIzIA4tu0DuxovIt0pJZNAypWHWxRDV5IY";
 const _supabase = supabase.createClient(SB_URL, SB_KEY);
 
 /**
- * System Notification
+ * System Notification (Fixed: Solid & Small)
  */
 window.showNotif = (msg, icon = 'info') => {
     const existingNotif = document.querySelector('.eec-notif');
@@ -13,7 +16,7 @@ window.showNotif = (msg, icon = 'info') => {
 
     const notif = document.createElement('div');
     notif.className = 'eec-notif';
-    notif.innerHTML = `<i data-lucide="${icon}"></i> <span>${msg}</span>`;
+    notif.innerHTML = `<i data-lucide="${icon}" style="width:16px"></i> <span>${msg}</span>`;
     document.body.appendChild(notif);
     
     lucide.createIcons();
@@ -92,9 +95,7 @@ window.handleLogout = async () => {
 
 window.openEditProfile = () => {
     showModal("Edit Profile", `
-        <div class="form-group">
-            <input type="text" id="f-new-name" class="form-input" placeholder="New Username">
-        </div>`, async () => {
+        <input type="text" id="f-new-name" class="form-input" placeholder="New Username">`, async () => {
         const newName = document.getElementById('f-new-name').value;
         if (newName) {
             const { error } = await _supabase.auth.updateUser({ data: { display_name: newName } });
@@ -111,11 +112,9 @@ window.openEditProfile = () => {
 
 window.openAuth = () => {
     const html = `
-        <div class="form-group">
-            <input type="email" id="f-email" class="form-input" placeholder="Email">
-            <input type="password" id="f-pass" class="form-input" placeholder="Password">
-            <input type="text" id="f-user" class="form-input" placeholder="Username (Sign Up Only)">
-        </div>`;
+        <input type="email" id="f-email" class="form-input" placeholder="Email">
+        <input type="password" id="f-pass" class="form-input" placeholder="Password">
+        <input type="text" id="f-user" class="form-input" placeholder="Username (Sign Up Only)">`;
     showModal("Account Access", html, async () => {
         const email = document.getElementById('f-email').value;
         const pass = document.getElementById('f-pass').value;
@@ -124,19 +123,13 @@ window.openAuth = () => {
         const { error: signInError } = await _supabase.auth.signInWithPassword({ email, password: pass });
         if (signInError) {
             const { error: signUpError } = await _supabase.auth.signUp({ 
-                email, 
-                password: pass, 
-                options: { data: { display_name: user || "Member" } } 
+                email, password: pass, options: { data: { display_name: user || "Member" } } 
             });
             if (!signUpError) { 
                 showNotif("Check email for confirmation!", "mail"); 
                 closeGlobalModal();
-            } else {
-                showNotif(signUpError.message, "alert-circle");
-            }
-        } else { 
-            location.reload(); 
-        }
+            } else showNotif(signUpError.message, "alert-circle");
+        } else location.reload();
     });
 };
 
@@ -152,69 +145,58 @@ const loadComments = async (blogId) => {
     if (form) form.style.display = session ? 'flex' : 'none';
 
     const { data: comments, error } = await _supabase.from('comments')
-        .select('*')
-        .eq('blog_id', blogId)
-        .order('created_at', { ascending: true });
+        .select('*').eq('blog_id', blogId).order('created_at', { ascending: true });
 
     if (error) return;
 
     display.innerHTML = comments.map(c => {
         const isMe = session && session.user.id === c.user_id;
         const isAdmin = c.email === 'darzrm@gmail.com';
-        
-        // Format: 17 Apr 2026, 15:30
         const date = new Date(c.created_at).toLocaleString('en-GB', {
-            day: '2-digit', month: 'short', year: 'numeric',
-            hour: '2-digit', minute: '2-digit'
+            day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
         });
 
         return `
             <div class="comment-card ${isMe ? 'is-me' : ''}">
-                <div class="comment-username">
-                    <span style="font-weight:600;">${c.username}</span>
-                    <span class="user-status ${isAdmin ? 'status-admin' : 'status-member'}">
+                <div class="comment-header">
+                    <span class="comment-username">${c.username}</span>
+                    <span class="comment-email">• ${c.email || ''}</span>
+                    <span class="user-status ${isAdmin ? 'status-admin' : 'status-member'}" style="margin-left:auto">
                         ${isAdmin ? 'Admin' : 'Member'}
                     </span>
                 </div>
-                <span class="comment-email">${c.email || ''}</span>
                 <p class="comment-text">${c.content}</p>
-                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:8px;">
-                    <span class="comment-date">${date}</span>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:5px;">
+                    <span class="comment-date" style="font-size:9px;">${date}</span>
                     ${(isMe || (session && session.user.email === 'darzrm@gmail.com')) ? 
-                        `<i data-lucide="trash-2" onclick="deleteComment('${c.id}')" style="width:14px; color:#ff4b4b; cursor:pointer;"></i>` : ''}
+                        `<i data-lucide="trash-2" onclick="deleteComment('${c.id}')" style="width:12px; cursor:pointer; opacity:0.6"></i>` : ''}
                 </div>
             </div>
         `;
     }).join('');
-    
     lucide.createIcons();
 };
 
 window.deleteComment = async (id) => {
     if (confirm("Delete this comment?")) {
         const { error } = await _supabase.from('comments').delete().eq('id', id);
-        if (!error) {
-            showNotif("Comment deleted", "trash");
-            loadComments('hello-eec');
-        }
+        if (!error) { showNotif("Comment deleted", "trash"); loadComments('hello-eec'); }
     }
 };
 
 /**
- * Initialization
+ * Main Initialization
  */
 document.addEventListener('DOMContentLoaded', () => {
     updateUI();
     lucide.createIcons();
 
-    // Sidebar Toggle
+    // Sidebar
     const sidebarBtn = document.querySelector("[data-sidebar-btn]");
     const sidebar = document.querySelector("[data-sidebar]");
-    if (sidebarBtn) {
-        sidebarBtn.addEventListener("click", () => sidebar.classList.toggle("active"));
-    }
+    if (sidebarBtn) sidebarBtn.addEventListener("click", () => sidebar.classList.toggle("active"));
 
-    // Navigation
+    // Nav
     document.querySelectorAll("[data-nav-link]").forEach(link => {
         link.addEventListener("click", function() {
             const page = this.innerText.toLowerCase();
@@ -224,14 +206,14 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     });
 
-    // Form Submit
+    // Form
     const commentForm = document.getElementById('comment-form');
     if (commentForm) {
         commentForm.onsubmit = async (e) => {
             e.preventDefault();
             const { data: { session } } = await _supabase.auth.getSession();
             const input = document.getElementById('comment-input');
-            if (!session) return;
+            if (!session || !input.value.trim()) return;
 
             const { error } = await _supabase.from('comments').insert([{
                 content: input.value,
@@ -241,12 +223,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 blog_id: 'hello-eec'
             }]);
 
-            if (!error) {
-                input.value = '';
-                loadComments('hello-eec');
-            } else {
-                showNotif("Failed to post", "x-circle");
-            }
+            if (!error) { input.value = ''; loadComments('hello-eec'); }
+            else showNotif("Failed to post", "x-circle");
         };
     }
 });
@@ -254,9 +232,7 @@ document.addEventListener('DOMContentLoaded', () => {
 window.openBlog = (id) => {
     document.getElementById('blog-list-container').style.display = 'none';
     document.getElementById('blog-detail-container').style.display = 'block';
-    document.getElementById('blog-content-detail').innerHTML = `
-        <h3 class="h3">Hello from EEC</h3>
-        <p class="blog-text">Wadah bagi para desainer eFootball untuk berbagi karya.</p>`;
+    document.getElementById('blog-content-detail').innerHTML = `<h3 class="h3">Hello from EEC</h3><p class="blog-text">Wadah bagi para desainer eFootball untuk berbagi karya.</p>`;
     loadComments(id);
 };
 
