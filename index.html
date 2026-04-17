@@ -23,13 +23,9 @@
           <img src="./assets/images/eec.png" alt="eFoodico" width="80">
         </figure>
         <div class="info-content">
-          <h1 class="name" title="eFoodico">eFoodico</h1>
-          <p class="title">Keep Improving!</p>
+          <h1 class="name" style="color: #ffffff;">eFoodico</h1>
+          <p class="title" style="color: #ffffff; opacity: 0.8;">Keep Improving!</p>
         </div>
-        <button class="info_more-btn" data-sidebar-btn>
-          <span>Show Contacts</span>
-          <ion-icon name="chevron-down"></ion-icon>
-        </button>
       </div>
     </aside>
 
@@ -44,89 +40,63 @@
       </nav>
 
       <article class="about active" data-page="about">
-        <header><h2 class="h2 article-title">About</h2></header>
+        <header><h2 class="h2 article-title" style="color: #ffffff;">About</h2></header>
         <section class="about-text">
-          <p>Selamat datang di eFoodico Community. Tempat berbagi inspirasi desain dan editing.</p>
+          <p style="color: #ffffff;">Selamat datang di eFoodico Community.</p>
         </section>
       </article>
 
       <article class="event" data-page="event">
-        <header><h2 class="h2 article-title">Leaderboard</h2></header>
+        <header><h2 class="h2 article-title" style="color: #ffffff;">Leaderboard</h2></header>
         <div class="leaderboard-container">
           <table class="leaderboard-table">
             <thead>
-              <tr>
+              <tr style="color: #ffffff;">
                 <th>Rank</th>
                 <th>Username</th>
                 <th>Points</th>
                 <th>Status</th>
               </tr>
             </thead>
-            <tbody id="leaderboard-body">
-              </tbody>
+            <tbody id="leaderboard-body" style="color: #ffffff;"></tbody>
           </table>
         </div>
       </article>
 
       <article class="blog" data-page="blog">
-        <header><h2 class="h2 article-title">Community News</h2></header>
-        
+        <header><h2 class="h2 article-title" style="color: #ffffff;">News</h2></header>
         <div id="blog-list-container">
           <ul class="blog-posts-list" id="posts-list">
             </ul>
         </div>
-
         <div id="blog-detail" style="display: none;">
-          <button class="form-btn" id="back-to-blog" style="width: auto; margin-bottom: 20px;">
-            <ion-icon name="arrow-back-outline"></ion-icon> <span>Kembali</span>
-          </button>
-          <div id="post-full-content"></div>
-          
+          <button class="form-btn" id="back-to-blog" style="color: #ffffff;">Kembali</button>
+          <div id="post-full-content" style="color: #ffffff; margin-top: 20px;"></div>
           <div class="separator"></div>
-          <div class="comment-section">
-            <h3 class="h3">Comments</h3>
-            <div class="yt-form">
-              <textarea id="comment-input" class="form-input" placeholder="Tulis komentar..."></textarea>
-              <button class="form-btn" id="submit-comment">Kirim</button>
-            </div>
-            <div id="wa-comments-container"></div>
-          </div>
+          <div id="wa-comments-container"></div>
         </div>
       </article>
 
       <article class="account" data-page="account">
-        <header><h2 class="h2 article-title">Account</h2></header>
-        
+        <header><h2 class="h2 article-title" style="color: #ffffff;">Account</h2></header>
         <div id="auth-ui">
-          <section class="contact-form">
-            <div class="input-wrapper">
-              <input type="email" id="email" class="form-input" placeholder="Email Address" required>
-              <input type="password" id="password" class="form-input" placeholder="Password" required>
-            </div>
-            <button class="form-btn" id="login-btn">Login</button>
-            <p style="text-align: center; margin: 15px 0; color: var(--light-gray);">Atau</p>
-            <button class="form-btn" id="regis-btn" style="background: var(--onyx);">Register</button>
-          </section>
-        </div>
-
-        <div id="profile-ui" style="display: none;">
-          <div class="about-text">
-            <div class="content-card" style="padding: 20px; background: var(--border-gradient-onyx); border-radius: 12px;">
-              <p><strong>Username:</strong> <span id="user-name" style="color: var(--orange-yellow-crayola)">-</span></p>
-              <p><strong>Role:</strong> <span id="user-role">-</span></p>
-              <p><strong>Points:</strong> <span id="user-points">0</span> pts</p>
-              <p><strong>Member Since:</strong> <span id="user-join">-</span></p>
-            </div>
-            <button class="form-btn" id="logout-btn" style="margin-top: 20px; background: #e03131;">Logout</button>
+          <div class="contact-form">
+            <input type="email" id="login-email" class="form-input" placeholder="Email" required>
+            <input type="password" id="login-password" class="form-input" placeholder="Password" required>
+            <button class="form-btn" id="btn-login" style="margin-top: 10px;">Login</button>
           </div>
         </div>
+        <div id="profile-ui" style="display: none; color: #ffffff;">
+          <div class="content-card">
+            <p>User: <span id="user-name" style="color: #ffffff;"></span></p>
+            <p>Role: <span id="user-role" style="color: #ffffff;"></span></p>
+            <p>Points: <span id="user-points" style="color: #ffffff;"></span></p>
+          </div>
+          <button class="form-btn" id="btn-logout" style="margin-top: 20px; background: #ff4d4d;">Logout</button>
+        </div>
       </article>
-
     </div>
   </main>
-
   <script src="./assets/js/script.js"></script>
-  <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
-  <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
 </body>
 </html>
