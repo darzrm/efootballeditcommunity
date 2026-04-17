@@ -2848,3 +2848,99 @@ textarea.form-input::-webkit-resizer { display: none; }
   font-size: 9px;
   color: var(--light-gray-70);
 }
+
+/* --- ADMIN BADGE (MODERN & ELEGAN) --- */
+.user-status {
+  font-size: 9px;
+  padding: 2px 8px;
+  border-radius: 4px;
+  text-transform: uppercase;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  /* Memaksa badge ke pojok kanan */
+  margin-left: auto; 
+  display: inline-block;
+}
+
+/* Warna Admin: Gradasi Emas (Gold) agar selaras dengan aksen kuning web */
+.status-admin {
+  background: var(--text-gradient-yellow);
+  color: var(--smoky-black);
+  box-shadow: 0 0 8px hsla(45, 100%, 72%, 0.3);
+}
+
+.status-member {
+  background: var(--jet);
+  color: var(--light-gray-70);
+}
+
+/* --- OPTIMASI BUBBLE CHAT --- */
+.comment-card {
+  background: var(--onyx) !important;
+  border: 1px solid var(--jet) !important;
+  padding: 12px 16px !important;
+  border-radius: 0 15px 15px 15px;
+  min-width: 65% !important;
+  max-width: 85% !important;
+  align-self: flex-start;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Chat Sendiri (Warna Gelap Kontras) */
+.comment-card.is-me {
+  align-self: flex-end !important;
+  background: #1e1e1e !important; 
+  border: 1px solid var(--orange-yellow-crayola) !important;
+  border-radius: 15px 15px 0 15px !important;
+}
+
+/* Header: Nama, Email, dan Badge Sejajar */
+.comment-header {
+  display: flex;
+  align-items: center; 
+  gap: 8px;
+  margin-bottom: 6px;
+  width: 100%; /* Penting agar margin-left: auto pada badge bekerja */
+}
+
+.comment-username {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--orange-yellow-crayola);
+  white-space: nowrap;
+}
+
+.comment-email {
+  font-size: 10px;
+  color: var(--light-gray-70);
+  opacity: 0.7;
+  font-style: italic;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100px;
+}
+
+/* Isi Teks Komentar */
+.comment-text {
+  font-size: 14px;
+  line-height: 1.4;
+  color: var(--white-2);
+  word-break: break-word;
+}
+
+/* Footer: Waktu Detail diletakkan di bawah */
+.comment-footer {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 8px;
+  padding-top: 4px;
+  border-top: 1px solid hsla(0, 0%, 100%, 0.05);
+}
+
+.comment-date {
+  font-size: 9px;
+  color: var(--light-gray-70);
+  font-weight: 400;
+}
