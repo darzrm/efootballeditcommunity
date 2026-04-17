@@ -2538,3 +2538,28 @@ textarea.form-input::-webkit-resizer { display: none; }
   align-items: center;
   gap: 10px;
 }
+/* Pastikan halaman yang tidak aktif tersembunyi */
+[data-page] { display: none; }
+[data-page].active { display: block; animation: fade 0.5s ease; }
+
+@keyframes fade {
+  from { opacity: 0; transform: translateY(10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Chat bubble styling */
+.comment-card {
+  margin-bottom: 10px;
+  max-width: 80%;
+  padding: 12px;
+  border-radius: 12px;
+  background: var(--onyx);
+}
+
+.comment-card.is-me {
+  align-self: flex-end;
+  background: var(--orange-yellow-crayola);
+  color: var(--smoky-black);
+}
+
+.comment-card.is-me .comment-username { color: var(--smoky-black); font-weight: bold; }
