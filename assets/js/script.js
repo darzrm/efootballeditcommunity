@@ -129,65 +129,29 @@ const authCont = document.getElementById('auth-container');
 const profCont = document.getElementById('profile-container');
 const userInfoDiv = document.getElementById('user-info-display');
 
-// --- Navigation Logic (Fix Bug Tombol) ---
-document.body.addEventListener('click', function(e) {
-  if (e.target.closest('#btn-go-to-auth')) {
-    guestCont.style.display = 'none';
-    authCont.style.display = 'block';
-  }
-  if (e.target.closest('#btn-back-to-guest')) {
-    authCont.style.display = 'none';
-    guestCont.style.display = 'block';
-  }
-});
+// Navigasi Internal Account (Fix Button Get Started)
+document.addEventListener('click', function(e) {
+  const guestView = document.getElementById('guest-container');
+  const authView = document.getElementById('auth-container');
 
-// --- Auth Functions ---
-document.getElementById('login-btn')?.addEventListener('click', async () => {
-  const email = document.getElementById('auth-email').value;
-  const password = document.getElementById('auth-password').value;
-  const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+  if (e.target.closest('#btn-get-started')) {
+    guestView.style.display = 'none';
+    authView.style.display = 'block';
+  }
   
-  if (error) {
-    Swal.fire({ icon: 'error', title: 'Error', text: error.message, background: '#1e1e1f', color: '#fff' });
-  } else {
-    checkUserStatus();
+  if (e.target.closest('#btn-close-auth')) {
+    authView.style.display = 'none';
+    guestView.style.display = 'block';
   }
 });
 
-document.getElementById('register-btn')?.addEventListener('click', async () => {
-  const email = document.getElementById('auth-email').value;
-  const password = document.getElementById('auth-password').value;
-  const username = document.getElementById('auth-username').value;
-
-  if (!username) return Swal.fire({ icon: 'warning', text: 'Please enter a username' });
-
-  const { error } = await supabaseClient.auth.signUp({
-    email, password, options: { data: { display_name: username } }
-  });
-
-  if (error) Swal.fire({ icon: 'error', text: error.message });
-  else Swal.fire({ icon: 'success', text: 'Registration successful! Please login.' });
-});
-
-document.getElementById('logout-btn')?.addEventListener('click', async () => {
-  await supabaseClient.auth.signOut();
-  location.reload();
-});
-
-document.getElementById('btn-change-username')?.addEventListener('click', async () => {
-  const newName = document.getElementById('new-username').value;
-  if (!newName) return;
-  const { error } = await supabaseClient.auth.updateUser({ data: { display_name: newName } });
-  if (error) Swal.fire({ icon: 'error', text: error.message });
-  else {
-    Swal.fire({ icon: 'success', text: 'Username updated' });
-    checkUserStatus();
-  }
-});
-
-// --- UI Sync & Stats Engine ---
+// Update UI & Stats (Centered Layout)
 async function checkUserStatus() {
   const { data: { user } } = await supabaseClient.auth.getUser();
+  const guestCont = document.getElementById('guest-container');
+  const authCont = document.getElementById('auth-container');
+  const profCont = document.getElementById('profile-container');
+  const userDisplay = document.getElementById('user-info-display');
 
   if (user) {
     guestCont.style.display = 'none';
@@ -198,35 +162,33 @@ async function checkUserStatus() {
       day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
     });
 
-    userInfoDiv.innerHTML = `
-      <div style="margin-bottom: 30px;">
-        <h4 class="h4" style="font-size: 28px; color: var(--orange-yellow-crayola); margin-bottom: 5px;">
-          ${user.user_metadata.display_name || 'Member'}
-        </h4>
-        <p style="font-size: 14px; color: var(--light-gray); letter-spacing: 0.5px;">${user.email}</p>
+    userDisplay.innerHTML = `
+      <div style="margin-bottom: 25px;">
+        <h4 class="h4" style="font-size: 28px; color: var(--orange-yellow-crayola);">${user.user_metadata.display_name || 'Member'}</h4>
+        <p style="font-size: 14px; color: var(--light-gray);">${user.email}</p>
       </div>
-
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 25px;">
-        <div style="background: rgba(255,255,255,0.03); padding: 20px; border-radius: 15px; border: 1px solid var(--jet);">
-          <p style="font-size: 10px; color: var(--light-gray); text-transform: uppercase; margin-bottom: 5px;">Points</p>
+      
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
+        <div style="background: var(--onyx); padding: 20px; border-radius: 12px; border: 1px solid var(--jet);">
+          <p style="font-size: 10px; color: var(--light-gray); text-transform: uppercase;">Points</p>
           <p style="font-size: 22px; font-weight: 600; color: #38bdf8;">0</p>
         </div>
-        <div style="background: rgba(255,255,255,0.03); padding: 20px; border-radius: 15px; border: 1px solid var(--jet);">
-          <p style="font-size: 10px; color: var(--light-gray); text-transform: uppercase; margin-bottom: 5px;">Role</p>
+        <div style="background: var(--onyx); padding: 20px; border-radius: 12px; border: 1px solid var(--jet);">
+          <p style="font-size: 10px; color: var(--light-gray); text-transform: uppercase;">Role</p>
           <p style="font-size: 22px; font-weight: 600; color: #fbbf24;">MEMBER</p>
         </div>
       </div>
 
-      <div style="padding: 15px; background: var(--onyx); border-radius: 12px; border: 1px solid var(--jet);">
+      <div style="padding: 15px; background: rgba(255,255,255,0.03); border-radius: 10px;">
         <p style="font-size: 12px; color: var(--light-gray);">Joined Since</p>
-        <p style="font-size: 14px; color: #fff; margin-top: 5px;">${joinedDate}</p>
+        <p style="font-size: 14px; color: #fff;">${joinedDate}</p>
       </div>
     `;
   } else {
     guestCont.style.display = 'block';
-    authCont.style.display = 'none';
     profCont.style.display = 'none';
   }
 }
 
+// Panggil fungsi status saat halaman dimuat
 checkUserStatus();
