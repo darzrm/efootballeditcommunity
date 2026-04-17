@@ -2258,3 +2258,78 @@ textarea.form-input::-webkit-resizer { display: none; }
 }
 
 .admin-badge { color: #ffdb70; width: 16px; }
+
+/* --- WHATSAPP BUBBLE CHAT STYLE --- */
+.comment-section {
+  padding: 0 10px;
+  margin-top: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 15px; /* Jarak antar bubble */
+}
+
+.comment-card {
+  background: var(--onyx); /* Warna dasar bubble */
+  border: 1px solid var(--jet);
+  padding: 10px 15px;
+  border-radius: 0 15px 15px 15px; /* Bubble style */
+  max-width: 85%;
+  align-self: flex-start; /* Default rata kiri */
+  position: relative;
+}
+
+/* Jika itu adalah komentar kita sendiri (opsional: agar beda warna) */
+.comment-card.is-me {
+  align-self: flex-end;
+  background: var(--bg-gradient-jet);
+  border-radius: 15px 0 15px 15px;
+  border-color: var(--orange-yellow-crayola);
+}
+
+.comment-user-box {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 15px;
+  margin-bottom: 4px;
+}
+
+.comment-username {
+  color: var(--orange-yellow-crayola);
+  font-weight: 600;
+  font-size: 13px;
+}
+
+.comment-email {
+  color: var(--light-gray-70);
+  font-size: 10px;
+  display: block;
+}
+
+.comment-text {
+  color: var(--white-2);
+  font-size: 14px;
+  line-height: 1.4;
+  margin: 5px 0;
+}
+
+.comment-date {
+  color: var(--light-gray-70);
+  font-size: 9px;
+  text-align: right;
+  display: block;
+  margin-top: 2px;
+}
+
+/* Trash button inside bubble */
+.delete-btn {
+  background: none;
+  border: none;
+  color: #ff4b4b;
+  cursor: pointer;
+  padding: 0;
+  opacity: 0.6;
+  transition: 0.2s;
+}
+
+.delete-btn:hover { opacity: 1; transform: scale(1.1); }
