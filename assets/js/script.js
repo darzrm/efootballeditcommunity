@@ -13,7 +13,72 @@ window.showModal = (title, html, onConfirm) => {
 };
 window.closeGlobalModal = () => document.getElementById('global-modal').classList.remove('active');
 
-// --- AUTH LOGIC (LOGIN, SIGNUP, RESET) ---
+// --- ACCOUNT UI (Tampilan Baru) ---
+const updateUI = async () => {
+    const { data: { session } } = await _supabase.auth.getSession();
+    const container = document.getElementById('account-content');
+    if (!container) return;
+
+    if (session) {
+        const user = localStorage.getItem('eec_username') || session.user.user_metadata.display_name || "Member";
+        const isAdmin = (session.user.email === 'darzrm@gmail.com');
+        const joinDate = new Date(session.user.created_at).toLocaleDateString('en-GB', { day:'2-digit', month:'long', year:'numeric' });
+
+        container.innerHTML = `
+            <div class="account-info-box">
+                <div class="profile-icon" style="margin-bottom:15px;">
+                    <i data-lucide="circle-user" style="width:70px; height:70px; margin:0 auto; color:var(--orange-yellow-crayola);"></i>
+                </div>
+                <h3 class="h3">${user} ${isAdmin ? '<i data-lucide="crown" style="width:18px; color:#ffdb70; display:inline-block; vertical-align:middle;"></i>' : ''}</h3>
+                
+                <div class="account-detail-list">
+                    <div class="detail-item">
+                        <span class="detail-label">Email</span>
+                        <span class="detail-value">${session.user.email}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Joined Since</span>
+                        <span class="detail-value">${joinDate}</span>
+                    </div>
+                    <div class="detail-item">
+                        <span class="detail-label">Status</span>
+                        <span class="detail-value">${isAdmin ? 'Admin' : 'Member'}</span>
+                    </div>
+                </div>
+
+                <div style="display:grid; gap:10px;">
+                    <button class="form-btn" onclick="openEditProfile()">Change Username</button>
+                    <button class="form-btn secondary" onclick="_supabase.auth.signOut().then(()=>location.reload())">Logout</button>
+                </div>
+            </div>
+        `;
+    } else {
+        container.innerHTML = `
+            <div class="account-info-box">
+                <i data-lucide="shield-lock" style="width:50px; opacity:0.2; margin:0 auto 15px;"></i>
+                <p class="blog-text">Login to access your profile.</p>
+                <button class="form-btn" style="margin-top:15px;" onclick="openAuth()">Login / Sign Up</button>
+            </div>`;
+    }
+    lucide.createIcons();
+};
+
+window.openEditProfile = () => {
+    showModal("Update Username", `<div class="form-group"><input type="text" id="f-new-name" class="form-input" placeholder="Enter new username"></div>`, async () => {
+        const newName = document.getElementById('f-new-name').value;
+        if (newName) {
+            localStorage.setItem('eec_username', newName);
+            const { data: { session } } = await _supabase.auth.getSession();
+            // Update metadata di Supabase agar permanen
+            await _supabase.auth.updateUser({ data: { display_name: newName } });
+            // Update nama di komen-komen lama (opsional)
+            await _supabase.from('comments').update({ username: newName }).eq('user_id', session.user.id);
+            location.reload();
+        }
+    });
+};
+
+// --- AUTH LOGIC ---
 window.openAuth = () => {
     const html = `
         <div class="form-group">
@@ -28,73 +93,33 @@ window.openAuth = () => {
         const pass = document.getElementById('f-pass').value;
         const user = document.getElementById('f-user').value;
 
-        // 1. Coba Login
         const { data: lData, error: lErr } = await _supabase.auth.signInWithPassword({ email, password: pass });
 
         if (lErr) {
-            // Jika belum verifikasi email
-            if (lErr.message.includes("Email not confirmed")) {
-                return alert("Please confirm your email address first. Check your inbox!");
-            }
+            if (lErr.message.includes("Email not confirmed")) return alert("Please check your email and confirm!");
             
-            // 2. Jika login gagal karena akun tidak ada, maka Sign Up
             const { error: sErr } = await _supabase.auth.signUp({
-                email, password: pass,
-                options: { data: { display_name: user } }
+                email, password: pass, options: { data: { display_name: user } }
             });
 
-            if (!sErr) {
-                alert("Verification email sent! Check your inbox before logging in.");
-                closeGlobalModal();
-            } else { alert(sErr.message); }
+            if (!sErr) alert("Verification email sent!"); else alert(sErr.message);
         } else {
-            // Login berhasil, simpan username ke local storage
-            const finalName = lData.user.user_metadata.display_name || user || "Member";
-            localStorage.setItem('eec_username', finalName);
+            localStorage.setItem('eec_username', lData.user.user_metadata.display_name || "Member");
             location.reload();
         }
     });
 };
 
 window.forgotPassword = () => {
-    const html = `
-        <div class="form-group">
-            <p class="blog-text" style="font-size:12px; margin-bottom:10px;">Enter your email to receive a reset link:</p>
-            <input type="email" id="reset-email" class="form-input" placeholder="Email Address">
-        </div>`;
+    const html = `<div class="form-group"><input type="email" id="reset-email" class="form-input" placeholder="Email Address"></div>`;
     showModal("Reset Password", html, async () => {
         const email = document.getElementById('reset-email').value;
-        const { error } = await _supabase.auth.resetPasswordForEmail(email, {
-            redirectTo: window.location.origin
-        });
-        if (!error) alert("Reset link sent! Check your email.");
-        else alert(error.message);
+        await _supabase.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin });
+        alert("Link sent!"); closeGlobalModal();
     });
 };
 
-// --- UI & COMMENTS ---
-const updateUI = async () => {
-    const { data: { session } } = await _supabase.auth.getSession();
-    const container = document.getElementById('account-content');
-    if (!container) return;
-
-    if (session) {
-        const user = localStorage.getItem('eec_username') || session.user.user_metadata.display_name || "Member";
-        const isAdmin = (session.user.email === 'darzrm@gmail.com');
-        container.innerHTML = `
-            <div class="profile-icon"><i data-lucide="circle-user" style="width:80px; height:80px; color:var(--orange-yellow-crayola);"></i></div>
-            <h3 class="h3">${user} ${isAdmin ? '<i data-lucide="crown" style="color:#ffdb70; width:20px;"></i>' : ''}</h3>
-            <p class="blog-text" style="opacity:0.6; margin-bottom:20px;">${session.user.email}</p>
-            <button class="form-btn secondary" onclick="_supabase.auth.signOut().then(()=>location.reload())">Logout</button>
-        `;
-        document.getElementById('comment-form').style.display = 'block';
-    } else {
-        container.innerHTML = `<button class="form-btn" onclick="openAuth()">Login / Sign Up</button>`;
-        document.getElementById('comment-form').style.display = 'none';
-    }
-    lucide.createIcons();
-};
-
+// --- COMMENTS LOGIC ---
 const loadComments = async (blogId) => {
     const list = document.getElementById('comment-display');
     const { data: { session } } = await _supabase.auth.getSession();
@@ -104,18 +129,18 @@ const loadComments = async (blogId) => {
 
     list.innerHTML = data?.map(c => {
         const isMe = (session && session.user.id === c.user_id);
-        const date = new Date(c.created_at).toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' });
+        const fullDate = new Date(c.created_at).toLocaleString('en-GB', { 
+            day:'2-digit', month:'short', hour: '2-digit', minute: '2-digit' 
+        });
+        
         return `
             <div class="comment-card ${isMe ? 'is-me' : ''}">
                 <div class="comment-user-box">
-                    <div>
-                        <span class="comment-username">${c.username}</span>
-                        <span class="comment-email">${c.email || ''}</span>
-                    </div>
-                    ${(isAdmin || isMe) ? `<button class="delete-btn" onclick="doDelete('${c.id}')"><i data-lucide="trash-2" style="width:14px;"></i></button>` : ''}
+                    <span class="comment-username">${c.username}</span>
+                    ${(isAdmin || isMe) ? `<button onclick="doDelete('${c.id}')" style="background:none; border:none; color:#ff4b4b; cursor:pointer;"><i data-lucide="trash-2" style="width:12px;"></i></button>` : ''}
                 </div>
                 <p class="comment-text">${c.content}</p>
-                <time class="comment-date">${date}</time>
+                <time class="comment-date">${fullDate}</time>
             </div>`;
     }).join('') || '<p class="blog-text" style="text-align:center;">No messages yet.</p>';
     lucide.createIcons();
@@ -132,25 +157,14 @@ window.doDelete = async (id) => {
 document.addEventListener("DOMContentLoaded", () => {
     updateUI();
 
-    // Deteksi jika user datang dari link Reset Password
-    _supabase.auth.onAuthStateChange(async (event, session) => {
+    _supabase.auth.onAuthStateChange(async (event) => {
         if (event === "PASSWORD_RECOVERY") {
-            const newPass = prompt("Enter your new password:");
-            if (newPass) {
-                const { error } = await _supabase.auth.updateUser({ password: newPass });
-                if (!error) {
-                    alert("Password updated! Please login with your new password.");
-                    await _supabase.auth.signOut();
-                    location.reload();
-                } else alert(error.message);
-            }
+            const newPass = prompt("Enter new password:");
+            if (newPass) await _supabase.auth.updateUser({ password: newPass }).then(() => alert("Password Updated!"));
         }
     });
 
-    // Navigasi & Sidebar
-    const sidebarBtn = document.querySelector("[data-sidebar-btn]");
-    if(sidebarBtn) sidebarBtn.onclick = () => document.querySelector("[data-sidebar]").classList.toggle("active");
-
+    // Navigation & Comment Form Submit tetap sama seperti sebelumnya...
     document.querySelectorAll("[data-nav-link]").forEach(btn => {
         btn.onclick = function() {
             const target = this.innerText.toLowerCase();
@@ -168,7 +182,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
         await _supabase.from('comments').insert([{
             content: input.value, user_id: session.user.id,
-            username: localStorage.getItem('eec_username') || "Member",
+            username: localStorage.getItem('eec_username') || session.user.user_metadata.display_name || "Member",
             email: session.user.email, blog_id: 'hello-eec'
         }]);
         input.value = ''; loadComments('hello-eec');
