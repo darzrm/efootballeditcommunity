@@ -135,38 +135,27 @@ window.addEventListener('click', async function(event) {
     gCont.style.setProperty('display', 'block', 'important');
   }
 
-  // REGISTER ACTION
-if (event.target.closest('#register-btn-final')) {
-  if (!userInput.value) return Swal.fire({ icon: 'warning', text: 'Please enter a username' });
-  
-  // 1. Sign up user ke Supabase Auth
-  const { data, error: authError } = await supabaseClient.auth.signUp({
-    email: emailInput.value,
-    password: passInput.value,
-    options: { data: { display_name: userInput.value } }
-  });
-
-  if (authError) return Swal.fire({ icon: 'error', text: authError.message });
-
-  // 2. WAJIB: Masukkan data ke tabel profiles agar bisa berkomentar
-  if (data.user) {
-    const { error: profileError } = await supabaseClient
-      .from('profiles')
-      .insert([
-        { 
-          id: data.user.id, 
-          email: data.user.email, 
-          username: userInput.value,
-          full_name: userInput.value,
-          role: 'member' // Default role
-        }
-      ]);
-    
-    if (profileError) console.error("Profile sync failed:", profileError.message);
+  // LOGIN ACTION
+  if (event.target.closest('#login-btn-final')) {
+    const { error } = await supabaseClient.auth.signInWithPassword({
+      email: emailInput.value,
+      password: passInput.value
+    });
+    if (error) Swal.fire({ icon: 'error', text: error.message, background: '#1e1e1f', color: '#fff' });
+    else checkAccountStatus();
   }
 
-  Swal.fire({ icon: 'success', text: 'Registration successful! You can now login.' });
-}
+  // REGISTER ACTION
+  if (event.target.closest('#register-btn-final')) {
+    if (!userInput.value) return Swal.fire({ icon: 'warning', text: 'Please enter a username' });
+    const { error } = await supabaseClient.auth.signUp({
+      email: emailInput.value,
+      password: passInput.value,
+      options: { data: { display_name: userInput.value } }
+    });
+    if (error) Swal.fire({ icon: 'error', text: error.message, background: '#1e1e1f', color: '#fff' });
+    else Swal.fire({ icon: 'success', text: 'Registration successful! Please login.', background: '#1e1e1f', color: '#fff' });
+  }
 
   // FORGOT PASSWORD ACTION
   if (event.target.closest('#btn-forgot-pass')) {
