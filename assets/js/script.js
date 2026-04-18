@@ -64,25 +64,6 @@ if (filterBtn.length > 0) {
 }
 
 /**
- * Contact Form Validation
- */
-const form = document.querySelector("[data-form]");
-const formInputs = document.querySelectorAll("[data-form-input]");
-const formBtn = document.querySelector("[data-form-btn]");
-
-if (form) {
-  for (let i = 0; i < formInputs.length; i++) {
-    formInputs[i].addEventListener("input", function () {
-      if (form.checkValidity()) {
-        formBtn.removeAttribute("disabled");
-      } else {
-        formBtn.setAttribute("disabled", "");
-      }
-    });
-  }
-}
-
-/**
  * Page Navigation
  */
 const navigationLinks = document.querySelectorAll("[data-nav-link]");
@@ -110,15 +91,56 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 /**
- * AUTH & NAVIGATION LOGIC
+ * UNIFIED CLICK HANDLER (Mengatasi Ganti Username & Auth)
  */
 window.addEventListener('click', async function(event) {
   const gCont = document.getElementById('guest-container');
   const aCont = document.getElementById('auth-container');
-  const emailInput = document.getElementById('auth-email');
-  const passInput = document.getElementById('auth-password');
-  const userInput = document.getElementById('auth-username');
+  const editSection = document.getElementById('edit-username-section');
+  
+  // 1. Ganti Username: Toggle Form
+  if (event.target.closest('#btn-show-edit')) {
+    if (editSection) {
+      const isHidden = editSection.style.display === 'none' || editSection.style.display === '';
+      editSection.style.display = isHidden ? 'block' : 'none';
+    }
+  }
 
+  // 2. Ganti Username: Submit Update
+  if (event.target.closest('#btn-submit-username')) {
+    const password = document.getElementById('confirm-password').value;
+    const newName = document.getElementById('new-username').value;
+    const { data: { user } } = await supabaseClient.auth.getUser();
+
+    if (!password || !newName) {
+      return Swal.fire({ icon: 'warning', text: 'Tolong isi semua field', background: '#1e1e1f', color: '#fff' });
+    }
+
+    // Verifikasi dengan login ulang sesaat
+    const { error: authError } = await supabaseClient.auth.signInWithPassword({
+      email: user.email,
+      password: password
+    });
+
+    if (authError) {
+      return Swal.fire({ icon: 'error', text: 'Password salah!', background: '#1e1e1f', color: '#fff' });
+    }
+
+    // Update Metadata
+    const { error: updateError } = await supabaseClient.auth.updateUser({
+      data: { display_name: newName }
+    });
+
+    if (updateError) {
+      Swal.fire({ icon: 'error', text: updateError.message });
+    } else {
+      await Swal.fire({ icon: 'success', text: 'Username berhasil diperbarui!', background: '#1e1e1f', color: '#fff' });
+      if (editSection) editSection.style.display = 'none';
+      checkAccountStatus(); 
+    }
+  }
+
+  // 3. Auth Navigation
   if (event.target.closest('#btn-start-auth')) {
     gCont.style.setProperty('display', 'none', 'important');
     aCont.style.setProperty('display', 'block', 'important');
@@ -129,7 +151,10 @@ window.addEventListener('click', async function(event) {
     gCont.style.setProperty('display', 'block', 'important');
   }
 
+  // 4. Login Action
   if (event.target.closest('#login-btn-final')) {
+    const emailInput = document.getElementById('auth-email');
+    const passInput = document.getElementById('auth-password');
     const { error } = await supabaseClient.auth.signInWithPassword({
       email: emailInput.value,
       password: passInput.value
@@ -137,17 +162,7 @@ window.addEventListener('click', async function(event) {
     if (error) Swal.fire({ icon: 'error', text: error.message, background: '#1e1e1f', color: '#fff' });
   }
 
-  if (event.target.closest('#register-btn-final')) {
-    if (!userInput.value) return Swal.fire({ icon: 'warning', text: 'Please enter a username' });
-    const { error } = await supabaseClient.auth.signUp({
-      email: emailInput.value,
-      password: passInput.value,
-      options: { data: { display_name: userInput.value } }
-    });
-    if (error) Swal.fire({ icon: 'error', text: error.message, background: '#1e1e1f', color: '#fff' });
-    else Swal.fire({ icon: 'success', text: 'Registration successful! Please login.', background: '#1e1e1f', color: '#fff' });
-  }
-
+  // 5. Logout Action
   if (event.target.closest('#logout-btn-final')) {
     await supabaseClient.auth.signOut();
     location.reload();
@@ -172,7 +187,6 @@ async function checkAccountStatus() {
   if (user) {
     if (profile) profile.style.display = 'block';
 
-    // Ambil Role asli dari tabel profiles
     const { data: profileData } = await supabaseClient
       .from('profiles')
       .select('role')
@@ -206,7 +220,6 @@ async function checkAccountStatus() {
       </div>
     `;
     
-    // Jika sedang di halaman detail blog, refresh komen untuk cek akses hapus
     if (window.currentBlogId) loadComments(window.currentBlogId);
   } else {
     if (guest) guest.style.display = 'block';
@@ -249,13 +262,10 @@ window.closeBlogDetail = function() {
   document.getElementById('blog-detail-container').style.display = 'none';
 };
 
-// --- RENDER COMMENT WITH DELETE LOGIC ---
 window.renderCommentHTML = function(c, currentUser) {
   const username = c.profiles?.username || 'Anonymous';
   const role = c.profiles?.role || 'Member';
   const email = c.profiles?.email || 'No Email';
-  
-  // Logika cek apakah boleh hapus
   const isOwner = currentUser && currentUser.id === c.user_id;
   const isAdmin = currentUser && currentUser.role === 'Admin';
 
@@ -275,13 +285,10 @@ window.renderCommentHTML = function(c, currentUser) {
           </span>
         </div>
       </div>
-
       <div style="border-top: 1px solid var(--jet); margin-bottom: 15px;"></div>
-      
       <p style="font-size: 15px; color: var(--light-gray); line-height: 1.6; margin-bottom: 15px;">
         ${c.content}
       </p>
-
       ${(isOwner || isAdmin) ? `
         <button onclick="deleteComment('${c.id}')" style="color: #ff5f5f; font-size: 12px; background: none; border: none; cursor: pointer; display: flex; align-items: center; gap: 5px; padding: 0;">
           <ion-icon name="trash-outline"></ion-icon> Delete Comment
@@ -293,25 +300,20 @@ window.renderCommentHTML = function(c, currentUser) {
 
 window.loadComments = async function(blogId) {
   const displayList = document.getElementById('comments-display-list');
-  
-  // Ambil user login & role-nya untuk pengecekan tombol hapus
   const { data: { user } } = await supabaseClient.auth.getUser();
   let currentUserData = null;
   if (user) {
     const { data: p } = await supabaseClient.from('profiles').select('role').eq('id', user.id).single();
     currentUserData = { id: user.id, role: p?.role };
   }
-
   const { data: comments, error } = await supabaseClient
     .from('comments')
     .select(`id, content, created_at, user_id, profiles (username, role, email)`)
     .eq('post_id', blogId)
     .order('created_at', { ascending: false });
-
-  if (error) return console.error(error);
-
+  if (error) return;
   if (!comments || comments.length === 0) {
-    displayList.innerHTML = `<p style="color: var(--light-gray-70); text-align: center;">No comments yet.</p>`;
+    displayList.innerHTML = `<p style="color: var(--light-gray-70); text-align: center;">Belum ada komentar.</p>`;
   } else {
     displayList.innerHTML = comments.map(c => renderCommentHTML(c, currentUserData)).join('');
   }
@@ -319,34 +321,28 @@ window.loadComments = async function(blogId) {
 
 window.postComment = async function() {
   const input = document.getElementById('comment-input');
-  const content = input?.value;
   const { data: { user } } = await supabaseClient.auth.getUser();
-  if (!user || !content?.trim()) return;
-
+  if (!user || !input.value.trim()) return;
   const { error } = await supabaseClient
     .from('comments')
-    .insert([{ post_id: window.currentBlogId, user_id: user.id, content: content.trim() }]);
-
-  if (error) return Swal.fire({ icon: 'error', text: 'Failed to post' });
-
+    .insert([{ post_id: window.currentBlogId, user_id: user.id, content: input.value.trim() }]);
+  if (error) return Swal.fire({ icon: 'error', text: 'Gagal mengirim komentar' });
   input.value = ''; 
   loadComments(window.currentBlogId);
 };
 
-// --- FUNGSI HAPUS ---
 window.deleteComment = async function(commentId) {
   const result = await Swal.fire({
-    text: "Delete this comment?",
+    text: "Hapus komentar ini?",
     icon: 'warning',
     showCancelButton: true,
     confirmButtonColor: '#ff5f5f',
     background: '#1e1e1f',
     color: '#fff'
   });
-
   if (result.isConfirmed) {
     const { error } = await supabaseClient.from('comments').delete().eq('id', commentId);
-    if (error) Swal.fire({ icon: 'error', text: "Failed to delete" });
+    if (error) Swal.fire({ icon: 'error', text: "Gagal menghapus" });
     else loadComments(window.currentBlogId);
   }
 };
@@ -354,7 +350,7 @@ window.deleteComment = async function(commentId) {
 /**
  * AUTO-AUTH CHECKER
  */
-supabaseClient.auth.onAuthStateChange((event, session) => {
+supabaseClient.auth.onAuthStateChange(() => {
   checkAccountStatus();
 });
 
