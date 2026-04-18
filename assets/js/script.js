@@ -10,8 +10,57 @@ const elementToggleFunc = function (elem) { elem.classList.toggle("active"); }
  */
 const sidebar = document.querySelector("[data-sidebar]");
 const sidebarBtn = document.querySelector("[data-sidebar-btn]");
+
 if (sidebarBtn) {
   sidebarBtn.addEventListener("click", function () { elementToggleFunc(sidebar); });
+}
+
+/**
+ * Filter & Custom Select
+ */
+const select = document.querySelector("[data-select]");
+const selectItems = document.querySelectorAll("[data-select-item]");
+const selectValue = document.querySelector("[data-select-value]");
+const filterBtn = document.querySelectorAll("[data-filter-btn]");
+const filterItems = document.querySelectorAll("[data-filter-item]");
+
+if (select) {
+  select.addEventListener("click", function () { elementToggleFunc(this); });
+}
+
+const filterFunc = function (selectedValue) {
+  for (let i = 0; i < filterItems.length; i++) {
+    if (selectedValue === "all") {
+      filterItems[i].classList.add("active");
+    } else if (selectedValue === filterItems[i].dataset.category) {
+      filterItems[i].classList.add("active");
+    } else {
+      filterItems[i].classList.remove("active");
+    }
+  }
+}
+
+for (let i = 0; i < selectItems.length; i++) {
+  selectItems[i].addEventListener("click", function () {
+    let selectedValue = this.innerText.toLowerCase();
+    selectValue.innerText = this.innerText;
+    elementToggleFunc(select);
+    filterFunc(selectedValue);
+  });
+}
+
+if (filterBtn.length > 0) {
+  let lastClickedBtn = filterBtn[0];
+  for (let i = 0; i < filterBtn.length; i++) {
+    filterBtn[i].addEventListener("click", function () {
+      let selectedValue = this.innerText.toLowerCase();
+      selectValue.innerText = this.innerText;
+      filterFunc(selectedValue);
+      lastClickedBtn.classList.remove("active");
+      this.classList.add("active");
+      lastClickedBtn = this;
+    });
+  }
 }
 
 /**
@@ -42,84 +91,46 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 /**
- * UNIFIED CLICK HANDLER (Auth, Reset, Register)
+ * UNIFIED CLICK HANDLER (English System & Fixed Auth)
  */
 window.addEventListener('click', async function(event) {
   const gCont = document.getElementById('guest-container');
   const aCont = document.getElementById('auth-container');
-  const emailInput = document.getElementById('auth-email');
-  const passInput = document.getElementById('auth-password');
   const editSection = document.getElementById('edit-username-section');
   
-  // 1. Reset Password (FIXED)
-  if (event.target.closest('#btn-forgot-pass')) {
-    const email = emailInput?.value;
-    if (!email) {
-      return Swal.fire({ icon: 'info', text: 'Please enter your email address first!', background: '#1e1e1f', color: '#fff' });
-    }
-    const { error } = await supabaseClient.auth.resetPasswordForEmail(email, {
-      redirectTo: window.location.origin,
-    });
-    if (error) {
-      Swal.fire({ icon: 'error', text: error.message, background: '#1e1e1f', color: '#fff' });
-    } else {
-      Swal.fire({ icon: 'success', title: 'Email Sent', text: 'Please check your inbox to reset your password.', background: '#1e1e1f', color: '#fff' });
+  // 1. Toggle Edit Username Form
+  if (event.target.closest('#btn-show-edit')) {
+    if (editSection) {
+      const isHidden = editSection.style.display === 'none' || editSection.style.display === '';
+      editSection.style.display = isHidden ? 'block' : 'none';
     }
   }
 
-  // 2. Register Action (New Implementation)
-  if (event.target.closest('#register-btn-final')) {
-    const displayName = document.getElementById('reg-username')?.value; // Make sure you have this ID in HTML
-    const email = emailInput.value;
-    const password = passInput.value;
-
-    if (!email || !password) return Swal.fire({ icon: 'warning', text: 'Please fill in all fields' });
-
-    const { error } = await supabaseClient.auth.signUp({
-      email,
-      password,
-      options: { data: { display_name: displayName || 'New Member' } }
-    });
-
-    if (error) {
-      Swal.fire({ icon: 'error', text: error.message, background: '#1e1e1f', color: '#fff' });
-    } else {
-      Swal.fire({ icon: 'success', title: 'Registration Successful', text: 'Please check your email to verify your account.', background: '#1e1e1f', color: '#fff' });
-    }
-  }
-
-  // 3. Login Action (With Alert)
-  if (event.target.closest('#login-btn-final')) {
-    const { error } = await supabaseClient.auth.signInWithPassword({
-      email: emailInput.value,
-      password: passInput.value
-    });
-    if (error) {
-      Swal.fire({ icon: 'error', text: error.message, background: '#1e1e1f', color: '#fff' });
-    } else {
-      Swal.fire({ icon: 'success', text: 'Login successful! Welcome back.', timer: 1500, showConfirmButton: false, background: '#1e1e1f', color: '#fff' });
-    }
-  }
-
-  // 4. Logout Action (With Alert)
-  if (event.target.closest('#logout-btn-final')) {
-    await supabaseClient.auth.signOut();
-    await Swal.fire({ icon: 'success', text: 'Logged out successfully.', timer: 1500, showConfirmButton: false, background: '#1e1e1f', color: '#fff' });
-    location.reload();
-  }
-
-  // 5. Submit Update Username (With Alert)
+  // 2. Submit Username Update
   if (event.target.closest('#btn-submit-username')) {
     const password = document.getElementById('confirm-password').value;
     const newName = document.getElementById('new-username').value;
     const { data: { user } } = await supabaseClient.auth.getUser();
 
-    const { error: authError } = await supabaseClient.auth.signInWithPassword({ email: user.email, password });
-    if (authError) return Swal.fire({ icon: 'error', text: 'Invalid confirmation password!', background: '#1e1e1f', color: '#fff' });
+    if (!password || !newName) {
+      return Swal.fire({ icon: 'warning', text: 'Please fill in all fields', background: '#1e1e1f', color: '#fff' });
+    }
 
-    const { error: updateError } = await supabaseClient.auth.updateUser({ data: { display_name: newName } });
+    const { error: authError } = await supabaseClient.auth.signInWithPassword({
+      email: user.email,
+      password: password
+    });
+
+    if (authError) {
+      return Swal.fire({ icon: 'error', text: 'Incorrect password!', background: '#1e1e1f', color: '#fff' });
+    }
+
+    const { error: updateError } = await supabaseClient.auth.updateUser({
+      data: { display_name: newName }
+    });
+
     if (updateError) {
-      Swal.fire({ icon: 'error', text: updateError.message });
+      Swal.fire({ icon: 'error', text: updateError.message, background: '#1e1e1f', color: '#fff' });
     } else {
       await Swal.fire({ icon: 'success', text: 'Username updated successfully!', background: '#1e1e1f', color: '#fff' });
       if (editSection) editSection.style.display = 'none';
@@ -127,25 +138,84 @@ window.addEventListener('click', async function(event) {
     }
   }
 
-  // Navigation Logic
+  // 3. Auth Navigation
   if (event.target.closest('#btn-start-auth')) {
     gCont.style.setProperty('display', 'none', 'important');
     aCont.style.setProperty('display', 'block', 'important');
   }
+
   if (event.target.closest('#btn-cancel-auth')) {
     aCont.style.setProperty('display', 'none', 'important');
     gCont.style.setProperty('display', 'block', 'important');
   }
-  if (event.target.closest('#btn-show-edit')) {
-    if (editSection) editSection.style.display = (editSection.style.display === 'none' || editSection.style.display === '') ? 'block' : 'none';
+
+  // 4. Login Action
+  if (event.target.closest('#login-btn-final')) {
+    const emailInput = document.getElementById('auth-email');
+    const passInput = document.getElementById('auth-password');
+    const { error } = await supabaseClient.auth.signInWithPassword({
+      email: emailInput.value,
+      password: passInput.value
+    });
+    if (error) {
+      Swal.fire({ icon: 'error', title: 'Login Failed', text: error.message, background: '#1e1e1f', color: '#fff' });
+    } else {
+      Swal.fire({ icon: 'success', title: 'Welcome!', text: 'Logged in successfully', background: '#1e1e1f', color: '#fff', timer: 1500, showConfirmButton: false });
+    }
+  }
+
+  // 5. Register Action (FIXED)
+  if (event.target.closest('#register-btn-final')) {
+    const email = document.getElementById('auth-email').value;
+    const pass = document.getElementById('auth-password').value;
+    const name = document.getElementById('auth-username')?.value || 'New Member';
+
+    if (!email || !pass) {
+      return Swal.fire({ icon: 'warning', text: 'Please enter email and password', background: '#1e1e1f', color: '#fff' });
+    }
+
+    const { error } = await supabaseClient.auth.signUp({
+      email: email,
+      password: pass,
+      options: { data: { display_name: name } }
+    });
+
+    if (error) {
+      Swal.fire({ icon: 'error', title: 'Registration Failed', text: error.message, background: '#1e1e1f', color: '#fff' });
+    } else {
+      Swal.fire({ icon: 'success', title: 'Success!', text: 'Account created! Please verify your email.', background: '#1e1e1f', color: '#fff' });
+    }
+  }
+
+  // 6. Reset Password Action (FIXED)
+  if (event.target.closest('#reset-password-btn')) {
+    const email = document.getElementById('auth-email').value;
+    if (!email) {
+      return Swal.fire({ icon: 'info', text: 'Enter your email to reset password', background: '#1e1e1f', color: '#fff' });
+    }
+
+    const { error } = await supabaseClient.auth.resetPasswordForEmail(email);
+    if (error) {
+      Swal.fire({ icon: 'error', text: error.message, background: '#1e1e1f', color: '#fff' });
+    } else {
+      Swal.fire({ icon: 'success', title: 'Email Sent', text: 'Check your inbox for the reset link', background: '#1e1e1f', color: '#fff' });
+    }
+  }
+
+  // 7. Logout Action
+  if (event.target.closest('#logout-btn-final')) {
+    await supabaseClient.auth.signOut();
+    Swal.fire({ icon: 'info', text: 'Signing out...', background: '#1e1e1f', color: '#fff', timer: 1000, showConfirmButton: false });
+    setTimeout(() => location.reload(), 1000);
   }
 });
 
 /**
- * UI ENGINE
+ * UI ENGINE: Fetch Role & Persistent Login
  */
 async function checkAccountStatus() {
   const { data: { user } } = await supabaseClient.auth.getUser();
+  
   const guest = document.getElementById('guest-container');
   const auth = document.getElementById('auth-container');
   const profile = document.getElementById('profile-container');
@@ -157,17 +227,40 @@ async function checkAccountStatus() {
 
   if (user) {
     if (profile) profile.style.display = 'block';
-    const { data: p } = await supabaseClient.from('profiles').select('role').eq('id', user.id).single();
-    const date = new Date(user.created_at).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' });
+
+    const { data: profileData } = await supabaseClient
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single();
+
+    const userRole = profileData?.role || 'Member';
+    const date = new Date(user.created_at).toLocaleDateString('en-US', {
+      day: 'numeric', month: 'long', year: 'numeric'
+    });
 
     display.innerHTML = `
-      <div style="background: var(--onyx); padding: 20px; border-radius: 12px; border: 1px solid var(--jet); margin-bottom: 15px;">
-        <h4 class="h4" style="color: var(--orange-yellow-crayola);">${user.user_metadata.display_name || 'Member'}</h4>
-        <p style="font-size: 13px; color: var(--light-gray-70);">${user.email}</p>
-        <p style="font-size: 11px; margin-top: 10px; color: #fbbf24; font-weight: bold;">ROLE: ${p?.role || 'Member'}</p>
-        <p style="font-size: 10px; color: var(--light-gray-70); margin-top: 5px;">Joined: ${date}</p>
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+        <div style="background: var(--onyx); padding: 20px; border-radius: 12px; border: 1px solid var(--jet); grid-column: span 2;">
+          <h4 class="h4" style="font-size: 24px; color: var(--orange-yellow-crayola); margin-bottom: 4px;">
+            ${user.user_metadata.display_name || 'Member'}
+          </h4>
+          <p style="font-size: 14px; color: var(--light-gray); margin-bottom: 8px;">${user.email}</p>
+          <div style="border-top: 1px solid var(--jet); padding-top: 8px; font-size: 11px; color: var(--light-gray-70);">
+            Joined: ${date}
+          </div>
+        </div>
+        <div style="background: var(--onyx); padding: 15px; border-radius: 12px; border: 1px solid var(--jet);">
+          <p style="font-size: 10px; color: var(--light-gray); text-transform: uppercase;">Points</p>
+          <p style="font-size: 20px; font-weight: 600; color: #fbbf24;">0</p>
+        </div>
+        <div style="background: var(--onyx); padding: 15px; border-radius: 12px; border: 1px solid var(--jet);">
+          <p style="font-size: 10px; color: var(--light-gray); text-transform: uppercase;">Role</p>
+          <p style="font-size: 20px; font-weight: 600; color: #fbbf24;">${userRole}</p>
+        </div>
       </div>
     `;
+    
     if (window.currentBlogId) loadComments(window.currentBlogId);
   } else {
     if (guest) guest.style.display = 'block';
@@ -175,60 +268,142 @@ async function checkAccountStatus() {
 }
 
 /**
- * COMMENT SYSTEM (All Alerted)
+ * BLOG & COMMENT SYSTEM
  */
+window.currentBlogId = null;
+
+window.showBlogDetail = async function(id, title, text) {
+  window.currentBlogId = id;
+  document.getElementById('blog-list-container').style.display = 'none';
+  document.getElementById('blog-detail-container').style.display = 'block';
+  document.getElementById('detail-title').innerText = title;
+  document.getElementById('detail-text').innerText = text;
+
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+
+  const { data: { user } } = await supabaseClient.auth.getUser();
+  const formArea = document.getElementById('comment-form-area');
+  
+  if (!user) {
+    formArea.innerHTML = `<p style="color: var(--orange-yellow-crayola); font-size: 14px; margin-bottom: 30px;">Please login to join the conversation.</p>`;
+  } else {
+    formArea.innerHTML = `
+      <textarea id="comment-input" class="form-input" placeholder="Write your comment..." required style="min-height: 80px; margin-bottom: 15px; resize: vertical;"></textarea>
+      <button class="form-btn" onclick="postComment()" style="width: max-content; padding: 10px 20px;">
+        <ion-icon name="paper-plane-outline"></ion-icon><span>Post Comment</span>
+      </button>
+    `;
+  }
+  loadComments(id);
+};
+
+window.closeBlogDetail = function() {
+  window.currentBlogId = null;
+  document.getElementById('blog-list-container').style.display = 'block';
+  document.getElementById('blog-detail-container').style.display = 'none';
+};
+
+window.renderCommentHTML = function(c, currentUser) {
+  const username = c.profiles?.username || 'Anonymous';
+  const role = c.profiles?.role || 'Member';
+  const email = c.profiles?.email || 'No Email';
+  const isOwner = currentUser && currentUser.id === c.user_id;
+  const isAdmin = currentUser && currentUser.role === 'Admin';
+
+  return `
+    <div class="comment-item" style="margin-bottom: 30px; background: var(--onyx); padding: 20px; border-radius: 12px; border: 1px solid var(--jet);">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+        <div>
+          <h4 class="h4" style="font-size: 16px; color: var(--orange-yellow-crayola); margin: 0;">${username}</h4>
+          <p style="font-size: 12px; color: var(--light-gray-70); margin: 2px 0 8px;">${email}</p>
+        </div>
+        <div style="text-align: right;">
+          <span style="display: block; font-size: 10px; color: #fbbf24; text-transform: uppercase; font-weight: 700; letter-spacing: 1px; margin-bottom: 4px;">
+            ${role}
+          </span>
+          <span style="font-size: 10px; color: var(--light-gray-70);">
+            ${new Date(c.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+          </span>
+        </div>
+      </div>
+      <div style="border-top: 1px solid var(--jet); margin-bottom: 15px;"></div>
+      <p style="font-size: 15px; color: var(--light-gray); line-height: 1.6; margin-bottom: 15px;">
+        ${c.content}
+      </p>
+      ${(isOwner || isAdmin) ? `
+        <button onclick="deleteComment('${c.id}')" style="color: #ff5f5f; font-size: 12px; background: none; border: none; cursor: pointer; display: flex; align-items: center; gap: 5px; padding: 0;">
+          <ion-icon name="trash-outline"></ion-icon> Delete Comment
+        </button>
+      ` : ''}
+    </div>
+  `;
+};
+
+window.loadComments = async function(blogId) {
+  const displayList = document.getElementById('comments-display-list');
+  const { data: { user } } = await supabaseClient.auth.getUser();
+  let currentUserData = null;
+  if (user) {
+    const { data: p } = await supabaseClient.from('profiles').select('role').eq('id', user.id).single();
+    currentUserData = { id: user.id, role: p?.role };
+  }
+  const { data: comments, error } = await supabaseClient
+    .from('comments')
+    .select(`id, content, created_at, user_id, profiles (username, role, email)`)
+    .eq('post_id', blogId)
+    .order('created_at', { ascending: false });
+  if (error) return;
+  if (!comments || comments.length === 0) {
+    displayList.innerHTML = `<p style="color: var(--light-gray-70); text-align: center;">No comments yet.</p>`;
+  } else {
+    displayList.innerHTML = comments.map(c => renderCommentHTML(c, currentUserData)).join('');
+  }
+};
+
 window.postComment = async function() {
   const input = document.getElementById('comment-input');
   const { data: { user } } = await supabaseClient.auth.getUser();
   if (!user || !input.value.trim()) return;
-
   const { error } = await supabaseClient
     .from('comments')
     .insert([{ post_id: window.currentBlogId, user_id: user.id, content: input.value.trim() }]);
-
-  if (error) {
-    Swal.fire({ icon: 'error', text: 'Failed to post comment', background: '#1e1e1f', color: '#fff' });
-  } else {
-    await Swal.fire({ icon: 'success', text: 'Comment posted!', timer: 1500, showConfirmButton: false, background: '#1e1e1f', color: '#fff' });
-    input.value = ''; 
-    loadComments(window.currentBlogId);
-  }
+  if (error) return Swal.fire({ icon: 'error', text: 'Failed to post comment', background: '#1e1e1f', color: '#fff' });
+  
+  Swal.fire({ icon: 'success', text: 'Comment posted!', background: '#1e1e1f', color: '#fff', timer: 1000, showConfirmButton: false });
+  input.value = ''; 
+  loadComments(window.currentBlogId);
 };
 
 window.deleteComment = async function(commentId) {
   const result = await Swal.fire({
-    text: "Are you sure you want to delete this comment?",
+    title: 'Are you sure?',
+    text: "Delete this comment?",
     icon: 'warning',
     showCancelButton: true,
     confirmButtonColor: '#ff5f5f',
+    cancelButtonColor: '#383838',
+    confirmButtonText: 'Yes, delete it!',
     background: '#1e1e1f',
     color: '#fff'
   });
   if (result.isConfirmed) {
     const { error } = await supabaseClient.from('comments').delete().eq('id', commentId);
     if (error) {
-      Swal.fire({ icon: 'error', text: "Failed to delete comment" });
+      Swal.fire({ icon: 'error', text: "Failed to delete", background: '#1e1e1f', color: '#fff' });
     } else {
-      Swal.fire({ icon: 'success', text: "Comment deleted", timer: 1200, showConfirmButton: false });
+      Swal.fire({ icon: 'success', text: "Deleted!", background: '#1e1e1f', color: '#fff', timer: 1000, showConfirmButton: false });
       loadComments(window.currentBlogId);
     }
   }
 };
 
-// ... (Load Comments & Blog Details functionality remains same as your previous version)
-window.loadComments = async function(blogId) {
-  const displayList = document.getElementById('comments-display-list');
-  const { data: comments } = await supabaseClient.from('comments').select(`id, content, created_at, user_id, profiles (username, role)`).eq('post_id', blogId).order('created_at', { ascending: false });
-  if (comments) {
-    displayList.innerHTML = comments.map(c => `
-      <div style="background: var(--onyx); padding: 15px; border-radius: 8px; margin-bottom: 10px; border: 1px solid var(--jet);">
-        <p style="color: var(--orange-yellow-crayola); font-weight: bold; font-size: 14px;">${c.profiles?.username || 'User'}</p>
-        <p style="color: var(--light-gray); font-size: 14px; margin-top: 5px;">${c.content}</p>
-      </div>
-    `).join('');
-  }
-};
+/**
+ * AUTO-AUTH CHECKER
+ */
+supabaseClient.auth.onAuthStateChange(() => {
+  checkAccountStatus();
+});
 
-supabaseClient.auth.onAuthStateChange(() => { checkAccountStatus(); });
-document.addEventListener("DOMContentLoaded", () => { checkAccountStatus(); });
-
+document.addEventListener("DOMContentLoaded", () => {
+  checkAccountStatus();
+});
