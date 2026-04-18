@@ -231,3 +231,4 @@ window.loadComments = async function(blogId) {
 
 supabaseClient.auth.onAuthStateChange(() => { checkAccountStatus(); });
 document.addEventListener("DOMContentLoaded", () => { checkAccountStatus(); });
+
