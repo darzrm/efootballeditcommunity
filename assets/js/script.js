@@ -184,23 +184,34 @@ window.addEventListener('click', async function(event) {
 });
 
 /**
- * UI SYNC ENGINE (Updated Stats Layout)
+ * UI ENGINE: Membersihkan penumpukan tampilan
  */
 async function checkAccountStatus() {
   const { data: { user } } = await supabaseClient.auth.getUser();
+  
+  // Ambil semua container
   const guest = document.getElementById('guest-container');
+  const auth = document.getElementById('auth-container');
   const profile = document.getElementById('profile-container');
   const display = document.getElementById('user-info-display');
 
-  if (user) {
+  // Fungsi pembantu untuk menyembunyikan semua layar
+  const hideAllViews = () => {
     if (guest) guest.style.display = 'none';
+    if (auth) auth.style.display = 'none';
+    if (profile) profile.style.display = 'none';
+  };
+
+  hideAllViews(); // Bersihkan layar dulu
+
+  if (user) {
+    // Tampilkan hanya Profile jika sudah login
     if (profile) profile.style.display = 'block';
 
     const date = new Date(user.created_at).toLocaleDateString('en-US', {
       day: 'numeric', month: 'long', year: 'numeric'
     });
 
-    // Tampilan Stats dengan Username/Email dalam border simetris
     display.innerHTML = `
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
         <div style="background: var(--onyx); padding: 15px; border-radius: 12px; border: 1px solid var(--jet); grid-column: span 2;">
@@ -225,52 +236,54 @@ async function checkAccountStatus() {
       </div>
     `;
   } else {
+    // Tampilkan hanya Guest jika belum login
     if (guest) guest.style.display = 'block';
-    if (profile) profile.style.display = 'none';
   }
 }
 
 /**
- * EDIT USERNAME WITH PASSWORD VERIFICATION
+ * AUTH EVENT HANDLERS (Fixing Toggle & Overlapping)
  */
 window.addEventListener('click', async function(event) {
-  // 1. Munculkan form edit
+  const guest = document.getElementById('guest-container');
+  const auth = document.getElementById('auth-container');
+  const profile = document.getElementById('profile-container');
+
+  // Trigger Get Started (Guest -> Auth)
+  if (event.target.closest('#btn-start-auth')) {
+    if (guest) guest.style.display = 'none';
+    if (auth) auth.style.display = 'block';
+  }
+
+  // Trigger Close (Auth -> Guest)
+  if (event.target.closest('#btn-cancel-auth')) {
+    if (auth) auth.style.display = 'none';
+    if (guest) guest.style.display = 'block';
+  }
+
+  // LOGIN SUCCESS (Menyembunyikan Auth saat login berhasil)
+  if (event.target.closest('#login-btn-final')) {
+    const email = document.getElementById('auth-email').value;
+    const password = document.getElementById('auth-password').value;
+
+    const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
+    
+    if (error) {
+      Swal.fire({ icon: 'error', text: error.message, background: '#1e1e1f', color: '#fff' });
+    } else {
+      // Pastikan semua layar disembunyikan sebelum profil dimunculkan
+      if (auth) auth.style.display = 'none';
+      checkAccountStatus(); 
+    }
+  }
+
+  // SHOW/HIDE EDIT USERNAME FORM
   if (event.target.closest('#btn-show-edit')) {
     const editSection = document.getElementById('edit-username-section');
+    // Toggle tampilan saja tanpa merusak container utama
     editSection.style.display = editSection.style.display === 'none' ? 'block' : 'none';
   }
-
-  // 2. Proses update dengan verifikasi password
-  if (event.target.closest('#btn-submit-username')) {
-    const password = document.getElementById('confirm-password').value;
-    const newName = document.getElementById('new-username').value;
-    const { data: { user } } = await supabaseClient.auth.getUser();
-
-    if (!password || !newName) {
-      return Swal.fire({ icon: 'warning', text: 'Password and New Username are required', background: '#1e1e1f', color: '#fff' });
-    }
-
-    // Step 1: Re-authenticate user (Verifikasi Password)
-    const { error: signInError } = await supabaseClient.auth.signInWithPassword({
-      email: user.email,
-      password: password,
-    });
-
-    if (signInError) {
-      return Swal.fire({ icon: 'error', title: 'Verification Failed', text: 'Wrong password!', background: '#1e1e1f', color: '#fff' });
-    }
-
-    // Step 2: Jika password benar, update username
-    const { error: updateError } = await supabaseClient.auth.updateUser({
-      data: { display_name: newName }
-    });
-
-    if (updateError) {
-      Swal.fire({ icon: 'error', text: updateError.message });
-    } else {
-      await Swal.fire({ icon: 'success', text: 'Username successfully updated!', background: '#1e1e1f', color: '#fff' });
-      document.getElementById('edit-username-section').style.display = 'none';
-      checkAccountStatus(); // Refresh UI
-    }
-  }
 });
+
+// Pastikan dipanggil saat awal load
+checkAccountStatus();
