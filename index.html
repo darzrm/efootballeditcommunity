@@ -162,27 +162,31 @@
     
     <div id="user-info-display"></div>
     
-    <div id="edit-username-section" style="display: none; border-top: 1px solid var(--jet); padding-top: 20px; margin-top: 20px;">
+    <div id="edit-username-section" style="display: none; border: 1px solid var(--jet); background: rgba(255,255,255,0.02); padding: 20px; border-radius: 12px; margin-bottom: 15px;">
+      <p style="font-size: 13px; color: var(--light-gray); margin-bottom: 15px;">Verify Password to Change Username</p>
+      <div class="input-wrapper" style="margin-bottom: 10px;">
+        <input type="password" id="confirm-password" class="form-input" placeholder="Current Password" style="text-align: center;">
+      </div>
       <div class="input-wrapper" style="margin-bottom: 15px;">
-        <input type="password" id="confirm-password" class="form-input" placeholder="Enter password to verify" style="text-align: center; margin-bottom: 10px;">
-        <input type="text" id="new-username" class="form-input" placeholder="Enter new username" style="text-align: center;">
+        <input type="text" id="new-username" class="form-input" placeholder="New Display Name" style="text-align: center;">
       </div>
       <button class="form-btn" id="btn-submit-username" style="width: 100%; justify-content: center;">
-        <span>Confirm Change</span>
+        <span>Confirm Update</span>
       </button>
     </div>
 
-    <div style="margin-top: 25px; display: flex; flex-direction: column; gap: 10px;">
+    <div style="display: flex; flex-direction: column; gap: 10px;">
       <button class="form-btn" id="btn-show-edit" style="width: 100%; justify-content: center; background: var(--onyx); border: 1px solid var(--jet);">
         <span>Change Username</span>
       </button>
       
       <button class="form-btn" id="logout-btn-final" style="color: #ff5f5f; border-color: rgba(255, 95, 95, 0.2); width: 100%; justify-content: center;">
-        <span>Logout</span>
+        <span>Logout Account</span>
       </button>
     </div>
   </div>
 </section>
+
 
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
