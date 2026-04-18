@@ -82,27 +82,60 @@
         </section>
       </article>
 
-      <article class="blog" data-page="blog">
-        <header><h2 class="h2 article-title">Blog</h2></header>
-        <section class="blog-posts">
-          <ul class="blog-posts-list">
-            <li class="blog-post-item">
-              <a href="#">
-                <figure class="blog-banner-box"><img src="./assets/images/b1.jpg" loading="lazy" alt="Blog banner"></figure>
-                <div class="blog-content">
-                  <div class="blog-meta">
-                    <p class="blog-category">Announcement</p>
-                    <span class="dot"></span>
-                    <time datetime="2023-09-07">Sept 7, 2023</time>
-                  </div>
-                  <h3 class="h3 blog-item-title">Hello From EEC</h3>
-                  <p class="blog-text">Komunitas ini resmi berdiri hari ini!</p>
-                </div>
-              </a>
-            </li>
-          </ul>
-        </section>
-      </article>
+    <article class="blog" data-page="blog">
+
+  <header>
+    <h2 class="h2 article-title">Blog</h2>
+  </header>
+
+  <section class="blog-posts" id="blog-list-container">
+    <ul class="blog-posts-list">
+      <li class="blog-post-item" onclick="showBlogDetail('1', 'Tips Coding Modern', 'Isi konten blog yang sangat panjang dan detail ada di sini...')">
+        <a href="#">
+          <figure class="blog-banner-box">
+            <img src="./assets/images/blog-1.jpg" alt="Design" loading="lazy">
+          </figure>
+          <div class="blog-content">
+            <div class="blog-meta">
+              <p class="blog-category">Design</p>
+              <span class="dot"></span>
+              <time datetime="2022-02-23">Feb 23, 2022</time>
+            </div>
+            <h3 class="h3 blog-item-title">Tips Coding Modern</h3>
+            <p class="blog-text">Klik untuk membaca detail dan berdiskusi.</p>
+          </div>
+        </a>
+      </li>
+    </ul>
+  </section>
+
+  <section id="blog-detail-container" style="display: none;">
+    <button class="form-btn" onclick="closeBlogDetail()" style="margin-bottom: 25px; padding: 10px 20px;">
+      <ion-icon name="arrow-back-outline"></ion-icon> <span>Back to Feed</span>
+    </button>
+
+    <div class="blog-content-full">
+      <h2 class="h2" id="detail-title" style="color: var(--orange-yellow-crayola); margin-bottom: 15px;"></h2>
+      <p id="detail-text" style="color: var(--light-gray); line-height: 1.8; margin-bottom: 40px; font-size: 15px;"></p>
+    </div>
+
+    <div class="comment-section" style="border-top: 1px solid var(--jet); padding-top: 30px;">
+      <h3 class="h3" style="margin-bottom: 20px;">Comments</h3>
+      
+      <div id="comment-form-area" class="contact-form" style="margin-bottom: 40px;">
+        <textarea id="comment-input" class="form-input" placeholder="Tulis komentar anda..." required style="min-height: 80px; margin-bottom: 15px;"></textarea>
+        <button class="form-btn" id="btn-post-comment">
+          <span>Post Comment</span>
+        </button>
+      </div>
+
+      <div id="comments-display-list">
+        </div>
+    </div>
+  </section>
+
+</article>
+
    
 <article class="account" data-page="account">
   <header>
