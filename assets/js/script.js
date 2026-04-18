@@ -91,14 +91,14 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 /**
- * UNIFIED CLICK HANDLER (English System & Fixed Auth)
+ * UNIFIED CLICK HANDLER (Mengatasi Ganti Username, Auth, Register, & Reset)
  */
 window.addEventListener('click', async function(event) {
   const gCont = document.getElementById('guest-container');
   const aCont = document.getElementById('auth-container');
   const editSection = document.getElementById('edit-username-section');
   
-  // 1. Toggle Edit Username Form
+  // 1. Ganti Username: Toggle Form
   if (event.target.closest('#btn-show-edit')) {
     if (editSection) {
       const isHidden = editSection.style.display === 'none' || editSection.style.display === '';
@@ -106,14 +106,14 @@ window.addEventListener('click', async function(event) {
     }
   }
 
-  // 2. Submit Username Update
+  // 2. Ganti Username: Submit Update
   if (event.target.closest('#btn-submit-username')) {
     const password = document.getElementById('confirm-password').value;
     const newName = document.getElementById('new-username').value;
     const { data: { user } } = await supabaseClient.auth.getUser();
 
     if (!password || !newName) {
-      return Swal.fire({ icon: 'warning', text: 'Please fill in all fields', background: '#1e1e1f', color: '#fff' });
+      return Swal.fire({ icon: 'warning', text: 'Tolong isi semua field', background: '#1e1e1f', color: '#fff' });
     }
 
     const { error: authError } = await supabaseClient.auth.signInWithPassword({
@@ -122,7 +122,7 @@ window.addEventListener('click', async function(event) {
     });
 
     if (authError) {
-      return Swal.fire({ icon: 'error', text: 'Incorrect password!', background: '#1e1e1f', color: '#fff' });
+      return Swal.fire({ icon: 'error', text: 'Password salah!', background: '#1e1e1f', color: '#fff' });
     }
 
     const { error: updateError } = await supabaseClient.auth.updateUser({
@@ -130,9 +130,9 @@ window.addEventListener('click', async function(event) {
     });
 
     if (updateError) {
-      Swal.fire({ icon: 'error', text: updateError.message, background: '#1e1e1f', color: '#fff' });
+      Swal.fire({ icon: 'error', text: updateError.message });
     } else {
-      await Swal.fire({ icon: 'success', text: 'Username updated successfully!', background: '#1e1e1f', color: '#fff' });
+      await Swal.fire({ icon: 'success', text: 'Username berhasil diperbarui!', background: '#1e1e1f', color: '#fff' });
       if (editSection) editSection.style.display = 'none';
       checkAccountStatus(); 
     }
@@ -157,56 +157,55 @@ window.addEventListener('click', async function(event) {
       email: emailInput.value,
       password: passInput.value
     });
-    if (error) {
-      Swal.fire({ icon: 'error', title: 'Login Failed', text: error.message, background: '#1e1e1f', color: '#fff' });
-    } else {
-      Swal.fire({ icon: 'success', title: 'Welcome!', text: 'Logged in successfully', background: '#1e1e1f', color: '#fff', timer: 1500, showConfirmButton: false });
-    }
+    if (error) Swal.fire({ icon: 'error', text: error.message, background: '#1e1e1f', color: '#fff' });
   }
 
-  // 5. Register Action (FIXED)
+  // 5. Register Action (BARU)
   if (event.target.closest('#register-btn-final')) {
-    const email = document.getElementById('auth-email').value;
-    const pass = document.getElementById('auth-password').value;
-    const name = document.getElementById('auth-username')?.value || 'New Member';
+    const emailInput = document.getElementById('auth-email');
+    const passInput = document.getElementById('auth-password');
+    const nameInput = document.getElementById('reg-username'); // Gunakan ID unik untuk nama regis
 
-    if (!email || !pass) {
-      return Swal.fire({ icon: 'warning', text: 'Please enter email and password', background: '#1e1e1f', color: '#fff' });
+    if (!emailInput.value || !passInput.value) {
+      return Swal.fire({ icon: 'warning', text: 'Email dan Password wajib diisi', background: '#1e1e1f', color: '#fff' });
     }
 
     const { error } = await supabaseClient.auth.signUp({
-      email: email,
-      password: pass,
-      options: { data: { display_name: name } }
+      email: emailInput.value,
+      password: passInput.value,
+      options: {
+        data: { display_name: nameInput ? nameInput.value : 'Member' }
+      }
     });
 
     if (error) {
-      Swal.fire({ icon: 'error', title: 'Registration Failed', text: error.message, background: '#1e1e1f', color: '#fff' });
+      Swal.fire({ icon: 'error', text: error.message, background: '#1e1e1f', color: '#fff' });
     } else {
-      Swal.fire({ icon: 'success', title: 'Success!', text: 'Account created! Please verify your email.', background: '#1e1e1f', color: '#fff' });
+      Swal.fire({ icon: 'success', text: 'Registrasi berhasil! Cek email untuk verifikasi.', background: '#1e1e1f', color: '#fff' });
     }
   }
 
-  // 6. Reset Password Action (FIXED)
-  if (event.target.closest('#reset-password-btn')) {
-    const email = document.getElementById('auth-email').value;
-    if (!email) {
-      return Swal.fire({ icon: 'info', text: 'Enter your email to reset password', background: '#1e1e1f', color: '#fff' });
+  // 6. Reset Password Action (BARU)
+  if (event.target.closest('#btn-reset-password')) {
+    const emailInput = document.getElementById('auth-email');
+    
+    if (!emailInput.value) {
+      return Swal.fire({ icon: 'warning', text: 'Masukkan email Anda di kolom input', background: '#1e1e1f', color: '#fff' });
     }
 
-    const { error } = await supabaseClient.auth.resetPasswordForEmail(email);
+    const { error } = await supabaseClient.auth.resetPasswordForEmail(emailInput.value);
+
     if (error) {
       Swal.fire({ icon: 'error', text: error.message, background: '#1e1e1f', color: '#fff' });
     } else {
-      Swal.fire({ icon: 'success', title: 'Email Sent', text: 'Check your inbox for the reset link', background: '#1e1e1f', color: '#fff' });
+      Swal.fire({ icon: 'success', text: 'Instruksi reset password telah dikirim ke email!', background: '#1e1e1f', color: '#fff' });
     }
   }
 
   // 7. Logout Action
   if (event.target.closest('#logout-btn-final')) {
     await supabaseClient.auth.signOut();
-    Swal.fire({ icon: 'info', text: 'Signing out...', background: '#1e1e1f', color: '#fff', timer: 1000, showConfirmButton: false });
-    setTimeout(() => location.reload(), 1000);
+    location.reload();
   }
 });
 
@@ -354,7 +353,7 @@ window.loadComments = async function(blogId) {
     .order('created_at', { ascending: false });
   if (error) return;
   if (!comments || comments.length === 0) {
-    displayList.innerHTML = `<p style="color: var(--light-gray-70); text-align: center;">No comments yet.</p>`;
+    displayList.innerHTML = `<p style="color: var(--light-gray-70); text-align: center;">Belum ada komentar.</p>`;
   } else {
     displayList.innerHTML = comments.map(c => renderCommentHTML(c, currentUserData)).join('');
   }
@@ -367,33 +366,24 @@ window.postComment = async function() {
   const { error } = await supabaseClient
     .from('comments')
     .insert([{ post_id: window.currentBlogId, user_id: user.id, content: input.value.trim() }]);
-  if (error) return Swal.fire({ icon: 'error', text: 'Failed to post comment', background: '#1e1e1f', color: '#fff' });
-  
-  Swal.fire({ icon: 'success', text: 'Comment posted!', background: '#1e1e1f', color: '#fff', timer: 1000, showConfirmButton: false });
+  if (error) return Swal.fire({ icon: 'error', text: 'Gagal mengirim komentar' });
   input.value = ''; 
   loadComments(window.currentBlogId);
 };
 
 window.deleteComment = async function(commentId) {
   const result = await Swal.fire({
-    title: 'Are you sure?',
-    text: "Delete this comment?",
+    text: "Hapus komentar ini?",
     icon: 'warning',
     showCancelButton: true,
     confirmButtonColor: '#ff5f5f',
-    cancelButtonColor: '#383838',
-    confirmButtonText: 'Yes, delete it!',
     background: '#1e1e1f',
     color: '#fff'
   });
   if (result.isConfirmed) {
     const { error } = await supabaseClient.from('comments').delete().eq('id', commentId);
-    if (error) {
-      Swal.fire({ icon: 'error', text: "Failed to delete", background: '#1e1e1f', color: '#fff' });
-    } else {
-      Swal.fire({ icon: 'success', text: "Deleted!", background: '#1e1e1f', color: '#fff', timer: 1000, showConfirmButton: false });
-      loadComments(window.currentBlogId);
-    }
+    if (error) Swal.fire({ icon: 'error', text: "Gagal menghapus" });
+    else loadComments(window.currentBlogId);
   }
 };
 
