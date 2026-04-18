@@ -194,24 +194,23 @@
     
     <div id="user-info-display"></div>
     
-    <div id="edit-username-section" style="display: none; border: 1px solid var(--jet); background: rgba(255,255,255,0.02); padding: 20px; border-radius: 12px; margin-bottom: 15px;">
-      <p style="font-size: 13px; color: var(--light-gray); margin-bottom: 15px;">Verify Password to Change Username</p>
-      <div class="input-wrapper" style="margin-bottom: 10px;">
-        <input type="password" id="confirm-password" class="form-input" placeholder="Current Password" style="text-align: center;">
-      </div>
-      <div class="input-wrapper" style="margin-bottom: 15px;">
-        <input type="text" id="new-username" class="form-input" placeholder="New Display Name" style="text-align: center;">
-      </div>
-      <button class="form-btn" id="btn-submit-username" style="width: 100%; justify-content: center;">
-        <span>Confirm Update</span>
-      </button>
-    </div>
+    <div id="edit-username-section" style="display: none; background: var(--onyx); padding: 20px; border-radius: 12px; border: 1px solid var(--jet); margin-bottom: 20px;">
+  <div class="input-wrapper" style="margin-bottom: 10px;">
+    <input type="password" id="confirm-password" class="form-input" placeholder="Current Password" style="text-align: center;">
+  </div>
+  <div class="input-wrapper" style="margin-bottom: 15px;">
+    <input type="text" id="new-username" class="form-input" placeholder="New Display Name" style="text-align: center;">
+  </div>
+  <button class="form-btn" id="btn-submit-username" style="width: 100%; justify-content: center;">
+    <span>Confirm Update</span>
+  </button>
+</div>
 
-    <div style="display: flex; flex-direction: column; gap: 10px;">
-      <button class="form-btn" id="btn-show-edit" style="width: 100%; justify-content: center; background: var(--onyx); border: 1px solid var(--jet);">
-        <span>Change Username</span>
-      </button>
-      
+<div style="display: flex; flex-direction: column; gap: 10px;">
+  <button class="form-btn" id="btn-show-edit" style="width: 100%; justify-content: center; background: var(--onyx); border: 1px solid var(--jet);">
+    <span>Change Username</span>
+  </button>
+ 
       <button class="form-btn" id="logout-btn-final" style="color: #ff5f5f; border-color: rgba(255, 95, 95, 0.2); width: 100%; justify-content: center;">
         <span>Logout Account</span>
       </button>
