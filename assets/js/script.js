@@ -325,29 +325,35 @@ window.closeBlogDetail = function() {
   document.getElementById('blog-detail-container').style.display = 'none';
 };
 
-// 3. Render Comment HTML
+// 3. Render Comment HTML (Updated UI)
 window.renderCommentHTML = function(c) {
   const username = c.profiles?.username || 'Anonymous';
   const role = c.profiles?.role || 'Member';
   const email = c.profiles?.email || 'No Email';
   
   return `
-    <div class="comment-item" style="margin-bottom: 25px;">
-      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 8px;">
-        <h4 class="h4" style="font-size: 16px; color: var(--orange-yellow-crayola); margin: 0;">${username}</h4>
-        <span style="font-size: 13px; color: var(--light-gray-70);">${email}</span>
+    <div class="comment-item" style="margin-bottom: 30px; background: var(--onyx); padding: 20px; border-radius: 12px; border: 1px solid var(--jet);">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+        <div>
+          <h4 class="h4" style="font-size: 16px; color: var(--orange-yellow-crayola); margin: 0;">${username}</h4>
+          <p style="font-size: 12px; color: var(--light-gray-70); margin: 2px 0 8px;">${email}</p>
+        </div>
+        
+        <div style="text-align: right;">
+          <span style="display: block; font-size: 10px; color: #fbbf24; text-transform: uppercase; font-weight: 700; letter-spacing: 1px; margin-bottom: 4px;">
+            ${role}
+          </span>
+          <span style="font-size: 10px; color: var(--light-gray-70);">
+            ${new Date(c.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
+          </span>
+        </div>
       </div>
+
+      <div style="border-top: 1px solid var(--jet); margin-bottom: 15px;"></div>
       
-      <p style="font-size: 15px; color: var(--light-gray); margin-bottom: 12px; line-height: 1.6;">
+      <p style="font-size: 15px; color: var(--light-gray); line-height: 1.6; margin: 0;">
         ${c.content}
       </p>
-
-      <div style="border-top: 1px solid var(--jet); padding-top: 8px; display: flex; gap: 15px; align-items: center;">
-        <span style="font-size: 11px; color: #fbbf24; text-transform: uppercase; font-weight: 600; letter-spacing: 1px;">
-          ${role}
-        </span>
-        <span style="font-size: 11px; color: var(--light-gray-70);">${new Date(c.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
-      </div>
     </div>
   `;
 };
@@ -433,3 +439,17 @@ window.postComment = async function() {
     showConfirmButton: false 
   });
 };
+
+/**
+ * AUTO-AUTH CHECKER (Fix Persistent Login)
+ */
+// Jalankan pengecekan setiap kali status auth berubah (login/logout/refresh)
+supabaseClient.auth.onAuthStateChange((event, session) => {
+  console.log("Auth Event:", event);
+  checkAccountStatus();
+});
+
+// Jalankan sekali saat pertama kali script dimuat
+document.addEventListener("DOMContentLoaded", () => {
+  checkAccountStatus();
+});
