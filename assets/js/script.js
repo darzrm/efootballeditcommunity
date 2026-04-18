@@ -276,6 +276,95 @@ window.addEventListener('click', async function(event) {
     } else {
       await Swal.fire({ icon: 'success', text: 'Profile updated!', background: '#1e1e1f', color: '#fff' });
       editSection.style.display = 'none'; // Sembunyikan form
+
+/**
+ * BLOG & COMMENT SYSTEM
+ */
+
+// 1. Fungsi Menampilkan Detail Blog
+async function showBlogDetail(id, title, text) {
+  document.getElementById('blog-list-container').style.display = 'none';
+  const detailContainer = document.getElementById('blog-detail-container');
+  detailContainer.style.display = 'block';
+
+  document.getElementById('detail-title').innerText = title;
+  document.getElementById('detail-text').innerText = text;
+
+  // Cek apakah user login untuk memunculkan form komen
+  const { data: { user } } = await supabaseClient.auth.getUser();
+  const formArea = document.getElementById('comment-form-area');
+  
+  if (!user) {
+    formArea.innerHTML = `<p style="color: var(--orange-yellow-crayola); font-size: 14px;">Silahkan login untuk ikut berkomentar.</p>`;
+  }
+
+  loadComments(id);
+}
+
+// 2. Fungsi Kembali ke Daftar
+function closeBlogDetail() {
+  document.getElementById('blog-list-container').style.display = 'block';
+  document.getElementById('blog-detail-container').style.display = 'none';
+}
+
+// 3. Render Komentar dengan Tampilan yang Diminta
+function loadComments(blogId) {
+  const displayList = document.getElementById('comments-display-list');
+  
+  // Data dummy (bisa diganti dengan fetch dari table 'comments' Supabase)
+  const comments = [
+    { username: "Admin", email: "admin@efoodico.com", content: "Selamat datang di komunitas!", role: "Moderator", time: "12:30" }
+  ];
+
+  displayList.innerHTML = comments.map(c => renderCommentHTML(c)).join('');
+}
+
+function renderCommentHTML(c) {
+  return `
+    <div class="comment-item" style="margin-bottom: 25px;">
+      <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 5px;">
+        <h4 class="h4" style="font-size: 15px; color: var(--orange-yellow-crayola);">${c.username}</h4>
+        <span style="font-size: 12px; color: var(--light-gray-70);">${c.email}</span>
+      </div>
+      
+      <p style="font-size: 14px; color: var(--light-gray); margin-bottom: 10px; line-height: 1.5;">
+        ${c.content}
+      </p>
+
+      <div style="border-bottom: 1px solid var(--jet); padding-bottom: 8px; display: flex; gap: 15px; align-items: center;">
+        <span style="font-size: 10px; color: #fbbf24; text-transform: uppercase; font-weight: 600; letter-spacing: 1px;">
+          ${c.role}
+        </span>
+        <span style="font-size: 10px; color: var(--light-gray-70);">${c.time}</span>
+      </div>
+    </div>
+  `;
+}
+
+// 4. Logika Posting Komentar
+document.getElementById('btn-post-comment')?.addEventListener('click', async () => {
+  const input = document.getElementById('comment-input');
+  const content = input.value;
+  const { data: { user } } = await supabaseClient.auth.getUser();
+
+  if (!content) return;
+
+  const newComment = {
+    username: user.user_metadata.display_name || 'User',
+    email: user.email,
+    content: content,
+    role: "Member",
+    time: new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+  };
+
+  const displayList = document.getElementById('comments-display-list');
+  displayList.insertAdjacentHTML('afterbegin', renderCommentHTML(newComment));
+  
+  input.value = '';
+  Swal.fire({ icon: 'success', text: 'Komentar terkirim!', background: '#1e1e1f', color: '#fff', timer: 1500 });
+});
+
+
       checkAccountStatus(); // Segarkan tampilan
     }
   }
