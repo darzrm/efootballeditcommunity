@@ -184,51 +184,93 @@ window.addEventListener('click', async function(event) {
 });
 
 /**
- * UI SYNC ENGINE
+ * UI SYNC ENGINE (Updated Stats Layout)
  */
 async function checkAccountStatus() {
   const { data: { user } } = await supabaseClient.auth.getUser();
   const guest = document.getElementById('guest-container');
-  const auth = document.getElementById('auth-container');
   const profile = document.getElementById('profile-container');
   const display = document.getElementById('user-info-display');
 
   if (user) {
     if (guest) guest.style.display = 'none';
-    if (auth) auth.style.display = 'none';
     if (profile) profile.style.display = 'block';
 
     const date = new Date(user.created_at).toLocaleDateString('en-US', {
       day: 'numeric', month: 'long', year: 'numeric'
     });
 
+    // Tampilan Stats dengan Username/Email dalam border simetris
     display.innerHTML = `
-      <div style="margin-bottom: 25px; text-align: center;">
-        <h4 class="h4" style="font-size: 28px; color: var(--orange-yellow-crayola); margin-bottom: 5px;">
-          ${user.user_metadata.display_name || 'Member'}
-        </h4>
-        <p style="font-size: 14px; color: var(--light-gray);">${user.email}</p>
-      </div>
-      
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
-        <div style="background: var(--onyx); padding: 20px; border-radius: 12px; border: 1px solid var(--jet);">
+      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+        <div style="background: var(--onyx); padding: 15px; border-radius: 12px; border: 1px solid var(--jet); grid-column: span 2;">
+          <h4 class="h4" style="font-size: 22px; color: var(--orange-yellow-crayola); margin-bottom: 2px;">
+            ${user.user_metadata.display_name || 'Member'}
+          </h4>
+          <p style="font-size: 13px; color: var(--light-gray); margin-bottom: 5px;">${user.email}</p>
+          <p style="font-size: 11px; color: var(--light-gray-70); border-top: 1px solid var(--jet); pt: 5px; margin-top: 5px;">
+            Joined: ${date}
+          </p>
+        </div>
+        
+        <div style="background: var(--onyx); padding: 15px; border-radius: 12px; border: 1px solid var(--jet);">
           <p style="font-size: 10px; color: var(--light-gray); text-transform: uppercase;">Points</p>
           <p style="font-size: 20px; font-weight: 600; color: #38bdf8;">0</p>
         </div>
-        <div style="background: var(--onyx); padding: 20px; border-radius: 12px; border: 1px solid var(--jet);">
+
+        <div style="background: var(--onyx); padding: 15px; border-radius: 12px; border: 1px solid var(--jet);">
           <p style="font-size: 10px; color: var(--light-gray); text-transform: uppercase;">Role</p>
           <p style="font-size: 20px; font-weight: 600; color: #fbbf24;">Member</p>
         </div>
       </div>
-
-      <p style="font-size: 12px; color: var(--light-gray);">Joined: <span style="color: #fff;">${date}</span></p>
     `;
   } else {
     if (guest) guest.style.display = 'block';
     if (profile) profile.style.display = 'none';
-    if (auth) auth.style.display = 'none';
   }
 }
 
-// Jalankan saat halaman dimuat
-checkAccountStatus();
+/**
+ * EDIT USERNAME WITH PASSWORD VERIFICATION
+ */
+window.addEventListener('click', async function(event) {
+  // 1. Munculkan form edit
+  if (event.target.closest('#btn-show-edit')) {
+    const editSection = document.getElementById('edit-username-section');
+    editSection.style.display = editSection.style.display === 'none' ? 'block' : 'none';
+  }
+
+  // 2. Proses update dengan verifikasi password
+  if (event.target.closest('#btn-submit-username')) {
+    const password = document.getElementById('confirm-password').value;
+    const newName = document.getElementById('new-username').value;
+    const { data: { user } } = await supabaseClient.auth.getUser();
+
+    if (!password || !newName) {
+      return Swal.fire({ icon: 'warning', text: 'Password and New Username are required', background: '#1e1e1f', color: '#fff' });
+    }
+
+    // Step 1: Re-authenticate user (Verifikasi Password)
+    const { error: signInError } = await supabaseClient.auth.signInWithPassword({
+      email: user.email,
+      password: password,
+    });
+
+    if (signInError) {
+      return Swal.fire({ icon: 'error', title: 'Verification Failed', text: 'Wrong password!', background: '#1e1e1f', color: '#fff' });
+    }
+
+    // Step 2: Jika password benar, update username
+    const { error: updateError } = await supabaseClient.auth.updateUser({
+      data: { display_name: newName }
+    });
+
+    if (updateError) {
+      Swal.fire({ icon: 'error', text: updateError.message });
+    } else {
+      await Swal.fire({ icon: 'success', text: 'Username successfully updated!', background: '#1e1e1f', color: '#fff' });
+      document.getElementById('edit-username-section').style.display = 'none';
+      checkAccountStatus(); // Refresh UI
+    }
+  }
+});
