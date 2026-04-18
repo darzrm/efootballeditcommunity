@@ -109,7 +109,7 @@
     <h2 class="h2 article-title">Account</h2>
   </header>
 
-  <section id="guest-container" class="active-auth-section" style="text-align: center; padding: 60px 20px;">
+  <section id="guest-container" style="text-align: center; padding: 60px 20px;">
     <div class="contact-form">
       <h3 class="h3 form-title">Community Access</h3>
       <p style="color: var(--light-gray); margin-bottom: 30px; line-height: 1.8;">
@@ -123,39 +123,39 @@
   </section>
 
   <section id="auth-container" style="display: none;">
-  <div class="contact-form">
-    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
-      <h3 class="h3 form-title" style="margin: 0;">Access Portal</h3>
-      <button id="btn-cancel-auth" style="color: var(--light-gray); font-size: 24px; background: none; border: none; cursor: pointer;">
-        <ion-icon name="close-outline"></ion-icon>
-      </button>
-    </div>
-    
-    <div class="form">
-      <div class="input-wrapper">
-        <input type="text" id="auth-username" class="form-input" placeholder="Username (For Registration Only)">
-        <input type="email" id="auth-email" class="form-input" placeholder="Email Address" required>
-        <input type="password" id="auth-password" class="form-input" placeholder="Password" required>
-      </div>
-
-      <div style="display: flex; gap: 15px; margin-top: 25px;">
-        <button class="form-btn" type="button" id="login-btn-final" style="flex: 1; justify-content: center;">
-          <span>Login</span>
-        </button>
-        <button class="form-btn" type="button" id="register-btn-final" style="flex: 1; justify-content: center; background: var(--onyx); border: 1px solid var(--jet);">
-          <span>Register</span>
+    <div class="contact-form">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+        <h3 class="h3 form-title" style="margin: 0;">Access Portal</h3>
+        <button id="btn-cancel-auth" style="color: var(--light-gray); font-size: 24px; background: none; border: none; cursor: pointer;">
+          <ion-icon name="close-outline"></ion-icon>
         </button>
       </div>
+      
+      <div class="form">
+        <div class="input-wrapper">
+          <input type="text" id="auth-username" class="form-input" placeholder="Username (For Registration Only)">
+          <input type="email" id="auth-email" class="form-input" placeholder="Email Address" required>
+          <input type="password" id="auth-password" class="form-input" placeholder="Password" required>
+        </div>
 
-      <p style="margin-top: 20px; text-align: center; font-size: 13px; color: var(--light-gray);">
-        Forgot your password? 
-        <span id="btn-forgot-pass" style="color: var(--orange-yellow-crayola); cursor: pointer; font-weight: 500; text-decoration: underline;">
-          Reset here
-        </span>
-      </p>
+        <div style="display: flex; gap: 15px; margin-top: 25px;">
+          <button class="form-btn" type="button" id="login-btn-final" style="flex: 1; justify-content: center;">
+            <span>Login</span>
+          </button>
+          <button class="form-btn" type="button" id="register-btn-final" style="flex: 1; justify-content: center; background: var(--onyx); border: 1px solid var(--jet);">
+            <span>Register</span>
+          </button>
+        </div>
+
+        <p style="margin-top: 20px; text-align: center; font-size: 13px; color: var(--light-gray);">
+          Forgot your password? 
+          <span id="btn-forgot-pass" style="color: var(--orange-yellow-crayola); cursor: pointer; font-weight: 500; text-decoration: underline;">
+            Reset here
+          </span>
+        </p>
+      </div>
     </div>
-  </div>
-</section>
+  </section>
 
   <section id="profile-container" style="display: none;">
     <div class="contact-form" style="text-align: center;">
@@ -171,12 +171,13 @@
         </button>
       </div>
 
-      <button class="form-btn" id="logout-btn" style="color: #ff5f5f; border-color: rgba(255, 95, 95, 0.2); width: 100%; justify-content: center; margin-top: 15px;">
+      <button class="form-btn" id="logout-btn-final" style="color: #ff5f5f; border-color: rgba(255, 95, 95, 0.2); width: 100%; justify-content: center; margin-top: 15px;">
         <span>Logout</span>
       </button>
     </div>
   </section>
 </article>
+
 
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 
