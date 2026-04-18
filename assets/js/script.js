@@ -106,7 +106,7 @@ window.addEventListener('click', async function(event) {
     }
   }
 
-  // 2. Change Username: Submit Update
+  // 2. Change Username: Submit Update (Auth Metadata + Profile Table)
   if (event.target.closest('#btn-submit-username')) {
     const password = document.getElementById('confirm-password').value;
     const newName = document.getElementById('new-username').value;
@@ -116,6 +116,7 @@ window.addEventListener('click', async function(event) {
       return Swal.fire({ icon: 'warning', text: 'Please fill in all fields', background: '#1e1e1f', color: '#fff' });
     }
 
+    // Re-autentikasi untuk keamanan sebelum ganti nama
     const { error: authError } = await supabaseClient.auth.signInWithPassword({
       email: user.email,
       password: password
@@ -125,12 +126,19 @@ window.addEventListener('click', async function(event) {
       return Swal.fire({ icon: 'error', text: 'Incorrect password!', background: '#1e1e1f', color: '#fff' });
     }
 
-    const { error: updateError } = await supabaseClient.auth.updateUser({
+    // Update Auth Metadata
+    const { error: updateAuthError } = await supabaseClient.auth.updateUser({
       data: { display_name: newName }
     });
 
-    if (updateError) {
-      Swal.fire({ icon: 'error', text: updateError.message });
+    // Update Tabel Profiles (Agar sinkron dengan komentar)
+    const { error: updateTableError } = await supabaseClient
+      .from('profiles')
+      .update({ username: newName })
+      .eq('id', user.id);
+
+    if (updateAuthError || updateTableError) {
+      Swal.fire({ icon: 'error', text: 'Update failed. Try again.' });
     } else {
       await Swal.fire({ icon: 'success', text: 'Username updated successfully!', background: '#1e1e1f', color: '#fff' });
       if (editSection) editSection.style.display = 'none';
@@ -160,41 +168,40 @@ window.addEventListener('click', async function(event) {
     if (error) Swal.fire({ icon: 'error', text: error.message, background: '#1e1e1f', color: '#fff' });
   }
 
-  // 5. Register Action
+  // 5. Register Action (Fixed Username ID)
   if (event.target.closest('#register-btn-final')) {
     const emailInput = document.getElementById('auth-email');
     const passInput = document.getElementById('auth-password');
-    const nameInput = document.getElementById('reg-username');
+    const nameInput = document.getElementById('auth-username'); // Menggunakan ID yang ada di index.html
 
-    if (!emailInput.value || !passInput.value) {
-      return Swal.fire({ icon: 'warning', text: 'Email and Password are required', background: '#1e1e1f', color: '#fff' });
+    if (!emailInput.value || !passInput.value || !nameInput.value) {
+      return Swal.fire({ icon: 'warning', text: 'All fields are required for registration', background: '#1e1e1f', color: '#fff' });
     }
 
     const { error } = await supabaseClient.auth.signUp({
       email: emailInput.value,
       password: passInput.value,
       options: {
-        data: { display_name: nameInput ? nameInput.value : 'Member' },
-        emailRedirectTo: window.location.origin // Essential for verification links
+        data: { display_name: nameInput.value },
+        emailRedirectTo: window.location.origin
       }
     });
 
     if (error) {
       Swal.fire({ icon: 'error', text: error.message, background: '#1e1e1f', color: '#fff' });
     } else {
-      Swal.fire({ icon: 'success', text: 'Registration successful! Please check your email for verification.', background: '#1e1e1f', color: '#fff' });
+      Swal.fire({ icon: 'success', text: 'Registration successful! Check your email to verify.', background: '#1e1e1f', color: '#fff' });
     }
   }
 
-  // 6. Reset Password Action (FIXED)
-  if (event.target.closest('#btn-reset-password')) {
+  // 6. Reset Password Action (Linked to ID btn-forgot-pass or btn-reset-password)
+  if (event.target.closest('#btn-forgot-pass') || event.target.closest('#btn-reset-password')) {
     const emailInput = document.getElementById('auth-email');
     
     if (!emailInput || !emailInput.value) {
-      return Swal.fire({ icon: 'warning', text: 'Please enter your email in the input field first', background: '#1e1e1f', color: '#fff' });
+      return Swal.fire({ icon: 'warning', text: 'Please enter your email first', background: '#1e1e1f', color: '#fff' });
     }
 
-    // Added redirectTo to ensure Supabase knows where to send the user back
     const { error } = await supabaseClient.auth.resetPasswordForEmail(emailInput.value, {
       redirectTo: window.location.href, 
     });
@@ -202,12 +209,7 @@ window.addEventListener('click', async function(event) {
     if (error) {
       Swal.fire({ icon: 'error', text: error.message, background: '#1e1e1f', color: '#fff' });
     } else {
-      Swal.fire({ 
-        icon: 'success', 
-        text: 'Password reset instructions have been sent to your email!', 
-        background: '#1e1e1f', 
-        color: '#fff' 
-      });
+      Swal.fire({ icon: 'success', text: 'Reset instructions sent to your email!', background: '#1e1e1f', color: '#fff' });
     }
   }
 
@@ -238,36 +240,39 @@ async function checkAccountStatus() {
 
     const { data: profileData } = await supabaseClient
       .from('profiles')
-      .select('role')
+      .select('role, username')
       .eq('id', user.id)
       .single();
 
     const userRole = profileData?.role || 'Member';
+    const displayName = profileData?.username || user.user_metadata.display_name || 'Member';
     const date = new Date(user.created_at).toLocaleDateString('en-US', {
       day: 'numeric', month: 'long', year: 'numeric'
     });
 
-    display.innerHTML = `
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-        <div style="background: var(--onyx); padding: 20px; border-radius: 12px; border: 1px solid var(--jet); grid-column: span 2;">
-          <h4 class="h4" style="font-size: 24px; color: var(--orange-yellow-crayola); margin-bottom: 4px;">
-            ${user.user_metadata.display_name || 'Member'}
-          </h4>
-          <p style="font-size: 14px; color: var(--light-gray); margin-bottom: 8px;">${user.email}</p>
-          <div style="border-top: 1px solid var(--jet); padding-top: 8px; font-size: 11px; color: var(--light-gray-70);">
-            Joined: ${date}
+    if (display) {
+      display.innerHTML = `
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
+          <div style="background: var(--onyx); padding: 20px; border-radius: 12px; border: 1px solid var(--jet); grid-column: span 2;">
+            <h4 class="h4" style="font-size: 24px; color: var(--orange-yellow-crayola); margin-bottom: 4px;">
+              ${displayName}
+            </h4>
+            <p style="font-size: 14px; color: var(--light-gray); margin-bottom: 8px;">${user.email}</p>
+            <div style="border-top: 1px solid var(--jet); padding-top: 8px; font-size: 11px; color: var(--light-gray-70);">
+              Joined: ${date}
+            </div>
+          </div>
+          <div style="background: var(--onyx); padding: 15px; border-radius: 12px; border: 1px solid var(--jet);">
+            <p style="font-size: 10px; color: var(--light-gray); text-transform: uppercase;">Points</p>
+            <p style="font-size: 20px; font-weight: 600; color: #fbbf24;">0</p>
+          </div>
+          <div style="background: var(--onyx); padding: 15px; border-radius: 12px; border: 1px solid var(--jet);">
+            <p style="font-size: 10px; color: var(--light-gray); text-transform: uppercase;">Role</p>
+            <p style="font-size: 20px; font-weight: 600; color: #fbbf24;">${userRole}</p>
           </div>
         </div>
-        <div style="background: var(--onyx); padding: 15px; border-radius: 12px; border: 1px solid var(--jet);">
-          <p style="font-size: 10px; color: var(--light-gray); text-transform: uppercase;">Points</p>
-          <p style="font-size: 20px; font-weight: 600; color: #fbbf24;">0</p>
-        </div>
-        <div style="background: var(--onyx); padding: 15px; border-radius: 12px; border: 1px solid var(--jet);">
-          <p style="font-size: 10px; color: var(--light-gray); text-transform: uppercase;">Role</p>
-          <p style="font-size: 20px; font-weight: 600; color: #fbbf24;">${userRole}</p>
-        </div>
-      </div>
-    `;
+      `;
+    }
     
     if (window.currentBlogId) loadComments(window.currentBlogId);
   } else {
@@ -349,17 +354,22 @@ window.renderCommentHTML = function(c, currentUser) {
 
 window.loadComments = async function(blogId) {
   const displayList = document.getElementById('comments-display-list');
+  if(!displayList) return;
+
   const { data: { user } } = await supabaseClient.auth.getUser();
   let currentUserData = null;
+  
   if (user) {
     const { data: p } = await supabaseClient.from('profiles').select('role').eq('id', user.id).single();
     currentUserData = { id: user.id, role: p?.role };
   }
+
   const { data: comments, error } = await supabaseClient
     .from('comments')
     .select(`id, content, created_at, user_id, profiles (username, role, email)`)
     .eq('post_id', blogId)
     .order('created_at', { ascending: false });
+
   if (error) return;
   if (!comments || comments.length === 0) {
     displayList.innerHTML = `<p style="color: var(--light-gray-70); text-align: center;">No comments yet.</p>`;
@@ -397,7 +407,7 @@ window.deleteComment = async function(commentId) {
 };
 
 /**
- * AUTO-AUTH CHECKER
+ * INITIALIZATION
  */
 supabaseClient.auth.onAuthStateChange(() => {
   checkAccountStatus();
@@ -406,4 +416,3 @@ supabaseClient.auth.onAuthStateChange(() => {
 document.addEventListener("DOMContentLoaded", () => {
   checkAccountStatus();
 });
-
