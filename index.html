@@ -82,18 +82,17 @@
         </section>
       </article>
 
-    <article class="blog" data-page="blog">
-
+   <article class="blog" data-page="blog">
   <header>
-    <h2 class="h2 article-title">Blog</h2>
+    <h2 class="h2 article-title">Blog / News</h2>
   </header>
 
-  <section class="blog-posts" id="blog-list-container">
+  <section id="blog-list-container">
     <ul class="blog-posts-list">
-      <li class="blog-post-item" onclick="showBlogDetail('1', 'Tips Coding Modern', 'Isi konten blog yang sangat panjang dan detail ada di sini...')">
-        <a href="#">
+      <li class="blog-post-item" onclick="showBlogDetail('1', 'Tips Coding Modern', 'Ini adalah isi konten lengkap dari blog Tips Coding Modern. Silakan berdiskusi di kolom komentar di bawah ini.')">
+        <a href="javascript:void(0)">
           <figure class="blog-banner-box">
-            <img src="./assets/images/blog-1.jpg" alt="Design" loading="lazy">
+            <img src="./assets/images/blog-1.jpg" alt="Blog Image" loading="lazy">
           </figure>
           <div class="blog-content">
             <div class="blog-meta">
@@ -110,7 +109,7 @@
   </section>
 
   <section id="blog-detail-container" style="display: none;">
-    <button class="form-btn" onclick="closeBlogDetail()" style="margin-bottom: 25px; padding: 10px 20px;">
+    <button class="form-btn" onclick="closeBlogDetail()" style="margin-bottom: 25px; padding: 10px 20px; width: max-content;">
       <ion-icon name="arrow-back-outline"></ion-icon> <span>Back to Feed</span>
     </button>
 
@@ -123,9 +122,9 @@
       <h3 class="h3" style="margin-bottom: 20px;">Comments</h3>
       
       <div id="comment-form-area" class="contact-form" style="margin-bottom: 40px;">
-        <textarea id="comment-input" class="form-input" placeholder="Tulis komentar anda..." required style="min-height: 80px; margin-bottom: 15px;"></textarea>
-        <button class="form-btn" id="btn-post-comment">
-          <span>Post Comment</span>
+        <textarea id="comment-input" class="form-input" placeholder="Tulis komentar anda..." required style="min-height: 80px; margin-bottom: 15px; resize: vertical;"></textarea>
+        <button class="form-btn" onclick="postComment()" style="width: max-content; padding: 10px 20px;">
+          <ion-icon name="paper-plane-outline"></ion-icon><span>Post Comment</span>
         </button>
       </div>
 
@@ -133,7 +132,6 @@
         </div>
     </div>
   </section>
-
 </article>
 
    
