@@ -181,9 +181,10 @@
 
         <p style="margin-top: 20px; text-align: center; font-size: 13px; color: var(--light-gray);">
           Forgot your password? 
-          <span id="btn-forgot-pass" style="color: var(--orange-yellow-crayola); cursor: pointer; font-weight: 500; text-decoration: underline;">
-            Reset here
-          </span>
+   <span id="btn-reset-password" style="color: var(--orange-yellow-crayola); cursor: pointer; font-weight: 500; text-decoration: underline;">
+  Reset here
+</span>
+
         </p>
       </div>
     </div>
@@ -198,9 +199,11 @@
   <div class="input-wrapper" style="margin-bottom: 10px;">
     <input type="password" id="confirm-password" class="form-input" placeholder="Current Password" style="text-align: center;">
   </div>
-  <div class="input-wrapper" style="margin-bottom: 15px;">
-    <input type="text" id="new-username" class="form-input" placeholder="New Display Name" style="text-align: center;">
-  </div>
+  <div class="input-wrapper">
+  <input type="text" id="reg-username" class="form-input" placeholder="Username (For Registration Only)">
+  <input type="email" id="auth-email" class="form-input" placeholder="Email Address" required>
+  <input type="password" id="auth-password" class="form-input" placeholder="Password" required>
+</div>
   <button class="form-btn" id="btn-submit-username" style="width: 100%; justify-content: center;">
     <span>Confirm Update</span>
   </button>
