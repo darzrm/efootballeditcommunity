@@ -114,104 +114,85 @@ const SUPABASE_URL = 'https://pddlqipctqacvzmoydgy.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBkZGxxaXBjdHFhY3Z6bW95ZGd5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0MzEyNjksImV4cCI6MjA5MjAwNzI2OX0.MRq6Z0Njg-w6ALw5lJo7r8Ijn6xRAF-aq6PvJnmuGpw'; // Pastikan key benar
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-// --- TOAST NOTIFICATION ---
-const showToast = (icon, title) => {
-  Swal.fire({
-    icon: icon, title: title, toast: true, position: 'top-end',
-    showConfirmButton: false, timer: 3000, timerProgressBar: true,
-    background: '#1e1e1f', color: '#fff'
-  });
-};
-
-// --- Elements ---
-const guestCont = document.getElementById('guest-container');
-const authCont = document.getElementById('auth-container');
-const profCont = document.getElementById('profile-container');
-const userInfoDiv = document.getElementById('user-info-display');
-
-// Navigasi Internal Account (Fix Button Get Started)
-document.addEventListener('click', function(e) {
-  const guestView = document.getElementById('guest-container');
-  const authView = document.getElementById('auth-container');
-
-  if (e.target.closest('#btn-get-started')) {
-    guestView.style.display = 'none';
-    authView.style.display = 'block';
-  }
-  
-  if (e.target.closest('#btn-close-auth')) {
-    authView.style.display = 'none';
-    guestView.style.display = 'block';
-  }
-});
-
-// Update UI & Stats (Centered Layout)
-async function checkUserStatus() {
-  const { data: { user } } = await supabaseClient.auth.getUser();
-  const guestCont = document.getElementById('guest-container');
-  const authCont = document.getElementById('auth-container');
-  const profCont = document.getElementById('profile-container');
-  const userDisplay = document.getElementById('user-info-display');
-
-  if (user) {
-    guestCont.style.display = 'none';
-    authCont.style.display = 'none';
-    profCont.style.display = 'block';
-
-    const joinedDate = new Date(user.created_at).toLocaleString('en-GB', {
-      day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit'
-    });
-
-    userDisplay.innerHTML = `
-      <div style="margin-bottom: 25px;">
-        <h4 class="h4" style="font-size: 28px; color: var(--orange-yellow-crayola);">${user.user_metadata.display_name || 'Member'}</h4>
-        <p style="font-size: 14px; color: var(--light-gray);">${user.email}</p>
-      </div>
-      
-      <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
-        <div style="background: var(--onyx); padding: 20px; border-radius: 12px; border: 1px solid var(--jet);">
-          <p style="font-size: 10px; color: var(--light-gray); text-transform: uppercase;">Points</p>
-          <p style="font-size: 22px; font-weight: 600; color: #38bdf8;">0</p>
-        </div>
-        <div style="background: var(--onyx); padding: 20px; border-radius: 12px; border: 1px solid var(--jet);">
-          <p style="font-size: 10px; color: var(--light-gray); text-transform: uppercase;">Role</p>
-          <p style="font-size: 22px; font-weight: 600; color: #fbbf24;">MEMBER</p>
-        </div>
-      </div>
-
-      <div style="padding: 15px; background: rgba(255,255,255,0.03); border-radius: 10px;">
-        <p style="font-size: 12px; color: var(--light-gray);">Joined Since</p>
-        <p style="font-size: 14px; color: #fff;">${joinedDate}</p>
-      </div>
-    `;
-  } else {
-    guestCont.style.display = 'block';
-    profCont.style.display = 'none';
-  }
-}
+// --- SUPABASE INITIALIZATION ---
+const SUPABASE_URL = 'https://pddlqipctqacvzmoydgy.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InBkZGxxaXBjdHFhY3Z6bW95ZGd5Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0MzEyNjksImV4cCI6MjA5MjAwNzI2OX0.MRq6Z0Njg-w6ALw5lJo7r8Ijn6xRAF-aq6PvJnmuGpw'; // Gunakan key lengkapmu
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 /**
- * ACCOUNT SYSTEM LOGIC
+ * AUTH & NAVIGATION LOGIC
  */
-window.addEventListener('click', function(event) {
+window.addEventListener('click', async function(event) {
   const gCont = document.getElementById('guest-container');
   const aCont = document.getElementById('auth-container');
+  const emailInput = document.getElementById('auth-email');
+  const passInput = document.getElementById('auth-password');
+  const userInput = document.getElementById('auth-username');
 
-  // Trigger Get Started
+  // Switch to Auth View
   if (event.target.closest('#btn-start-auth')) {
-    if (gCont) gCont.style.setProperty('display', 'none', 'important');
-    if (aCont) aCont.style.setProperty('display', 'block', 'important');
+    gCont.style.setProperty('display', 'none', 'important');
+    aCont.style.setProperty('display', 'block', 'important');
   }
 
-  // Trigger Close/Cancel
+  // Switch back to Guest View
   if (event.target.closest('#btn-cancel-auth')) {
-    if (aCont) aCont.style.setProperty('display', 'none', 'important');
-    if (gCont) gCont.style.setProperty('display', 'block', 'important');
+    aCont.style.setProperty('display', 'none', 'important');
+    gCont.style.setProperty('display', 'block', 'important');
+  }
+
+  // LOGIN ACTION
+  if (event.target.closest('#login-btn-final')) {
+    const { error } = await supabaseClient.auth.signInWithPassword({
+      email: emailInput.value,
+      password: passInput.value
+    });
+    if (error) Swal.fire({ icon: 'error', text: error.message, background: '#1e1e1f', color: '#fff' });
+    else checkAccountStatus();
+  }
+
+  // REGISTER ACTION
+  if (event.target.closest('#register-btn-final')) {
+    if (!userInput.value) return Swal.fire({ icon: 'warning', text: 'Please enter a username' });
+    const { error } = await supabaseClient.auth.signUp({
+      email: emailInput.value,
+      password: passInput.value,
+      options: { data: { display_name: userInput.value } }
+    });
+    if (error) Swal.fire({ icon: 'error', text: error.message, background: '#1e1e1f', color: '#fff' });
+    else Swal.fire({ icon: 'success', text: 'Registration successful! Please login.', background: '#1e1e1f', color: '#fff' });
+  }
+
+  // FORGOT PASSWORD ACTION
+  if (event.target.closest('#btn-forgot-pass')) {
+    if (!emailInput.value) return Swal.fire({ icon: 'info', text: 'Please enter your email first.' });
+    const { error } = await supabaseClient.auth.resetPasswordForEmail(emailInput.value);
+    if (error) Swal.fire({ icon: 'error', text: error.message });
+    else Swal.fire({ icon: 'success', text: 'Reset link sent to your email!' });
+  }
+
+  // LOGOUT ACTION
+  if (event.target.closest('#logout-btn-final')) {
+    await supabaseClient.auth.signOut();
+    location.reload();
+  }
+  
+  // UPDATE USERNAME ACTION
+  if (event.target.closest('#btn-update-name')) {
+    const newName = document.getElementById('new-username').value;
+    const { error } = await supabaseClient.auth.updateUser({ data: { display_name: newName } });
+    if (error) Swal.fire({ icon: 'error', text: error.message });
+    else {
+      Swal.fire({ icon: 'success', text: 'Username updated!' });
+      checkAccountStatus();
+    }
   }
 });
 
-// Sync Profile Rata Tengah & English
-async function updateAccountUI() {
+/**
+ * UI SYNC ENGINE
+ */
+async function checkAccountStatus() {
   const { data: { user } } = await supabaseClient.auth.getUser();
   const guest = document.getElementById('guest-container');
   const auth = document.getElementById('auth-container');
@@ -228,8 +209,10 @@ async function updateAccountUI() {
     });
 
     display.innerHTML = `
-      <div style="margin-bottom: 25px;">
-        <h4 class="h4" style="font-size: 28px; color: var(--orange-yellow-crayola);">${user.user_metadata.display_name || 'User'}</h4>
+      <div style="margin-bottom: 25px; text-align: center;">
+        <h4 class="h4" style="font-size: 28px; color: var(--orange-yellow-crayola); margin-bottom: 5px;">
+          ${user.user_metadata.display_name || 'Member'}
+        </h4>
         <p style="font-size: 14px; color: var(--light-gray);">${user.email}</p>
       </div>
       
@@ -249,17 +232,9 @@ async function updateAccountUI() {
   } else {
     if (guest) guest.style.display = 'block';
     if (profile) profile.style.display = 'none';
+    if (auth) auth.style.display = 'none';
   }
 }
 
-// Jalankan saat load
-updateAccountUI();
-
-// Logout Listener
-document.getElementById('logout-btn')?.addEventListener('click', async () => {
-  await supabaseClient.auth.signOut();
-  window.location.reload();
-});
-
-// Panggil fungsi status saat halaman dimuat
-checkUserStatus();
+// Jalankan saat halaman dimuat
+checkAccountStatus();
