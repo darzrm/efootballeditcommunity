@@ -184,49 +184,44 @@ window.addEventListener('click', async function(event) {
 });
 
 /**
- * UI ENGINE: Membersihkan penumpukan tampilan
+ * UI ENGINE: Fix Overlapping & Color Updates
  */
 async function checkAccountStatus() {
   const { data: { user } } = await supabaseClient.auth.getUser();
   
-  // Ambil semua container
   const guest = document.getElementById('guest-container');
   const auth = document.getElementById('auth-container');
   const profile = document.getElementById('profile-container');
   const display = document.getElementById('user-info-display');
 
-  // Fungsi pembantu untuk menyembunyikan semua layar
-  const hideAllViews = () => {
-    if (guest) guest.style.display = 'none';
-    if (auth) auth.style.display = 'none';
-    if (profile) profile.style.display = 'none';
-  };
-
-  hideAllViews(); // Bersihkan layar dulu
+  // Sembunyikan semua dulu agar tidak bertumpuk
+  if (guest) guest.style.display = 'none';
+  if (auth) auth.style.display = 'none';
+  if (profile) profile.style.display = 'none';
 
   if (user) {
-    // Tampilkan hanya Profile jika sudah login
     if (profile) profile.style.display = 'block';
 
     const date = new Date(user.created_at).toLocaleDateString('en-US', {
       day: 'numeric', month: 'long', year: 'numeric'
     });
 
+    // Template Stats (Warna Points jadi Kuning)
     display.innerHTML = `
       <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-        <div style="background: var(--onyx); padding: 15px; border-radius: 12px; border: 1px solid var(--jet); grid-column: span 2;">
-          <h4 class="h4" style="font-size: 22px; color: var(--orange-yellow-crayola); margin-bottom: 2px;">
+        <div style="background: var(--onyx); padding: 20px; border-radius: 12px; border: 1px solid var(--jet); grid-column: span 2;">
+          <h4 class="h4" style="font-size: 24px; color: var(--orange-yellow-crayola); margin-bottom: 4px;">
             ${user.user_metadata.display_name || 'Member'}
           </h4>
-          <p style="font-size: 13px; color: var(--light-gray); margin-bottom: 5px;">${user.email}</p>
-          <p style="font-size: 11px; color: var(--light-gray-70); border-top: 1px solid var(--jet); pt: 5px; margin-top: 5px;">
+          <p style="font-size: 14px; color: var(--light-gray); margin-bottom: 8px;">${user.email}</p>
+          <div style="border-top: 1px solid var(--jet); padding-top: 8px; font-size: 11px; color: var(--light-gray-70);">
             Joined: ${date}
-          </p>
+          </div>
         </div>
         
         <div style="background: var(--onyx); padding: 15px; border-radius: 12px; border: 1px solid var(--jet);">
           <p style="font-size: 10px; color: var(--light-gray); text-transform: uppercase;">Points</p>
-          <p style="font-size: 20px; font-weight: 600; color: #38bdf8;">0</p>
+          <p style="font-size: 20px; font-weight: 600; color: #fbbf24;">0</p>
         </div>
 
         <div style="background: var(--onyx); padding: 15px; border-radius: 12px; border: 1px solid var(--jet);">
@@ -236,54 +231,52 @@ async function checkAccountStatus() {
       </div>
     `;
   } else {
-    // Tampilkan hanya Guest jika belum login
     if (guest) guest.style.display = 'block';
   }
 }
 
 /**
- * AUTH EVENT HANDLERS (Fixing Toggle & Overlapping)
+ * HANDLERS: Edit Username & Security
  */
 window.addEventListener('click', async function(event) {
-  const guest = document.getElementById('guest-container');
-  const auth = document.getElementById('auth-container');
-  const profile = document.getElementById('profile-container');
+  const editSection = document.getElementById('edit-username-section');
 
-  // Trigger Get Started (Guest -> Auth)
-  if (event.target.closest('#btn-start-auth')) {
-    if (guest) guest.style.display = 'none';
-    if (auth) auth.style.display = 'block';
-  }
-
-  // Trigger Close (Auth -> Guest)
-  if (event.target.closest('#btn-cancel-auth')) {
-    if (auth) auth.style.display = 'none';
-    if (guest) guest.style.display = 'block';
-  }
-
-  // LOGIN SUCCESS (Menyembunyikan Auth saat login berhasil)
-  if (event.target.closest('#login-btn-final')) {
-    const email = document.getElementById('auth-email').value;
-    const password = document.getElementById('auth-password').value;
-
-    const { error } = await supabaseClient.auth.signInWithPassword({ email, password });
-    
-    if (error) {
-      Swal.fire({ icon: 'error', text: error.message, background: '#1e1e1f', color: '#fff' });
-    } else {
-      // Pastikan semua layar disembunyikan sebelum profil dimunculkan
-      if (auth) auth.style.display = 'none';
-      checkAccountStatus(); 
-    }
-  }
-
-  // SHOW/HIDE EDIT USERNAME FORM
+  // Toggle form edit
   if (event.target.closest('#btn-show-edit')) {
-    const editSection = document.getElementById('edit-username-section');
-    // Toggle tampilan saja tanpa merusak container utama
     editSection.style.display = editSection.style.display === 'none' ? 'block' : 'none';
   }
-});
 
-// Pastikan dipanggil saat awal load
-checkAccountStatus();
+  // Submit Update Username
+  if (event.target.closest('#btn-submit-username')) {
+    const password = document.getElementById('confirm-password').value;
+    const newName = document.getElementById('new-username').value;
+    const { data: { user } } = await supabaseClient.auth.getUser();
+
+    if (!password || !newName) {
+      return Swal.fire({ icon: 'warning', text: 'Please fill all fields', background: '#1e1e1f', color: '#fff' });
+    }
+
+    // 1. Re-verify password
+    const { error: authError } = await supabaseClient.auth.signInWithPassword({
+      email: user.email,
+      password: password
+    });
+
+    if (authError) {
+      return Swal.fire({ icon: 'error', text: 'Incorrect password verification', background: '#1e1e1f', color: '#fff' });
+    }
+
+    // 2. Update Metadata
+    const { error: updateError } = await supabaseClient.auth.updateUser({
+      data: { display_name: newName }
+    });
+
+    if (updateError) {
+      Swal.fire({ icon: 'error', text: updateError.message });
+    } else {
+      await Swal.fire({ icon: 'success', text: 'Profile updated!', background: '#1e1e1f', color: '#fff' });
+      editSection.style.display = 'none'; // Sembunyikan form
+      checkAccountStatus(); // Segarkan tampilan
+    }
+  }
+});
