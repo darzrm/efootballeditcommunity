@@ -283,14 +283,14 @@ window.addEventListener('click', async function(event) {
 });
 
 /**
- * BLOG & COMMENT SYSTEM (UPDATED)
+ * BLOG & COMMENT SYSTEM
  */
 
-// 1. Tambahkan variabel global untuk menyimpan ID blog yang sedang dibuka
+// Global variable to store current active blog ID
 window.currentBlogId = null;
 
+// 1. Show Blog Detail
 window.showBlogDetail = async function(id, title, text) {
-  // Simpan ID blog (UUID dari database)
   window.currentBlogId = id;
 
   document.getElementById('blog-list-container').style.display = 'none';
@@ -305,30 +305,29 @@ window.showBlogDetail = async function(id, title, text) {
   const formArea = document.getElementById('comment-form-area');
   
   if (!user) {
-    formArea.innerHTML = `<p style="color: var(--orange-yellow-crayola); font-size: 14px; margin-bottom: 30px;">Silahkan login untuk ikut berkomentar.</p>`;
+    formArea.innerHTML = `<p style="color: var(--orange-yellow-crayola); font-size: 14px; margin-bottom: 30px;">Please login to join the conversation.</p>`;
   } else {
     formArea.innerHTML = `
-      <textarea id="comment-input" class="form-input" placeholder="Tulis komentar anda..." required style="min-height: 80px; margin-bottom: 15px; resize: vertical;"></textarea>
+      <textarea id="comment-input" class="form-input" placeholder="Write your comment..." required style="min-height: 80px; margin-bottom: 15px; resize: vertical;"></textarea>
       <button class="form-btn" onclick="postComment()" style="width: max-content; padding: 10px 20px;">
         <ion-icon name="paper-plane-outline"></ion-icon><span>Post Comment</span>
       </button>
     `;
   }
 
-  // Panggil loadComments dengan ID yang benar
   loadComments(id);
 };
 
+// 2. Close Blog Detail
 window.closeBlogDetail = function() {
-  window.currentBlogId = null; // Reset ID saat ditutup
+  window.currentBlogId = null;
   document.getElementById('blog-list-container').style.display = 'block';
   document.getElementById('blog-detail-container').style.display = 'none';
 };
 
-// 2. Render HTML Komentar (Sesuaikan dengan data dari Join Table)
+// 3. Render Comment HTML
 window.renderCommentHTML = function(c) {
-  // c.profiles berasal dari relasi join di loadComments
-  const username = c.profiles?.username || 'User';
+  const username = c.profiles?.username || 'Anonymous';
   const role = c.profiles?.role || 'Member';
   const email = c.profiles?.email || 'No Email';
   
@@ -353,11 +352,10 @@ window.renderCommentHTML = function(c) {
   `;
 };
 
-// 3. Memuat Komentar dari Supabase (Murni Database)
+// 4. Load Comments from Supabase
 window.loadComments = async function(blogId) {
   const displayList = document.getElementById('comments-display-list');
   
-  // Ambil data dan join dengan tabel profiles
   const { data: comments, error } = await supabaseClient
     .from('comments')
     .select(`
@@ -373,18 +371,18 @@ window.loadComments = async function(blogId) {
     .order('created_at', { ascending: false });
 
   if (error) {
-    console.error("Gagal load komen:", error);
+    console.error("Error loading comments:", error);
     return;
   }
 
   if (!comments || comments.length === 0) {
-    displayList.innerHTML = `<p style="color: var(--light-gray-70); text-align: center;">Belum ada komentar.</p>`;
+    displayList.innerHTML = `<p style="color: var(--light-gray-70); text-align: center;">No comments yet. Be the first to comment!</p>`;
   } else {
     displayList.innerHTML = comments.map(c => renderCommentHTML(c)).join('');
   }
 };
 
-// 4. Fungsi Kirim Komentar ke Supabase
+// 5. Post Comment to Supabase
 window.postComment = async function() {
   const input = document.getElementById('comment-input');
   const content = input?.value;
@@ -392,11 +390,16 @@ window.postComment = async function() {
   const { data: { user } } = await supabaseClient.auth.getUser();
 
   if (!user) return;
+  
   if (!content || content.trim() === '') {
-    return Swal.fire({ icon: 'warning', text: 'Komentar tidak boleh kosong', background: '#1e1e1f', color: '#fff' });
+    return Swal.fire({ 
+      icon: 'warning', 
+      text: 'Comment cannot be empty', 
+      background: '#1e1e1f', 
+      color: '#fff' 
+    });
   }
 
-  // Insert ke tabel 'comments'
   const { error } = await supabaseClient
     .from('comments')
     .insert([
@@ -408,13 +411,25 @@ window.postComment = async function() {
     ]);
 
   if (error) {
-    console.error("Error post comment:", error);
-    return Swal.fire({ icon: 'error', text: 'Gagal mengirim komentar.' });
+    console.error("Database Error:", error);
+    return Swal.fire({ 
+      icon: 'error', 
+      title: 'Failed to send',
+      text: 'Make sure your profile is registered in the database.',
+      background: '#1e1e1f', 
+      color: '#fff' 
+    });
   }
 
   input.value = ''; 
-  // Refresh list agar komen baru muncul
   await loadComments(window.currentBlogId);
   
-  Swal.fire({ icon: 'success', text: 'Komentar terkirim!', background: '#1e1e1f', color: '#fff', timer: 1500, showConfirmButton: false });
+  Swal.fire({ 
+    icon: 'success', 
+    text: 'Comment posted successfully!', 
+    background: '#1e1e1f', 
+    color: '#fff', 
+    timer: 1500, 
+    showConfirmButton: false 
+  });
 };
