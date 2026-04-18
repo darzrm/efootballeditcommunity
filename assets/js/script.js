@@ -357,4 +357,3 @@ supabaseClient.auth.onAuthStateChange(() => {
 document.addEventListener("DOMContentLoaded", () => {
   checkAccountStatus();
 });
-
