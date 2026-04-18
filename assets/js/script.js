@@ -91,14 +91,14 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 /**
- * UNIFIED CLICK HANDLER (Mengatasi Ganti Username, Auth, Register, & Reset)
+ * UNIFIED CLICK HANDLER (Update: Fix Reset Password, Unique Username, & Email Check)
  */
 window.addEventListener('click', async function(event) {
   const gCont = document.getElementById('guest-container');
   const aCont = document.getElementById('auth-container');
   const editSection = document.getElementById('edit-username-section');
   
-  // 1. Ganti Username: Toggle Form
+  // --- 1 & 2: Ganti Username (Sama seperti sebelumnya) ---
   if (event.target.closest('#btn-show-edit')) {
     if (editSection) {
       const isHidden = editSection.style.display === 'none' || editSection.style.display === '';
@@ -106,7 +106,6 @@ window.addEventListener('click', async function(event) {
     }
   }
 
-  // 2. Ganti Username: Submit Update
   if (event.target.closest('#btn-submit-username')) {
     const password = document.getElementById('confirm-password').value;
     const newName = document.getElementById('new-username').value;
@@ -138,7 +137,7 @@ window.addEventListener('click', async function(event) {
     }
   }
 
-  // 3. Auth Navigation
+  // --- 3: Auth Navigation ---
   if (event.target.closest('#btn-start-auth')) {
     gCont.style.setProperty('display', 'none', 'important');
     aCont.style.setProperty('display', 'block', 'important');
@@ -149,7 +148,7 @@ window.addEventListener('click', async function(event) {
     gCont.style.setProperty('display', 'block', 'important');
   }
 
-  // 4. Login Action
+  // --- 4: Login Action ---
   if (event.target.closest('#login-btn-final')) {
     const emailInput = document.getElementById('auth-email');
     const passInput = document.getElementById('auth-password');
@@ -157,57 +156,83 @@ window.addEventListener('click', async function(event) {
       email: emailInput.value,
       password: passInput.value
     });
-    if (error) Swal.fire({ icon: 'error', text: error.message, background: '#1e1e1f', color: '#fff' });
+    if (error) Swal.fire({ icon: 'error', text: 'Email atau Password salah!', background: '#1e1e1f', color: '#fff' });
   }
 
-  // 5. Register Action (BARU)
+  // --- 5: Register Action (Update: Check Unique Username & Existing Email) ---
   if (event.target.closest('#register-btn-final')) {
-    const emailInput = document.getElementById('auth-email');
-    const passInput = document.getElementById('auth-password');
-    const nameInput = document.getElementById('reg-username'); // Gunakan ID unik untuk nama regis
+    const emailInput = document.getElementById('auth-email').value;
+    const passInput = document.getElementById('auth-password').value;
+    const nameInput = document.getElementById('reg-username')?.value || 'Member';
 
-    if (!emailInput.value || !passInput.value) {
+    if (!emailInput || !passInput) {
       return Swal.fire({ icon: 'warning', text: 'Email dan Password wajib diisi', background: '#1e1e1f', color: '#fff' });
     }
 
-    const { error } = await supabaseClient.auth.signUp({
-      email: emailInput.value,
-      password: passInput.value,
+    // Cek apakah username sudah dipakai di tabel profiles (jika Anda menggunakan tabel profiles)
+    const { data: existingUser } = await supabaseClient
+      .from('profiles')
+      .select('username')
+      .eq('username', nameInput)
+      .single();
+
+    if (existingUser) {
+      return Swal.fire({ icon: 'error', text: 'Username sudah digunakan orang lain!', background: '#1e1e1f', color: '#fff' });
+    }
+
+    const { data, error } = await supabaseClient.auth.signUp({
+      email: emailInput,
+      password: passInput,
       options: {
-        data: { display_name: nameInput ? nameInput.value : 'Member' }
+        data: { display_name: nameInput },
+        emailRedirectTo: window.location.origin // Penting agar link verifikasi kembali ke sini
       }
     });
 
     if (error) {
-      Swal.fire({ icon: 'error', text: error.message, background: '#1e1e1f', color: '#fff' });
+      // Jika error karena email sudah terdaftar
+      if (error.message.includes("already registered")) {
+        Swal.fire({ icon: 'error', text: 'Email ini sudah terdaftar! Silakan login.', background: '#1e1e1f', color: '#fff' });
+      } else {
+        Swal.fire({ icon: 'error', text: error.message, background: '#1e1e1f', color: '#fff' });
+      }
     } else {
       Swal.fire({ icon: 'success', text: 'Registrasi berhasil! Cek email untuk verifikasi.', background: '#1e1e1f', color: '#fff' });
     }
   }
 
-  // 6. Reset Password Action (BARU)
+  // --- 6: Reset Password Action (Update: Fix Flow) ---
   if (event.target.closest('#btn-reset-password')) {
-    const emailInput = document.getElementById('auth-email');
+    const emailInput = document.getElementById('auth-email').value;
     
-    if (!emailInput.value) {
-      return Swal.fire({ icon: 'warning', text: 'Masukkan email Anda di kolom input', background: '#1e1e1f', color: '#fff' });
+    if (!emailInput) {
+      return Swal.fire({ icon: 'warning', text: 'Masukkan email Anda di kolom email untuk mereset password', background: '#1e1e1f', color: '#fff' });
     }
 
-    const { error } = await supabaseClient.auth.resetPasswordForEmail(emailInput.value);
+    const { error } = await supabaseClient.auth.resetPasswordForEmail(emailInput, {
+      redirectTo: window.location.href, // Mengarahkan user kembali ke halaman ini setelah klik link di email
+    });
 
     if (error) {
       Swal.fire({ icon: 'error', text: error.message, background: '#1e1e1f', color: '#fff' });
     } else {
-      Swal.fire({ icon: 'success', text: 'Instruksi reset password telah dikirim ke email!', background: '#1e1e1f', color: '#fff' });
+      Swal.fire({ 
+        icon: 'success', 
+        title: 'Email Terkirim',
+        text: 'Cek kotak masuk email Anda untuk instruksi reset password.', 
+        background: '#1e1e1f', 
+        color: '#fff' 
+      });
     }
   }
 
-  // 7. Logout Action
+  // --- 7: Logout Action ---
   if (event.target.closest('#logout-btn-final')) {
     await supabaseClient.auth.signOut();
     location.reload();
   }
 });
+
 
 /**
  * UI ENGINE: Fetch Role & Persistent Login
