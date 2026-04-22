@@ -263,6 +263,16 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
   }
 });
 
+const { data: profile } = await supabaseClient
+  .from('profiles')
+  .select('*')
+  .eq('id', user.id)
+  .single();
+
+// Update tampilan poin di sidebar/profil
+document.getElementById('user-points-display').innerText = `${profile.points || 0} Points`;
+
+
 /**
  * UI ENGINE: Fetch Role & Persistent Login
  */
@@ -459,3 +469,72 @@ supabaseClient.auth.onAuthStateChange(() => {
 document.addEventListener("DOMContentLoaded", () => {
   checkAccountStatus();
 });
+
+// Fungsi untuk memuat data leaderboard
+const setupLeaderboard = async () => {
+  const tableBody = document.getElementById('leaderboard-body');
+  const adminHeader = document.getElementById('admin-action-header');
+  if (!tableBody) return;
+
+  // 1. Ambil data user login untuk cek role
+  const { data: { user } } = await supabaseClient.auth.getUser();
+  let isAdmin = false;
+  
+  if (user) {
+    const { data: profile } = await supabaseClient.from('profiles').select('role').eq('id', user.id).single();
+    if (profile?.role === 'admin') isAdmin = true;
+  }
+
+  if (isAdmin) adminHeader.style.display = 'table-cell';
+
+  // 2. Ambil data semua user
+  const { data: members, error } = await supabaseClient
+    .from('profiles')
+    .select('id, username, email, points, role')
+    .order('points', { ascending: false });
+
+  if (error) return console.error(error);
+
+  // 3. Render ke tabel
+  tableBody.innerHTML = members.map(member => `
+    <tr style="border-bottom: 1px solid var(--onyx);">
+      <td style="padding: 15px;">
+        <div style="font-weight: 600;">${member.username || 'User'}</div>
+        <div style="font-size: 10px; color: var(--light-gray-70);">${member.email}</div>
+      </td>
+      <td style="padding: 15px; color: var(--orange-yellow-crayola); font-weight: bold;">${member.points || 0}</td>
+      <td style="padding: 15px; font-size: 11px; text-transform: uppercase;">${member.role || 'member'}</td>
+      ${isAdmin ? `
+        <td style="padding: 15px;">
+          <button onclick="changePoints('${member.id}', ${member.points || 0})" style="color: var(--orange-yellow-crayola);">
+            <ion-icon name="create-outline"></ion-icon>
+          </button>
+        </td>` : ''}
+    </tr>
+  `).join('');
+};
+
+// Fungsi Admin untuk ubah poin
+window.changePoints = async (id, currentPoints) => {
+  const { value: newPoints } = await Swal.fire({
+    title: 'Edit Points',
+    input: 'number',
+    inputValue: currentPoints,
+    background: '#1e1e1f',
+    color: '#fff',
+    showCancelButton: true
+  });
+
+  if (newPoints !== undefined) {
+    const { error } = await supabaseClient.from('profiles').update({ points: parseInt(newPoints) }).eq('id', id);
+    if (error) {
+      Swal.fire({ icon: 'error', text: 'Gagal update poin.' });
+    } else {
+      setupLeaderboard(); // Refresh tabel
+      if(window.checkAccountStatus) window.checkAccountStatus(); // Refresh profil
+    }
+  }
+};
+
+// Panggil fungsi saat aplikasi pertama kali jalan
+setupLeaderboard();
