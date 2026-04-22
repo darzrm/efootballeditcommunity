@@ -461,13 +461,13 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 /**
- * LEADERBOARD LOGIC
+ * LEADERBOARD & ADMIN SYSTEM
  */
 async function loadLeaderboard() {
   const tableBody = document.getElementById('leaderboard-body');
-  const adminHeader = document.getElementById('admin-action-header');
+  const adminTh = document.getElementById('admin-th');
   
-  // 1. Ambil session user untuk cek role
+  // 1. Cek status Login & Role
   const { data: { session } } = await supabaseClient.auth.getSession();
   let isAdmin = false;
 
@@ -480,64 +480,82 @@ async function loadLeaderboard() {
     isAdmin = profile?.role === 'admin';
   }
 
-  // Tampilkan kolom Action jika admin
-  if (isAdmin) adminHeader.style.display = 'table-cell';
+  // Tampilkan header kolom Manage hanya untuk admin
+  if (isAdmin) adminTh.style.display = 'table-cell';
 
-  // 2. Ambil data semua akun (Urutkan poin terbanyak)
+  // 2. Ambil data dari Supabase (Urutkan dari poin tertinggi)
   const { data: users, error } = await supabaseClient
     .from('profiles')
     .select('id, username, points')
     .order('points', { ascending: false });
 
-  if (error) return console.error('Gagal memuat leaderboard:', error);
+  if (error) return console.error('Error fetching leaderboard:', error);
 
-  // 3. Render ke tabel
-  tableBody.innerHTML = users.map((user, index) => `
-    <tr style="border-bottom: 1px solid var(--jet);">
-      <td style="padding: 15px;">${index + 1}</td>
-      <td style="padding: 15px;">${user.username || 'User'}</td>
-      <td style="padding: 15px; text-align: right; font-weight: bold; color: var(--white-1);">${user.points || 0}</td>
-      ${isAdmin ? `
-        <td style="padding: 15px; text-align: center;">
-          <button onclick="editPoints('${user.id}', '${user.username}', ${user.points})" 
-                  style="background: var(--onyx); color: var(--orange-yellow-crayola); border: 1px solid var(--jet); padding: 5px 12px; border-radius: 8px; font-size: 12px;">
-            Edit
-          </button>
+  // 3. Render Baris Tabel
+  tableBody.innerHTML = users.map((user, index) => {
+    // Beri warna emas untuk juara 1
+    const rankColor = index === 0 ? 'var(--orange-yellow-crayola)' : 'var(--light-gray)';
+    
+    return `
+      <tr style="background: var(--onyx); transition: 0.25s ease;">
+        <td style="padding: 15px; text-align: center; border-radius: 10px 0 0 10px; color: ${rankColor}; font-weight: bold;">
+          ${index + 1}
         </td>
-      ` : ''}
-    </tr>
-  `).join('');
+        <td style="padding: 15px; color: var(--white-2); font-weight: 500;">
+          ${user.username || 'Unknown'}
+        </td>
+        <td style="padding: 15px; text-align: right; color: var(--orange-yellow-crayola); font-weight: bold; font-size: 16px;">
+          ${user.points || 0}
+        </td>
+        ${isAdmin ? `
+          <td style="padding: 15px; text-align: center; border-radius: 0 10px 10px 0;">
+            <button onclick="updatePoints('${user.id}', '${user.username}', ${user.points})" 
+                    style="background: var(--jet); color: var(--white-1); border: 1px solid var(--orange-yellow-crayola); padding: 5px 12px; border-radius: 8px; font-size: 11px; cursor: pointer;">
+              EDIT
+            </button>
+          </td>
+        ` : `<td style="border-radius: 0 10px 10px 0;"></td>`}
+      </tr>
+    `;
+  }).join('');
 }
 
-// Fungsi Edit Poin (Hanya Admin)
-window.editPoints = async function(id, name, current) {
+// Fungsi Edit Poin menggunakan SweetAlert2
+window.updatePoints = async function(userId, username, currentPoints) {
   const { value: newPoints } = await Swal.fire({
-    title: `Edit Poin: ${name}`,
+    title: `<span style="color: white; font-size: 18px;">Update Points: ${username}</span>`,
     input: 'number',
-    inputValue: current,
+    inputValue: currentPoints,
     background: '#1e1e1f',
-    color: '#fff',
     confirmButtonColor: '#ffdb70',
-    showCancelButton: true
+    confirmButtonText: 'Save Changes',
+    showCancelButton: true,
+    cancelButtonColor: '#2b2b2c',
+    customClass: {
+      input: 'swal-input-custom'
+    }
   });
 
-  if (newPoints) {
+  if (newPoints !== undefined && newPoints !== "") {
     const { error } = await supabaseClient
       .from('profiles')
       .update({ points: parseInt(newPoints) })
-      .eq('id', id);
+      .eq('id', userId);
 
     if (!error) {
-      loadLeaderboard(); // Refresh data
+      Swal.fire({ icon: 'success', title: 'Points Updated!', background: '#1e1e1f', color: '#fff', timer: 1500, showConfirmButton: false });
+      loadLeaderboard(); // Refresh tabel setelah update
     } else {
-      Swal.fire('Gagal!', 'Terjadi kesalahan saat update.', 'error');
+      Swal.fire({ icon: 'error', title: 'Update Failed', background: '#1e1e1f', color: '#fff' });
     }
   }
 };
 
-// Jalankan fungsi saat tab 'event' dibuka
+// Pastikan leaderboard dimuat saat menu Event diklik
 document.querySelectorAll("[data-nav-link]").forEach(link => {
   link.addEventListener("click", function() {
-    if (this.innerHTML.toLowerCase().includes("event")) loadLeaderboard();
+    if (this.innerHTML.toLowerCase().includes("event")) {
+      loadLeaderboard();
+    }
   });
 });
