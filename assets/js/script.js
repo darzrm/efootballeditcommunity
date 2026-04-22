@@ -116,7 +116,7 @@ window.addEventListener('click', async function(event) {
       return Swal.fire({ icon: 'warning', text: 'Please fill in all fields', background: '#1e1e1f', color: '#fff' });
     }
 
-    // Re-autentikasi untuk keamanan sebelum ganti nama
+    // Verify password first
     const { error: authError } = await supabaseClient.auth.signInWithPassword({
       email: user.email,
       password: password
@@ -126,19 +126,19 @@ window.addEventListener('click', async function(event) {
       return Swal.fire({ icon: 'error', text: 'Incorrect password!', background: '#1e1e1f', color: '#fff' });
     }
 
-    // Update Auth Metadata
+    // Step 1: Update Auth Metadata
     const { error: updateAuthError } = await supabaseClient.auth.updateUser({
       data: { display_name: newName }
     });
 
-    // Update Tabel Profiles (Agar sinkron dengan komentar)
+    // Step 2: Update 'profiles' table (This ensures UI refreshes correctly)
     const { error: updateTableError } = await supabaseClient
       .from('profiles')
       .update({ username: newName })
       .eq('id', user.id);
 
     if (updateAuthError || updateTableError) {
-      Swal.fire({ icon: 'error', text: 'Update failed. Try again.' });
+      Swal.fire({ icon: 'error', text: 'Update failed. Please try again.', background: '#1e1e1f', color: '#fff' });
     } else {
       await Swal.fire({ icon: 'success', text: 'Username updated successfully!', background: '#1e1e1f', color: '#fff' });
       if (editSection) editSection.style.display = 'none';
@@ -168,11 +168,11 @@ window.addEventListener('click', async function(event) {
     if (error) Swal.fire({ icon: 'error', text: error.message, background: '#1e1e1f', color: '#fff' });
   }
 
-  // 5. Register Action (Fixed Username ID)
+  // 5. Register Action
   if (event.target.closest('#register-btn-final')) {
     const emailInput = document.getElementById('auth-email');
     const passInput = document.getElementById('auth-password');
-    const nameInput = document.getElementById('auth-username'); // Menggunakan ID yang ada di index.html
+    const nameInput = document.getElementById('reg-username');
 
     if (!emailInput.value || !passInput.value || !nameInput.value) {
       return Swal.fire({ icon: 'warning', text: 'All fields are required for registration', background: '#1e1e1f', color: '#fff' });
@@ -182,35 +182,26 @@ window.addEventListener('click', async function(event) {
       email: emailInput.value,
       password: passInput.value,
       options: {
-        data: { display_name: nameInput.value },
-        emailRedirectTo: window.location.origin
+        data: { display_name: nameInput.value }
       }
     });
 
     if (error) {
       Swal.fire({ icon: 'error', text: error.message, background: '#1e1e1f', color: '#fff' });
     } else {
-      Swal.fire({ icon: 'success', text: 'Registration successful! Check your email to verify.', background: '#1e1e1f', color: '#fff' });
+      Swal.fire({ icon: 'success', text: 'Registration successful! Please check your email for verification.', background: '#1e1e1f', color: '#fff' });
     }
   }
 
-  // 6. Reset Password Action (Linked to ID btn-forgot-pass or btn-reset-password)
-  if (event.target.closest('#btn-forgot-pass') || event.target.closest('#btn-reset-password')) {
+  // 6. Reset Password
+  if (event.target.closest('#btn-reset-password') || event.target.closest('#btn-forgot-pass')) {
     const emailInput = document.getElementById('auth-email');
-    
-    if (!emailInput || !emailInput.value) {
-      return Swal.fire({ icon: 'warning', text: 'Please enter your email first', background: '#1e1e1f', color: '#fff' });
+    if (!emailInput.value) {
+      return Swal.fire({ icon: 'warning', text: 'Please enter your email address first', background: '#1e1e1f', color: '#fff' });
     }
-
-    const { error } = await supabaseClient.auth.resetPasswordForEmail(emailInput.value, {
-      redirectTo: window.location.href, 
-    });
-
-    if (error) {
-      Swal.fire({ icon: 'error', text: error.message, background: '#1e1e1f', color: '#fff' });
-    } else {
-      Swal.fire({ icon: 'success', text: 'Reset instructions sent to your email!', background: '#1e1e1f', color: '#fff' });
-    }
+    const { error } = await supabaseClient.auth.resetPasswordForEmail(emailInput.value);
+    if (error) Swal.fire({ icon: 'error', text: error.message, background: '#1e1e1f', color: '#fff' });
+    else Swal.fire({ icon: 'success', text: 'Password reset link sent to your email!', background: '#1e1e1f', color: '#fff' });
   }
 
   // 7. Logout Action
@@ -231,21 +222,21 @@ async function checkAccountStatus() {
   const profile = document.getElementById('profile-container');
   const display = document.getElementById('user-info-display');
 
-  if (guest) guest.style.display = 'none';
-  if (auth) auth.style.display = 'none';
-  if (profile) profile.style.display = 'none';
-
   if (user) {
+    if (guest) guest.style.display = 'none';
+    if (auth) auth.style.display = 'none';
     if (profile) profile.style.display = 'block';
 
+    // Fetch fresh data from 'profiles' table
     const { data: profileData } = await supabaseClient
       .from('profiles')
-      .select('role, username')
+      .select('role, username, email')
       .eq('id', user.id)
       .single();
 
     const userRole = profileData?.role || 'Member';
-    const displayName = profileData?.username || user.user_metadata.display_name || 'Member';
+    const displayName = profileData?.username || user.user_metadata.display_name || 'User';
+    const userEmail = profileData?.email || user.email;
     const date = new Date(user.created_at).toLocaleDateString('en-US', {
       day: 'numeric', month: 'long', year: 'numeric'
     });
@@ -257,7 +248,7 @@ async function checkAccountStatus() {
             <h4 class="h4" style="font-size: 24px; color: var(--orange-yellow-crayola); margin-bottom: 4px;">
               ${displayName}
             </h4>
-            <p style="font-size: 14px; color: var(--light-gray); margin-bottom: 8px;">${user.email}</p>
+            <p style="font-size: 14px; color: var(--light-gray); margin-bottom: 8px;">${userEmail}</p>
             <div style="border-top: 1px solid var(--jet); padding-top: 8px; font-size: 11px; color: var(--light-gray-70);">
               Joined: ${date}
             </div>
@@ -277,6 +268,7 @@ async function checkAccountStatus() {
     if (window.currentBlogId) loadComments(window.currentBlogId);
   } else {
     if (guest) guest.style.display = 'block';
+    if (profile) profile.style.display = 'none';
   }
 }
 
@@ -385,7 +377,7 @@ window.postComment = async function() {
   const { error } = await supabaseClient
     .from('comments')
     .insert([{ post_id: window.currentBlogId, user_id: user.id, content: input.value.trim() }]);
-  if (error) return Swal.fire({ icon: 'error', text: 'Failed to post comment' });
+  if (error) return Swal.fire({ icon: 'error', text: 'Failed to post comment', background: '#1e1e1f', color: '#fff' });
   input.value = ''; 
   loadComments(window.currentBlogId);
 };
@@ -401,7 +393,7 @@ window.deleteComment = async function(commentId) {
   });
   if (result.isConfirmed) {
     const { error } = await supabaseClient.from('comments').delete().eq('id', commentId);
-    if (error) Swal.fire({ icon: 'error', text: "Failed to delete" });
+    if (error) Swal.fire({ icon: 'error', text: "Failed to delete", background: '#1e1e1f', color: '#fff' });
     else loadComments(window.currentBlogId);
   }
 };
