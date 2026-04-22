@@ -76,11 +76,29 @@
       </article>
 
       <article class="event" data-page="event">
-        <header><h2 class="h2 article-title">Event</h2></header>
-        <section class="about-text">
-          <p>Information about event.</p>
-        </section>
-      </article>
+  <header>
+    <h2 class="h2 article-title">Leaderboard</h2>
+  </header>
+
+  <section class="leaderboard-section">
+    <div class="leaderboard-table-container has-scrollbar" style="overflow-x: auto;">
+      <table class="leaderboard-table" style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+        <thead>
+          <tr style="text-align: left; border-bottom: 1px solid var(--jet); color: var(--orange-yellow-crayola);">
+            <th style="padding: 15px;">Username</th>
+            <th style="padding: 15px;">Email</th>
+            <th style="padding: 15px;">Points</th>
+            <th style="padding: 15px;">Role</th>
+            <th id="admin-header" style="padding: 15px; display: none;">Action</th>
+          </tr>
+        </thead>
+        <tbody id="leaderboard-body">
+          </tbody>
+      </table>
+    </div>
+  </section>
+</article>
+
 
   <article class="blog" data-page="blog">
   <header>
