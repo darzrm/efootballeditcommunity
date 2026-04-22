@@ -220,6 +220,42 @@ window.addEventListener('click', async function(event) {
     }
   }
 
+// Tambahkan ini di script.js
+supabaseClient.auth.onAuthStateChange(async (event, session) => {
+  if (event === "PASSWORD_RECOVERY") {
+    // Tampilkan popup SweetAlert untuk input password baru
+    const { value: newPassword } = await Swal.fire({
+      title: 'Reset Your Password',
+      input: 'password',
+      inputLabel: 'Enter your new password',
+      inputPlaceholder: 'New Password',
+      showCancelButton: false,
+      confirmButtonText: 'Update Password',
+      background: '#1e1e1f',
+      color: '#fff',
+      inputAttributes: {
+        autocapitalize: 'off',
+        autocorrect: 'off'
+      }
+    });
+
+    if (newPassword) {
+      const { error } = await supabaseClient.auth.updateUser({
+        password: newPassword
+      });
+
+      if (error) {
+        Swal.fire({ icon: 'error', text: error.message });
+      } else {
+        Swal.fire({ icon: 'success', text: 'Password updated successfully!' });
+        // Redirect ke home atau login
+        window.location.hash = ''; 
+      }
+    }
+  }
+});
+
+  
   // 7. Logout Action
   if (event.target.closest('#logout-btn-final')) {
     await supabaseClient.auth.signOut();
