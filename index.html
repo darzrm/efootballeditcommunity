@@ -75,12 +75,34 @@
         </section>
       </article>
 
-      <article class="event" data-page="event">
-        <header><h2 class="h2 article-title">Event</h2></header>
-        <section class="about-text">
-          <p>Information about event.</p>
-        </section>
-      </article>
+<article class="blog active" data-page="event"> <header>
+    <h2 class="h2 article-title">Events & Leaderboard</h2>
+  </header>
+
+  <div class="event-content">
+     </div>
+
+  <br><br>
+
+  <section class="leaderboard-section">
+    <h3 class="h3" style="margin-bottom: 20px; color: var(--white-2);">Community Leaderboard</h3>
+    
+    <div class="table-container" style="overflow-x: auto; background: var(--eerie-black-2); border-radius: 14px; border: 1px solid var(--jet); padding: 20px;">
+      <table style="width: 100%; border-collapse: collapse; text-align: left; min-width: 500px;">
+        <thead>
+          <tr style="border-bottom: 1px solid var(--jet); color: var(--orange-yellow-crayola);">
+            <th style="padding: 15px;">User</th>
+            <th style="padding: 15px;">Points</th>
+            <th style="padding: 15px;">Role</th>
+            <th id="admin-action-header" style="padding: 15px; display: none;">Actions</th>
+          </tr>
+        </thead>
+        <tbody id="leaderboard-body" style="color: var(--white-2);">
+          </tbody>
+      </table>
+    </div>
+  </section>
+</article>
 
   <article class="blog" data-page="blog">
   <header>
