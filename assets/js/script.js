@@ -459,3 +459,90 @@ supabaseClient.auth.onAuthStateChange(() => {
 document.addEventListener("DOMContentLoaded", () => {
   checkAccountStatus();
 });
+
+/**
+ * LEADERBOARD SYSTEM
+ */
+
+// Fungsi untuk memuat data leaderboard
+async function loadLeaderboard() {
+  const { data: { user } } = await supabaseClient.auth.getUser();
+  let currentUserRole = 'member';
+
+  // Cek role user yang sedang login
+  if (user) {
+    const { data: profile } = await supabaseClient
+      .from('profiles')
+      .select('role')
+      .eq('id', user.id)
+      .single();
+    currentUserRole = profile?.role || 'member';
+  }
+
+  // Ambil semua data akun, urutkan berdasarkan poin terbanyak
+  const { data: leaderboardData, error } = await supabaseClient
+    .from('profiles')
+    .select('id, username, email, points, role')
+    .order('points', { ascending: false });
+
+  if (error) return console.error('Error loading leaderboard:', error);
+
+  const tableBody = document.getElementById('leaderboard-body');
+  const adminHeader = document.getElementById('admin-header');
+  
+  // Tampilkan kolom Action hanya untuk admin
+  if (currentUserRole === 'admin') adminHeader.style.display = 'table-cell';
+
+  tableBody.innerHTML = leaderboardData.map(player => `
+    <tr style="border-bottom: 1px solid var(--jet); color: var(--light-gray);">
+      <td style="padding: 15px;">${player.username || 'Anonymous'}</td>
+      <td style="padding: 15px;">${player.email || '-'}</td>
+      <td style="padding: 15px; font-weight: bold; color: var(--white-1);">${player.points || 0}</td>
+      <td style="padding: 15px; text-transform: capitalize;">${player.role || 'member'}</td>
+      ${currentUserRole === 'admin' ? `
+        <td style="padding: 15px;">
+          <button onclick="editPoints('${player.id}', '${player.username}', ${player.points})" 
+                  style="color: var(--orange-yellow-crayola); font-size: 13px; border: 1px solid var(--jet); padding: 5px 10px; border-radius: 5px;">
+            Edit Points
+          </button>
+        </td>
+      ` : ''}
+    </tr>
+  `).join('');
+}
+
+// Fungsi edit points khusus Admin
+window.editPoints = async function(userId, username, currentPoints) {
+  const { value: newPoints } = await Swal.fire({
+    title: `Update Points: ${username}`,
+    input: 'number',
+    inputValue: currentPoints,
+    showCancelButton: true,
+    background: '#1e1e1f',
+    color: '#fff',
+    confirmButtonColor: '#ffdb70'
+  });
+
+  if (newPoints !== undefined) {
+    const { error } = await supabaseClient
+      .from('profiles')
+      .update({ points: parseInt(newPoints) })
+      .eq('id', userId);
+
+    if (error) {
+      Swal.fire({ icon: 'error', text: 'Gagal update poin!' });
+    } else {
+      Swal.fire({ icon: 'success', text: 'Poin berhasil diupdate!' });
+      loadLeaderboard(); // Refresh tabel
+    }
+  }
+};
+
+// Panggil fungsi ini saat navigasi ke halaman event diklik
+document.querySelectorAll("[data-nav-link]").forEach(link => {
+  link.addEventListener("click", function () {
+    if (this.innerText.toLowerCase().trim() === "event") {
+      loadLeaderboard();
+    }
+  });
+});
