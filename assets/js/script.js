@@ -461,13 +461,15 @@ document.addEventListener("DOMContentLoaded", () => {
 });
 
 /**
- * LEADERBOARD & ADMIN SYSTEM
+ * LEADERBOARD & ADMIN SYSTEM (FIXED CASE SENSITIVE)
  */
 async function loadLeaderboard() {
   const tableBody = document.getElementById('leaderboard-body');
   const adminTh = document.getElementById('admin-th');
   
-  // 1. Cek status Login & Role
+  if (!tableBody) return;
+
+  // 1. Ambil session user
   const { data: { session } } = await supabaseClient.auth.getSession();
   let isAdmin = false;
 
@@ -477,63 +479,62 @@ async function loadLeaderboard() {
       .select('role')
       .eq('id', session.user.id)
       .single();
-    isAdmin = profile?.role === 'admin';
+
+    // MENGUBAH ROLE KE HURUF KECIL UNTUK PENGECEKAN
+    if (profile && profile.role && profile.role.toLowerCase() === 'admin') {
+      isAdmin = true;
+    }
   }
 
-  // Tampilkan header kolom Manage hanya untuk admin
-  if (isAdmin) adminTh.style.display = 'table-cell';
+  // Tampilkan/Sembunyikan Header Kolom Admin
+  if (adminTh) adminTh.style.display = isAdmin ? 'table-cell' : 'none';
 
-  // 2. Ambil data dari Supabase (Urutkan dari poin tertinggi)
+  // 2. Ambil data leaderboard
   const { data: users, error } = await supabaseClient
     .from('profiles')
     .select('id, username, points')
     .order('points', { ascending: false });
 
-  if (error) return console.error('Error fetching leaderboard:', error);
+  if (error) return console.error('Error leaderboard:', error);
 
   // 3. Render Baris Tabel
   tableBody.innerHTML = users.map((user, index) => {
-    // Beri warna emas untuk juara 1
-    const rankColor = index === 0 ? 'var(--orange-yellow-crayola)' : 'var(--light-gray)';
+    const isTop1 = index === 0;
     
     return `
-      <tr style="background: var(--onyx); transition: 0.25s ease;">
-        <td style="padding: 15px; text-align: center; border-radius: 10px 0 0 10px; color: ${rankColor}; font-weight: bold;">
+      <tr style="background: var(--onyx); margin-bottom: 8px;">
+        <td style="padding: 15px; text-align: center; border-radius: 12px 0 0 12px; color: ${isTop1 ? 'var(--orange-yellow-crayola)' : 'var(--light-gray)'}; font-weight: bold;">
           ${index + 1}
         </td>
-        <td style="padding: 15px; color: var(--white-2); font-weight: 500;">
-          ${user.username || 'Unknown'}
+        <td style="padding: 15px; color: var(--white-2);">
+          ${user.username || 'Anonymous'}
         </td>
         <td style="padding: 15px; text-align: right; color: var(--orange-yellow-crayola); font-weight: bold; font-size: 16px;">
           ${user.points || 0}
         </td>
         ${isAdmin ? `
-          <td style="padding: 15px; text-align: center; border-radius: 0 10px 10px 0;">
+          <td style="padding: 15px; text-align: center; border-radius: 0 12px 12px 0;">
             <button onclick="updatePoints('${user.id}', '${user.username}', ${user.points})" 
-                    style="background: var(--jet); color: var(--white-1); border: 1px solid var(--orange-yellow-crayola); padding: 5px 12px; border-radius: 8px; font-size: 11px; cursor: pointer;">
+                    style="background: transparent; color: var(--orange-yellow-crayola); border: 1px solid var(--orange-yellow-crayola); padding: 5px 12px; border-radius: 8px; font-size: 11px; cursor: pointer; font-weight: 600;">
               EDIT
             </button>
           </td>
-        ` : `<td style="border-radius: 0 10px 10px 0;"></td>`}
+        ` : `<td style="border-radius: 0 12px 12px 0;"></td>`}
       </tr>
     `;
   }).join('');
 }
 
-// Fungsi Edit Poin menggunakan SweetAlert2
+// Fungsi Update Points
 window.updatePoints = async function(userId, username, currentPoints) {
   const { value: newPoints } = await Swal.fire({
-    title: `<span style="color: white; font-size: 18px;">Update Points: ${username}</span>`,
+    title: `Update Points: ${username}`,
     input: 'number',
     inputValue: currentPoints,
     background: '#1e1e1f',
+    color: '#fff',
     confirmButtonColor: '#ffdb70',
-    confirmButtonText: 'Save Changes',
-    showCancelButton: true,
-    cancelButtonColor: '#2b2b2c',
-    customClass: {
-      input: 'swal-input-custom'
-    }
+    showCancelButton: true
   });
 
   if (newPoints !== undefined && newPoints !== "") {
@@ -543,19 +544,7 @@ window.updatePoints = async function(userId, username, currentPoints) {
       .eq('id', userId);
 
     if (!error) {
-      Swal.fire({ icon: 'success', title: 'Points Updated!', background: '#1e1e1f', color: '#fff', timer: 1500, showConfirmButton: false });
-      loadLeaderboard(); // Refresh tabel setelah update
-    } else {
-      Swal.fire({ icon: 'error', title: 'Update Failed', background: '#1e1e1f', color: '#fff' });
+      loadLeaderboard(); 
     }
   }
 };
-
-// Pastikan leaderboard dimuat saat menu Event diklik
-document.querySelectorAll("[data-nav-link]").forEach(link => {
-  link.addEventListener("click", function() {
-    if (this.innerHTML.toLowerCase().includes("event")) {
-      loadLeaderboard();
-    }
-  });
-});
