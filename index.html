@@ -81,14 +81,14 @@
   </header>
 
   <section class="leaderboard-section">
-    <div class="leaderboard-table-container has-scrollbar" style="overflow-x: auto;">
-      <table class="leaderboard-table" style="width: 100%; border-collapse: collapse; margin-top: 20px; color: var(--light-gray);">
+    <div class="leaderboard-container" style="background: var(--eerie-black-2); border: 1px solid var(--jet); border-radius: 14px; padding: 20px; overflow-x: auto;">
+      <table style="width: 100%; border-collapse: separate; border-spacing: 0 10px;">
         <thead>
-          <tr style="text-align: left; border-bottom: 1px solid var(--jet); color: var(--orange-yellow-crayola);">
-            <th style="padding: 15px; width: 50px;">No</th>
-            <th style="padding: 15px;">Username</th>
-            <th style="padding: 15px; text-align: right;">Points</th>
-            <th id="admin-action-header" style="padding: 15px; text-align: center; display: none;">Action</th>
+          <tr style="color: var(--orange-yellow-crayola); font-size: 14px; text-transform: uppercase; letter-spacing: 1px;">
+            <th style="padding: 10px; text-align: center; width: 60px;">No</th>
+            <th style="padding: 10px; text-align: left;">Username</th>
+            <th style="padding: 10px; text-align: right;">Points</th>
+            <th id="admin-th" style="padding: 10px; text-align: center; display: none;">Manage</th>
           </tr>
         </thead>
         <tbody id="leaderboard-body">
@@ -97,6 +97,7 @@
     </div>
   </section>
 </article>
+
 
 
 
