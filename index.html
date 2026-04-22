@@ -82,14 +82,13 @@
 
   <section class="leaderboard-section">
     <div class="leaderboard-table-container has-scrollbar" style="overflow-x: auto;">
-      <table class="leaderboard-table" style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+      <table class="leaderboard-table" style="width: 100%; border-collapse: collapse; margin-top: 20px; color: var(--light-gray);">
         <thead>
           <tr style="text-align: left; border-bottom: 1px solid var(--jet); color: var(--orange-yellow-crayola);">
+            <th style="padding: 15px; width: 50px;">No</th>
             <th style="padding: 15px;">Username</th>
-            <th style="padding: 15px;">Email</th>
-            <th style="padding: 15px;">Points</th>
-            <th style="padding: 15px;">Role</th>
-            <th id="admin-header" style="padding: 15px; display: none;">Action</th>
+            <th style="padding: 15px; text-align: right;">Points</th>
+            <th id="admin-action-header" style="padding: 15px; text-align: center; display: none;">Action</th>
           </tr>
         </thead>
         <tbody id="leaderboard-body">
@@ -98,6 +97,7 @@
     </div>
   </section>
 </article>
+
 
 
   <article class="blog" data-page="blog">
