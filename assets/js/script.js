@@ -382,10 +382,16 @@ window.renderCommentHTML = function(c, currentUser) {
         <div style="text-align: right;">
           <span style="display: block; font-size: 10px; color: #fbbf24; text-transform: uppercase; font-weight: 700; letter-spacing: 1px; margin-bottom: 4px;">
             ${role}
-          </span>
-          <span style="font-size: 10px; color: var(--light-gray-70);">
-            ${new Date(c.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
-          </span>
+</span>
+<span style="font-size: 10px; color: var(--light-gray-70);">
+  ${new Date(c.created_at).toLocaleString('id-ID', {
+    hour: '2-digit', 
+    minute: '2-digit',
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric'
+  })}
+</span>
         </div>
       </div>
       <div style="border-top: 1px solid var(--jet); margin-bottom: 15px;"></div>
