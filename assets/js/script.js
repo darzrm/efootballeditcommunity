@@ -283,12 +283,16 @@ async function checkAccountStatus() {
 
     const { data: profileData } = await supabaseClient
       .from('profiles')
-      .select('role, username')
+      .select('role, username, points') // Pastikan 'points' ikut diambil
       .eq('id', user.id)
       .single();
 
     const userRole = profileData?.role || 'Member';
     const displayName = profileData?.username || user.user_metadata.display_name || 'Member';
+    
+    // Simpan nilai poin dari database ke variabel
+    const userPoints = profileData?.points || 0; 
+
     const date = new Date(user.created_at).toLocaleDateString('en-US', {
       day: 'numeric', month: 'long', year: 'numeric'
     });
@@ -296,19 +300,11 @@ async function checkAccountStatus() {
     if (display) {
       display.innerHTML = `
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
-          <div style="background: var(--onyx); padding: 20px; border-radius: 12px; border: 1px solid var(--jet); grid-column: span 2;">
-            <h4 class="h4" style="font-size: 24px; color: var(--orange-yellow-crayola); margin-bottom: 4px;">
-              ${displayName}
-            </h4>
-            <p style="font-size: 14px; color: var(--light-gray); margin-bottom: 8px;">${user.email}</p>
-            <div style="border-top: 1px solid var(--jet); padding-top: 8px; font-size: 11px; color: var(--light-gray-70);">
-              Joined: ${date}
-            </div>
-          </div>
           <div style="background: var(--onyx); padding: 15px; border-radius: 12px; border: 1px solid var(--jet);">
             <p style="font-size: 10px; color: var(--light-gray); text-transform: uppercase;">Points</p>
-            <p style="font-size: 20px; font-weight: 600; color: #fbbf24;">0</p>
+            <p style="font-size: 20px; font-weight: 600; color: #fbbf24;">${userPoints}</p>
           </div>
+
           <div style="background: var(--onyx); padding: 15px; border-radius: 12px; border: 1px solid var(--jet);">
             <p style="font-size: 10px; color: var(--light-gray); text-transform: uppercase;">Role</p>
             <p style="font-size: 20px; font-weight: 600; color: #fbbf24;">${userRole}</p>
