@@ -460,62 +460,68 @@ document.addEventListener("DOMContentLoaded", () => {
   checkAccountStatus();
 });
 
+
 /**
- * LEADERBOARD & ADMIN SYSTEM (FIXED CASE SENSITIVE)
+ * LEADERBOARD SYSTEM (ULTRA SAFE VERSION)
  */
 async function loadLeaderboard() {
   const tableBody = document.getElementById('leaderboard-body');
   const adminTh = document.getElementById('admin-th');
-  
   if (!tableBody) return;
 
-  // 1. Ambil session user
-  const { data: { session } } = await supabaseClient.auth.getSession();
-  let isAdmin = false;
+  // Tampilkan loading sederhana
+  tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px; color:var(--light-gray);">Loading players...</td></tr>';
 
-  if (session) {
-    const { data: profile } = await supabaseClient
-      .from('profiles')
-      .select('role')
-      .eq('id', session.user.id)
-      .single();
-
-    // MENGUBAH ROLE KE HURUF KECIL UNTUK PENGECEKAN
-    if (profile && profile.role && profile.role.toLowerCase() === 'admin') {
-      isAdmin = true;
-    }
-  }
-
-  // Tampilkan/Sembunyikan Header Kolom Admin
-  if (adminTh) adminTh.style.display = isAdmin ? 'table-cell' : 'none';
-
-  // 2. Ambil data leaderboard
-  const { data: users, error } = await supabaseClient
+  // 1. Ambil Data Leaderboard (Semua akun harus muncul)
+  const { data: users, error: dbError } = await supabaseClient
     .from('profiles')
     .select('id, username, points')
     .order('points', { ascending: false });
 
-  if (error) return console.error('Error leaderboard:', error);
+  if (dbError) {
+    tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:red;">Gagal mengambil data.</td></tr>';
+    return;
+  }
 
-  // 3. Render Baris Tabel
+  // 2. Cek Role Admin (Sembari list disiapkan)
+  let isAdmin = false;
+  try {
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    if (session) {
+      const { data: profile } = await supabaseClient
+        .from('profiles')
+        .select('role')
+        .eq('id', session.user.id)
+        .single();
+      
+      // Cek "Admin", "admin", atau "ADMIN"
+      if (profile?.role && profile.role.toLowerCase() === 'admin') {
+        isAdmin = true;
+      }
+    }
+  } catch (e) { console.log("Auth check skipped"); }
+
+  // Atur tampilan header kolom manage
+  if (adminTh) adminTh.style.display = isAdmin ? 'table-cell' : 'none';
+
+  // 3. Render Data ke Tabel
   tableBody.innerHTML = users.map((user, index) => {
     const isTop1 = index === 0;
-    
     return `
-      <tr style="background: var(--onyx); margin-bottom: 8px;">
-        <td style="padding: 15px; text-align: center; border-radius: 12px 0 0 12px; color: ${isTop1 ? 'var(--orange-yellow-crayola)' : 'var(--light-gray)'}; font-weight: bold;">
+      <tr style="background: var(--onyx);">
+        <td style="padding: 15px; text-align: center; border-radius: 12px 0 0 12px; font-weight: bold; color: ${isTop1 ? 'var(--orange-yellow-crayola)' : 'var(--light-gray)'};">
           ${index + 1}
         </td>
         <td style="padding: 15px; color: var(--white-2);">
-          ${user.username || 'Anonymous'}
+          ${user.username || 'User'}
         </td>
-        <td style="padding: 15px; text-align: right; color: var(--orange-yellow-crayola); font-weight: bold; font-size: 16px;">
+        <td style="padding: 15px; text-align: right; color: var(--orange-yellow-crayola); font-weight: bold;">
           ${user.points || 0}
         </td>
         ${isAdmin ? `
           <td style="padding: 15px; text-align: center; border-radius: 0 12px 12px 0;">
             <button onclick="updatePoints('${user.id}', '${user.username}', ${user.points})" 
-                    style="background: transparent; color: var(--orange-yellow-crayola); border: 1px solid var(--orange-yellow-crayola); padding: 5px 12px; border-radius: 8px; font-size: 11px; cursor: pointer; font-weight: 600;">
+                    style="background: transparent; color: var(--orange-yellow-crayola); border: 1px solid var(--orange-yellow-crayola); padding: 5px 10px; border-radius: 8px; font-size: 11px; cursor: pointer;">
               EDIT
             </button>
           </td>
@@ -544,6 +550,7 @@ window.updatePoints = async function(userId, username, currentPoints) {
       .eq('id', userId);
 
     if (!error) {
+      Swal.fire({ icon: 'success', title: 'Berhasil!', background: '#1e1e1f', color: '#fff', timer: 1000, showConfirmButton: false });
       loadLeaderboard(); 
     }
   }
