@@ -309,7 +309,7 @@ if (user) {
       display.innerHTML = `
         <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 15px;">
           <div style="background: var(--onyx); padding: 20px; border-radius: 12px; border: 1px solid var(--jet); grid-column: span 2;">
-            <h4 class="h4" style="font-size: 24px; color: var(--orange-yellow-crayola); margin-bottom: 4px;">
+            <h4 class="h4" style="font-size: 24px; color: var(--white-1); margin-bottom: 4px;">
               ${displayName}
             </h4>
             <p style="font-size: 14px; color: var(--light-gray); margin-bottom: 8px;">${user.email}</p>
@@ -320,12 +320,12 @@ if (user) {
 
           <div style="background: var(--onyx); padding: 15px; border-radius: 12px; border: 1px solid var(--jet);">
             <p style="font-size: 10px; color: var(--light-gray); text-transform: uppercase;">Points</p>
-            <p style="font-size: 20px; font-weight: 600; color: #fbbf24;">${userPoints}</p>
+            <p style="font-size: 20px; font-weight: 600; color: #fff;">${userPoints}</p>
           </div>
 
           <div style="background: var(--onyx); padding: 15px; border-radius: 12px; border: 1px solid var(--jet);">
             <p style="font-size: 10px; color: var(--light-gray); text-transform: uppercase;">Role</p>
-            <p style="font-size: 20px; font-weight: 600; color: #fbbf24;">${userRole}</p>
+            <p style="font-size: 20px; font-weight: 600; color: #fff;">${userRole}</p>
           </div>
         </div>
       `;
