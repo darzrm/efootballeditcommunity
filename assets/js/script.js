@@ -85,43 +85,6 @@ for (let i = 0; i < navigationLinks.length; i++) {
   });
 }
 
-// --- PASSWORD RECOVERY HANDLER (MUST BE BEFORE CLICK LISTENER) ---
-supabaseClient.auth.onAuthStateChange(async (event, session) => {
-  console.log("Auth Event:", event); // Untuk debugging
-
-  if (event === "PASSWORD_RECOVERY") {
-    const { value: newPassword } = await Swal.fire({
-      title: 'Reset Your Password',
-      input: 'password',
-      inputLabel: 'Enter your new password',
-      inputPlaceholder: 'New Password',
-      showCancelButton: false,
-      confirmButtonText: 'Update Password',
-      background: '#1e1e1f',
-      color: '#fff',
-      allowOutsideClick: false, // User wajib isi
-      inputAttributes: {
-        autocapitalize: 'off',
-        autocorrect: 'off'
-      }
-    });
-
-    if (newPassword) {
-      const { error } = await supabaseClient.auth.updateUser({
-        password: newPassword
-      });
-
-      if (error) {
-        Swal.fire({ icon: 'error', text: error.message, background: '#1e1e1f', color: '#fff' });
-      } else {
-        await Swal.fire({ icon: 'success', text: 'Password updated successfully!', background: '#1e1e1f', color: '#fff' });
-        // Bersihkan URL dari token dan kembali ke halaman utama
-        window.location.href = window.location.origin + window.location.pathname;
-      }
-    }
-  }
-});
-
 // --- SUPABASE INITIALIZATION ---
 const SUPABASE_URL = 'https://xhbmfsrwpebyunjxxmio.supabase.co';
 const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhoYm1mc3J3cGVieXVuanh4bWlvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NzkzOTksImV4cCI6MjA5MjA1NTM5OX0.EiFkHOoS2kegWrmPG9BP_nSaBqV3FKWbTZF-jWJupe0';
@@ -254,10 +217,9 @@ if (nameInput.value.length > 12) {
       return Swal.fire({ icon: 'warning', text: 'Please enter your email first', background: '#1e1e1f', color: '#fff' });
     }
 
-// Pastikan bagian ini di script kamu sudah benar
-const { error } = await supabaseClient.auth.resetPasswordForEmail(emailInput.value, {
-  redirectTo: window.location.origin, // Lebih aman menggunakan origin
-});
+    const { error } = await supabaseClient.auth.resetPasswordForEmail(emailInput.value, {
+      redirectTo: window.location.href, 
+    });
 
     if (error) {
       Swal.fire({ icon: 'error', text: error.message, background: '#1e1e1f', color: '#fff' });
@@ -265,6 +227,41 @@ const { error } = await supabaseClient.auth.resetPasswordForEmail(emailInput.val
       Swal.fire({ icon: 'success', text: 'Reset instructions sent to your email!', background: '#1e1e1f', color: '#fff' });
     }
   }
+
+// Tambahkan ini di script.js
+supabaseClient.auth.onAuthStateChange(async (event, session) => {
+  if (event === "PASSWORD_RECOVERY") {
+    // Tampilkan popup SweetAlert untuk input password baru
+    const { value: newPassword } = await Swal.fire({
+      title: 'Reset Your Password',
+      input: 'password',
+      inputLabel: 'Enter your new password',
+      inputPlaceholder: 'New Password',
+      showCancelButton: false,
+      confirmButtonText: 'Update Password',
+      background: '#1e1e1f',
+      color: '#fff',
+      inputAttributes: {
+        autocapitalize: 'off',
+        autocorrect: 'off'
+      }
+    });
+
+    if (newPassword) {
+      const { error } = await supabaseClient.auth.updateUser({
+        password: newPassword
+      });
+
+      if (error) {
+        Swal.fire({ icon: 'error', text: error.message });
+      } else {
+        Swal.fire({ icon: 'success', text: 'Password updated successfully!' });
+        // Redirect ke home atau login
+        window.location.hash = ''; 
+      }
+    }
+  }
+});
 
   
   // 7. Logout Action
@@ -479,20 +476,9 @@ supabaseClient.auth.onAuthStateChange(() => {
   checkAccountStatus();
 });
 
-document.addEventListener("DOMContentLoaded", async () => {
+document.addEventListener("DOMContentLoaded", () => {
   checkAccountStatus();
-
-  // Cek apakah user datang dari link recovery
-  const { data: { session } } = await supabaseClient.auth.getSession();
-  
-  // Jika ada session dan URL mengandung recovery, trigger manual jika event tidak muncul
-  if (window.location.hash.includes('type=recovery')) {
-    // Supabase secara otomatis akan mengubah status auth menjadi PASSWORD_RECOVERY
-    // Jika popup tidak muncul, baris di bawah ini memastikan session terdeteksi
-    console.log("Recovery session detected");
-  }
 });
-
 
 
 /**
