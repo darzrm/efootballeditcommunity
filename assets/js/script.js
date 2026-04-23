@@ -278,7 +278,7 @@ async function checkAccountStatus() {
   if (auth) auth.style.display = 'none';
   if (profile) profile.style.display = 'none';
 
-  if (user) {
+if (user) {
     if (profile) profile.style.display = 'block';
 
     const { data: profileData } = await supabaseClient
