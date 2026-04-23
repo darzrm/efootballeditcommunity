@@ -462,31 +462,35 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 /**
- * LEADERBOARD SYSTEM (ULTRA SAFE VERSION)
+ * LEADERBOARD SYSTEM (FIXED & AUTO-LOAD)
  */
 async function loadLeaderboard() {
   const tableBody = document.getElementById('leaderboard-body');
   const adminTh = document.getElementById('admin-th');
+  
   if (!tableBody) return;
 
-  // Tampilkan loading sederhana
-  tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px; color:var(--light-gray);">Loading players...</td></tr>';
+  // Beri indikasi kalau sedang loading
+  tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px; color:var(--light-gray);">Memuat data...</td></tr>';
 
-  // 1. Ambil Data Leaderboard (Semua akun harus muncul)
-  const { data: users, error: dbError } = await supabaseClient
-    .from('profiles')
-    .select('id, username, points')
-    .order('points', { ascending: false });
-
-  if (dbError) {
-    tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:red;">Gagal mengambil data.</td></tr>';
-    return;
-  }
-
-  // 2. Cek Role Admin (Sembari list disiapkan)
-  let isAdmin = false;
   try {
+    // 1. Ambil data profil (Urutkan poin terbanyak)
+    const { data: users, error: dbError } = await supabaseClient
+      .from('profiles')
+      .select('id, username, points')
+      .order('points', { ascending: false });
+
+    if (dbError) throw dbError;
+
+    if (!users || users.length === 0) {
+      tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px; color:var(--light-gray);">Belum ada data user.</td></tr>';
+      return;
+    }
+
+    // 2. Cek Role Admin (Case Insensitive: Admin, admin, ADMIN tetap jalan)
+    let isAdmin = false;
     const { data: { session } } = await supabaseClient.auth.getSession();
+    
     if (session) {
       const { data: profile } = await supabaseClient
         .from('profiles')
@@ -494,64 +498,52 @@ async function loadLeaderboard() {
         .eq('id', session.user.id)
         .single();
       
-      // Cek "Admin", "admin", atau "ADMIN"
       if (profile?.role && profile.role.toLowerCase() === 'admin') {
         isAdmin = true;
       }
     }
-  } catch (e) { console.log("Auth check skipped"); }
 
-  // Atur tampilan header kolom manage
-  if (adminTh) adminTh.style.display = isAdmin ? 'table-cell' : 'none';
+    // Munculkan kolom Manage jika admin
+    if (adminTh) adminTh.style.display = isAdmin ? 'table-cell' : 'none';
 
-  // 3. Render Data ke Tabel
-  tableBody.innerHTML = users.map((user, index) => {
-    const isTop1 = index === 0;
-    return `
-      <tr style="background: var(--onyx);">
-        <td style="padding: 15px; text-align: center; border-radius: 12px 0 0 12px; font-weight: bold; color: ${isTop1 ? 'var(--orange-yellow-crayola)' : 'var(--light-gray)'};">
-          ${index + 1}
-        </td>
-        <td style="padding: 15px; color: var(--white-2);">
-          ${user.username || 'User'}
-        </td>
-        <td style="padding: 15px; text-align: right; color: var(--orange-yellow-crayola); font-weight: bold;">
-          ${user.points || 0}
-        </td>
-        ${isAdmin ? `
-          <td style="padding: 15px; text-align: center; border-radius: 0 12px 12px 0;">
-            <button onclick="updatePoints('${user.id}', '${user.username}', ${user.points})" 
-                    style="background: transparent; color: var(--orange-yellow-crayola); border: 1px solid var(--orange-yellow-crayola); padding: 5px 10px; border-radius: 8px; font-size: 11px; cursor: pointer;">
-              EDIT
-            </button>
+    // 3. Masukkan data ke tabel
+    tableBody.innerHTML = users.map((user, index) => {
+      const isTop1 = index === 0;
+      return `
+        <tr style="background: var(--onyx); border-bottom: 5px solid var(--smoky-black);">
+          <td style="padding: 15px; text-align: center; border-radius: 12px 0 0 12px; font-weight: bold; color: ${isTop1 ? 'var(--orange-yellow-crayola)' : 'var(--light-gray)'};">
+            ${index + 1}
           </td>
-        ` : `<td style="border-radius: 0 12px 12px 0;"></td>`}
-      </tr>
-    `;
-  }).join('');
+          <td style="padding: 15px; color: var(--white-2);">
+            ${user.username || 'Anonymous'}
+          </td>
+          <td style="padding: 15px; text-align: right; color: var(--orange-yellow-crayola); font-weight: bold;">
+            ${user.points || 0}
+          </td>
+          ${isAdmin ? `
+            <td style="padding: 15px; text-align: center; border-radius: 0 12px 12px 0;">
+              <button onclick="updatePoints('${user.id}', '${user.username}', ${user.points})" 
+                      style="background: transparent; color: var(--orange-yellow-crayola); border: 1px solid var(--orange-yellow-crayola); padding: 5px 10px; border-radius: 8px; font-size: 11px; cursor: pointer; font-weight: 600;">
+                EDIT
+              </button>
+            </td>
+          ` : `<td style="border-radius: 0 12px 12px 0;"></td>`}
+        </tr>
+      `;
+    }).join('');
+
+  } catch (err) {
+    console.error("Leaderboard Error:", err);
+    tableBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:red; padding:20px;">Error: ${err.message}</td></tr>`;
+  }
 }
 
-// Fungsi Update Points
-window.updatePoints = async function(userId, username, currentPoints) {
-  const { value: newPoints } = await Swal.fire({
-    title: `Update Points: ${username}`,
-    input: 'number',
-    inputValue: currentPoints,
-    background: '#1e1e1f',
-    color: '#fff',
-    confirmButtonColor: '#ffdb70',
-    showCancelButton: true
-  });
-
-  if (newPoints !== undefined && newPoints !== "") {
-    const { error } = await supabaseClient
-      .from('profiles')
-      .update({ points: parseInt(newPoints) })
-      .eq('id', userId);
-
-    if (!error) {
-      Swal.fire({ icon: 'success', title: 'Berhasil!', background: '#1e1e1f', color: '#fff', timer: 1000, showConfirmButton: false });
-      loadLeaderboard(); 
+document.querySelectorAll("[data-nav-link]").forEach(link => {
+  link.addEventListener("click", function() {
+    // Kita cek teks tombolnya, pastikan cocok dengan "Event"
+    const tabName = this.innerText.toLowerCase().trim();
+    if (tabName === "event") {
+      loadLeaderboard();
     }
-  }
-};
+  });
+});
