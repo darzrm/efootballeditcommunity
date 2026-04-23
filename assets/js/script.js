@@ -609,3 +609,22 @@ window.updatePoints = async function(userId, username, currentPoints) {
     }
   }
 };
+
+
+// Tambahkan ini di bagian paling bawah script.js
+const { data: { user } } = await supabaseClient.auth.getUser();
+
+if (user) {
+  supabaseClient
+    .channel('any')
+    .on('postgres_changes', { 
+      event: 'UPDATE', 
+      schema: 'public', 
+      table: 'profiles',
+      filter: `id=eq.${user.id}` 
+    }, payload => {
+      // Jika ada perubahan pada data profile user ini, jalankan ulang fungsi UI
+      checkAccountStatus();
+    })
+    .subscribe();
+}
