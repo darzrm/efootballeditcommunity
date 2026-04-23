@@ -77,6 +77,11 @@ for (let i = 0; i < navigationLinks.length; i++) {
         pages[j].classList.add("active");
         navigationLinks[j].classList.add("active");
         window.scrollTo(0, 0);
+        
+        // Pemicu khusus untuk halaman Event/Leaderboard
+        if (clickedPage === "event") {
+          loadLeaderboard();
+        }
       } else {
         pages[j].classList.remove("active");
         navigationLinks[j].classList.remove("active");
@@ -98,7 +103,6 @@ window.addEventListener('click', async function(event) {
   const aCont = document.getElementById('auth-container');
   const editSection = document.getElementById('edit-username-section');
   
-  // 1. Change Username: Toggle Form
   if (event.target.closest('#btn-show-edit')) {
     if (editSection) {
       const isHidden = editSection.style.display === 'none' || editSection.style.display === '';
@@ -106,7 +110,6 @@ window.addEventListener('click', async function(event) {
     }
   }
 
-  // 2. Change Username: Submit Update (Auth Metadata + Profile Table)
   if (event.target.closest('#btn-submit-username')) {
     const password = document.getElementById('confirm-password').value;
     const newName = document.getElementById('new-username').value;
@@ -116,7 +119,6 @@ window.addEventListener('click', async function(event) {
       return Swal.fire({ icon: 'warning', text: 'Please fill in all fields', background: '#1e1e1f', color: '#fff' });
     }
 
-    // Re-autentikasi untuk keamanan sebelum ganti nama
     const { error: authError } = await supabaseClient.auth.signInWithPassword({
       email: user.email,
       password: password
@@ -126,34 +128,27 @@ window.addEventListener('click', async function(event) {
       return Swal.fire({ icon: 'error', text: 'Incorrect password!', background: '#1e1e1f', color: '#fff' });
     }
 
-  // Update Auth Metadata
-  const { error: updateAuthError } = await supabaseClient.auth.updateUser({
-    data: { display_name: newName }
-  });
+    const { error: updateAuthError } = await supabaseClient.auth.updateUser({
+      data: { display_name: newName }
+    });
 
-  // Update Tabel Profiles
-  const { data: updatedRows, error: updateTableError } = await supabaseClient
-    .from('profiles')
-    .update({ username: newName })
-    .eq('id', user.id)
-    .select(); // <-- This forces Supabase to return the updated row
+    const { data: updatedRows, error: updateTableError } = await supabaseClient
+      .from('profiles')
+      .update({ username: newName })
+      .eq('id', user.id)
+      .select();
 
-  // Check if it failed OR if 0 rows were updated
-  if (updateAuthError || updateTableError || !updatedRows || updatedRows.length === 0) {
-    Swal.fire({ icon: 'error', text: 'Update failed! Check your database permissions (RLS).', background: '#1e1e1f', color: '#fff' });
-  } else {
-    await Swal.fire({ icon: 'success', text: 'Username updated successfully!', background: '#1e1e1f', color: '#fff' });
-    if (editSection) editSection.style.display = 'none';
-    
-    // Clear the input fields
-    document.getElementById('confirm-password').value = '';
-    document.getElementById('new-username').value = '';
-    
-    checkAccountStatus(); 
-  }
+    if (updateAuthError || updateTableError || !updatedRows || updatedRows.length === 0) {
+      Swal.fire({ icon: 'error', text: 'Update failed!', background: '#1e1e1f', color: '#fff' });
+    } else {
+      await Swal.fire({ icon: 'success', text: 'Username updated successfully!', background: '#1e1e1f', color: '#fff' });
+      if (editSection) editSection.style.display = 'none';
+      document.getElementById('confirm-password').value = '';
+      document.getElementById('new-username').value = '';
+      checkAccountStatus(); 
+    }
   }
 
-  // 3. Auth Navigation
   if (event.target.closest('#btn-start-auth')) {
     gCont.style.setProperty('display', 'none', 'important');
     aCont.style.setProperty('display', 'block', 'important');
@@ -164,7 +159,6 @@ window.addEventListener('click', async function(event) {
     gCont.style.setProperty('display', 'block', 'important');
   }
 
-  // 4. Login Action
   if (event.target.closest('#login-btn-final')) {
     const emailInput = document.getElementById('auth-email');
     const passInput = document.getElementById('auth-password');
@@ -175,88 +169,25 @@ window.addEventListener('click', async function(event) {
     if (error) Swal.fire({ icon: 'error', text: error.message, background: '#1e1e1f', color: '#fff' });
   }
 
-  // 5. Register Action (Fixed Username ID)
   if (event.target.closest('#register-btn-final')) {
     const emailInput = document.getElementById('auth-email');
     const passInput = document.getElementById('auth-password');
-    const nameInput = document.getElementById('auth-username'); // Menggunakan ID yang ada di index.html
+    const nameInput = document.getElementById('auth-username');
 
     if (!emailInput.value || !passInput.value || !nameInput.value) {
-      return Swal.fire({ icon: 'warning', text: 'All fields are required for registration', background: '#1e1e1f', color: '#fff' });
+      return Swal.fire({ icon: 'warning', text: 'All fields are required', background: '#1e1e1f', color: '#fff' });
     }
 
     const { error } = await supabaseClient.auth.signUp({
       email: emailInput.value,
       password: passInput.value,
-      options: {
-        data: { display_name: nameInput.value },
-        emailRedirectTo: window.location.origin
-      }
+      options: { data: { display_name: nameInput.value } }
     });
 
-    if (error) {
-      Swal.fire({ icon: 'error', text: error.message, background: '#1e1e1f', color: '#fff' });
-    } else {
-      Swal.fire({ icon: 'success', text: 'Registration successful! Check your email to verify.', background: '#1e1e1f', color: '#fff' });
-    }
+    if (error) Swal.fire({ icon: 'error', text: error.message, background: '#1e1e1f', color: '#fff' });
+    else Swal.fire({ icon: 'success', text: 'Success! Verify your email.', background: '#1e1e1f', color: '#fff' });
   }
 
-  // 6. Reset Password Action (Linked to ID btn-forgot-pass or btn-reset-password)
-  if (event.target.closest('#btn-forgot-pass') || event.target.closest('#btn-reset-password')) {
-    const emailInput = document.getElementById('auth-email');
-    
-    if (!emailInput || !emailInput.value) {
-      return Swal.fire({ icon: 'warning', text: 'Please enter your email first', background: '#1e1e1f', color: '#fff' });
-    }
-
-    const { error } = await supabaseClient.auth.resetPasswordForEmail(emailInput.value, {
-      redirectTo: window.location.href, 
-    });
-
-    if (error) {
-      Swal.fire({ icon: 'error', text: error.message, background: '#1e1e1f', color: '#fff' });
-    } else {
-      Swal.fire({ icon: 'success', text: 'Reset instructions sent to your email!', background: '#1e1e1f', color: '#fff' });
-    }
-  }
-
-// Tambahkan ini di script.js
-supabaseClient.auth.onAuthStateChange(async (event, session) => {
-  if (event === "PASSWORD_RECOVERY") {
-    // Tampilkan popup SweetAlert untuk input password baru
-    const { value: newPassword } = await Swal.fire({
-      title: 'Reset Your Password',
-      input: 'password',
-      inputLabel: 'Enter your new password',
-      inputPlaceholder: 'New Password',
-      showCancelButton: false,
-      confirmButtonText: 'Update Password',
-      background: '#1e1e1f',
-      color: '#fff',
-      inputAttributes: {
-        autocapitalize: 'off',
-        autocorrect: 'off'
-      }
-    });
-
-    if (newPassword) {
-      const { error } = await supabaseClient.auth.updateUser({
-        password: newPassword
-      });
-
-      if (error) {
-        Swal.fire({ icon: 'error', text: error.message });
-      } else {
-        Swal.fire({ icon: 'success', text: 'Password updated successfully!' });
-        // Redirect ke home atau login
-        window.location.hash = ''; 
-      }
-    }
-  }
-});
-
-  
-  // 7. Logout Action
   if (event.target.closest('#logout-btn-final')) {
     await supabaseClient.auth.signOut();
     location.reload();
@@ -264,18 +195,16 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
 });
 
 /**
- * UI ENGINE: Fetch Role & Persistent Login
+ * UI ENGINE: Fetch Role & Persistent Login (Synchronized Points)
  */
 async function checkAccountStatus() {
   const { data: { user } } = await supabaseClient.auth.getUser();
   
   const guest = document.getElementById('guest-container');
-  const auth = document.getElementById('auth-container');
   const profile = document.getElementById('profile-container');
   const display = document.getElementById('user-info-display');
 
   if (guest) guest.style.display = 'none';
-  if (auth) auth.style.display = 'none';
   if (profile) profile.style.display = 'none';
 
   if (user) {
@@ -283,12 +212,13 @@ async function checkAccountStatus() {
 
     const { data: profileData } = await supabaseClient
       .from('profiles')
-      .select('role, username')
+      .select('role, username, points')
       .eq('id', user.id)
       .single();
 
     const userRole = profileData?.role || 'Member';
     const displayName = profileData?.username || user.user_metadata.display_name || 'Member';
+    const userPoints = profileData?.points || 0;
     const date = new Date(user.created_at).toLocaleDateString('en-US', {
       day: 'numeric', month: 'long', year: 'numeric'
     });
@@ -305,176 +235,33 @@ async function checkAccountStatus() {
               Joined: ${date}
             </div>
           </div>
-          <div style="background: var(--onyx); padding: 15px; border-radius: 12px; border: 1px solid var(--jet);">
+          <div style="background: var(--onyx); padding: 15px; border-radius: 12px; border: 1px solid var(--jet); text-align: center;">
             <p style="font-size: 10px; color: var(--light-gray); text-transform: uppercase;">Points</p>
-            <p style="font-size: 20px; font-weight: 600; color: #fbbf24;">0</p>
+            <p style="font-size: 20px; font-weight: 600; color: #fbbf24;">${userPoints}</p>
           </div>
-          <div style="background: var(--onyx); padding: 15px; border-radius: 12px; border: 1px solid var(--jet);">
+          <div style="background: var(--onyx); padding: 15px; border-radius: 12px; border: 1px solid var(--jet); text-align: center;">
             <p style="font-size: 10px; color: var(--light-gray); text-transform: uppercase;">Role</p>
             <p style="font-size: 20px; font-weight: 600; color: #fbbf24;">${userRole}</p>
           </div>
         </div>
       `;
     }
-    
-    if (window.currentBlogId) loadComments(window.currentBlogId);
   } else {
     if (guest) guest.style.display = 'block';
   }
 }
 
 /**
- * BLOG & COMMENT SYSTEM
- */
-window.currentBlogId = null;
-
-window.showBlogDetail = async function(id, title, text) {
-  window.currentBlogId = id;
-  document.getElementById('blog-list-container').style.display = 'none';
-  document.getElementById('blog-detail-container').style.display = 'block';
-  document.getElementById('detail-title').innerText = title;
-  document.getElementById('detail-text').innerText = text;
-
-  window.scrollTo({ top: 0, behavior: 'smooth' });
-
-  const { data: { user } } = await supabaseClient.auth.getUser();
-  const formArea = document.getElementById('comment-form-area');
-  
-  if (!user) {
-    formArea.innerHTML = `<p style="color: var(--orange-yellow-crayola); font-size: 14px; margin-bottom: 30px;">Please login to join the conversation.</p>`;
-  } else {
-    formArea.innerHTML = `
-      <textarea id="comment-input" class="form-input" placeholder="Write your comment..." required style="min-height: 80px; margin-bottom: 15px; resize: vertical;"></textarea>
-      <button class="form-btn" onclick="postComment()" style="width: max-content; padding: 10px 20px;">
-        <ion-icon name="paper-plane-outline"></ion-icon><span>Post Comment</span>
-      </button>
-    `;
-  }
-  loadComments(id);
-};
-
-window.closeBlogDetail = function() {
-  window.currentBlogId = null;
-  document.getElementById('blog-list-container').style.display = 'block';
-  document.getElementById('blog-detail-container').style.display = 'none';
-};
-
-window.renderCommentHTML = function(c, currentUser) {
-  const username = c.profiles?.username || 'Anonymous';
-  const role = c.profiles?.role || 'Member';
-  const email = c.profiles?.email || 'No Email';
-  const isOwner = currentUser && currentUser.id === c.user_id;
-  const isAdmin = currentUser && currentUser.role === 'Admin';
-
-  return `
-    <div class="comment-item" style="margin-bottom: 30px; background: var(--onyx); padding: 20px; border-radius: 12px; border: 1px solid var(--jet);">
-      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
-        <div>
-          <h4 class="h4" style="font-size: 16px; color: var(--orange-yellow-crayola); margin: 0;">${username}</h4>
-          <p style="font-size: 12px; color: var(--light-gray-70); margin: 2px 0 8px;">${email}</p>
-        </div>
-        <div style="text-align: right;">
-          <span style="display: block; font-size: 10px; color: #fbbf24; text-transform: uppercase; font-weight: 700; letter-spacing: 1px; margin-bottom: 4px;">
-            ${role}
-          </span>
-          <span style="font-size: 10px; color: var(--light-gray-70);">
-            ${new Date(c.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}
-          </span>
-        </div>
-      </div>
-      <div style="border-top: 1px solid var(--jet); margin-bottom: 15px;"></div>
-      <p style="font-size: 15px; color: var(--light-gray); line-height: 1.6; margin-bottom: 15px;">
-        ${c.content}
-      </p>
-      ${(isOwner || isAdmin) ? `
-        <button onclick="deleteComment('${c.id}')" style="color: #ff5f5f; font-size: 12px; background: none; border: none; cursor: pointer; display: flex; align-items: center; gap: 5px; padding: 0;">
-          <ion-icon name="trash-outline"></ion-icon> Delete Comment
-        </button>
-      ` : ''}
-    </div>
-  `;
-};
-
-window.loadComments = async function(blogId) {
-  const displayList = document.getElementById('comments-display-list');
-  if(!displayList) return;
-
-  const { data: { user } } = await supabaseClient.auth.getUser();
-  let currentUserData = null;
-  
-  if (user) {
-    const { data: p } = await supabaseClient.from('profiles').select('role').eq('id', user.id).single();
-    currentUserData = { id: user.id, role: p?.role };
-  }
-
-  const { data: comments, error } = await supabaseClient
-    .from('comments')
-    .select(`id, content, created_at, user_id, profiles (username, role, email)`)
-    .eq('post_id', blogId)
-    .order('created_at', { ascending: false });
-
-  if (error) return;
-  if (!comments || comments.length === 0) {
-    displayList.innerHTML = `<p style="color: var(--light-gray-70); text-align: center;">No comments yet.</p>`;
-  } else {
-    displayList.innerHTML = comments.map(c => renderCommentHTML(c, currentUserData)).join('');
-  }
-};
-
-window.postComment = async function() {
-  const input = document.getElementById('comment-input');
-  const { data: { user } } = await supabaseClient.auth.getUser();
-  if (!user || !input.value.trim()) return;
-  const { error } = await supabaseClient
-    .from('comments')
-    .insert([{ post_id: window.currentBlogId, user_id: user.id, content: input.value.trim() }]);
-  if (error) return Swal.fire({ icon: 'error', text: 'Failed to post comment' });
-  input.value = ''; 
-  loadComments(window.currentBlogId);
-};
-
-window.deleteComment = async function(commentId) {
-  const result = await Swal.fire({
-    text: "Delete this comment?",
-    icon: 'warning',
-    showCancelButton: true,
-    confirmButtonColor: '#ff5f5f',
-    background: '#1e1e1f',
-    color: '#fff'
-  });
-  if (result.isConfirmed) {
-    const { error } = await supabaseClient.from('comments').delete().eq('id', commentId);
-    if (error) Swal.fire({ icon: 'error', text: "Failed to delete" });
-    else loadComments(window.currentBlogId);
-  }
-};
-
-/**
- * INITIALIZATION
- */
-supabaseClient.auth.onAuthStateChange(() => {
-  checkAccountStatus();
-});
-
-document.addEventListener("DOMContentLoaded", () => {
-  checkAccountStatus();
-});
-
-
-/**
- * LEADERBOARD SYSTEM (FIXED & AUTO-LOAD)
+ * LEADERBOARD SYSTEM (CENTERED & BORDERED)
  */
 async function loadLeaderboard() {
   const tableBody = document.getElementById('leaderboard-body');
   const adminTh = document.getElementById('admin-th');
-  
   if (!tableBody) return;
 
-  // Beri indikasi kalau sedang loading
   tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px; color:var(--light-gray);">Memuat data...</td></tr>';
 
   try {
-    // 1. Ambil data profil (Urutkan poin terbanyak)
     const { data: users, error: dbError } = await supabaseClient
       .from('profiles')
       .select('id, username, points')
@@ -482,79 +269,51 @@ async function loadLeaderboard() {
 
     if (dbError) throw dbError;
 
-    if (!users || users.length === 0) {
-      tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px; color:var(--light-gray);">Belum ada data user.</td></tr>';
-      return;
-    }
-
-    // 2. Cek Role Admin (Case Insensitive: Admin, admin, ADMIN tetap jalan)
     let isAdmin = false;
     const { data: { session } } = await supabaseClient.auth.getSession();
-    
     if (session) {
-      const { data: profile } = await supabaseClient
-        .from('profiles')
-        .select('role')
-        .eq('id', session.user.id)
-        .single();
-      
-      if (profile?.role && profile.role.toLowerCase() === 'admin') {
-        isAdmin = true;
-      }
+      const { data: profile } = await supabaseClient.from('profiles').select('role').eq('id', session.user.id).single();
+      if (profile?.role && profile.role.toLowerCase() === 'admin') isAdmin = true;
     }
 
-    // Munculkan kolom Manage jika admin
     if (adminTh) adminTh.style.display = isAdmin ? 'table-cell' : 'none';
 
-    // 3. Masukkan data ke tabel
     tableBody.innerHTML = users.map((user, index) => {
       const isTop1 = index === 0;
+      const cellStyle = `padding: 15px; text-align: center; border: 1px solid var(--jet);`;
+      
       return `
-        <tr style="background: var(--onyx); border-bottom: 5px solid var(--smoky-black);">
-          <td style="padding: 15px; text-align: center; border-radius: 12px 0 0 12px; font-weight: bold; color: ${isTop1 ? 'var(--orange-yellow-crayola)' : 'var(--light-gray)'};">
+        <tr style="background: var(--onyx);">
+          <td style="${cellStyle} font-weight: bold; color: ${isTop1 ? 'var(--orange-yellow-crayola)' : 'var(--light-gray)'};">
             ${index + 1}
           </td>
-          <td style="padding: 15px; color: var(--white-2);">
+          <td style="${cellStyle} color: var(--white-2);">
             ${user.username || 'Anonymous'}
           </td>
-          <td style="padding: 15px; text-align: right; color: var(--orange-yellow-crayola); font-weight: bold;">
+          <td style="${cellStyle} color: var(--orange-yellow-crayola); font-weight: bold;">
             ${user.points || 0}
           </td>
           ${isAdmin ? `
-            <td style="padding: 15px; text-align: center; border-radius: 0 12px 12px 0;">
+            <td style="${cellStyle}">
               <button onclick="updatePoints('${user.id}', '${user.username}', ${user.points})" 
-                      style="background: transparent; color: var(--orange-yellow-crayola); border: 1px solid var(--orange-yellow-crayola); padding: 5px 10px; border-radius: 8px; font-size: 11px; cursor: pointer; font-weight: 600;">
+                      style="background: transparent; color: var(--orange-yellow-crayola); border: 1px solid var(--orange-yellow-crayola); padding: 5px 10px; border-radius: 8px; cursor: pointer; font-weight: 600;">
                 EDIT
               </button>
             </td>
-          ` : `<td style="border-radius: 0 12px 12px 0;"></td>`}
+          ` : ''}
         </tr>
       `;
     }).join('');
 
   } catch (err) {
-    console.error("Leaderboard Error:", err);
-    tableBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:red; padding:20px;">Error: ${err.message}</td></tr>`;
+    tableBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:red;">Error: ${err.message}</td></tr>`;
   }
 }
 
-document.querySelectorAll("[data-nav-link]").forEach(link => {
-  link.addEventListener("click", function() {
-    // Kita cek teks tombolnya, pastikan cocok dengan "Event"
-    const tabName = this.innerText.toLowerCase().trim();
-    if (tabName === "event") {
-      loadLeaderboard();
-    }
-  });
-});
-
 /**
- * FUNGSI UPDATE POINTS (WAJIB GLOBAL)
- * Menggunakan window agar bisa dipanggil oleh onclick di HTML
+ * GLOBAL UPDATE POINTS FUNCTION
  */
 window.updatePoints = async function(userId, username, currentPoints) {
-  console.log("Mencoba update poin untuk:", username); // Untuk cek di console F12
-
   const { value: newPoints } = await Swal.fire({
     title: `Update Points: ${username}`,
     input: 'number',
@@ -577,29 +336,119 @@ window.updatePoints = async function(userId, username, currentPoints) {
       if (error) throw error;
 
       Swal.fire({
-        icon: 'success',
-        title: 'Berhasil!',
+        icon: 'success', title: 'Berhasil!',
         text: `Poin ${username} diperbarui menjadi ${newPoints}`,
-        background: '#1e1e1f',
-        color: '#fff',
-        timer: 1500,
-        showConfirmButton: false
+        background: '#1e1e1f', color: '#fff', timer: 1500, showConfirmButton: false
       });
 
-      // Refresh data tabel setelah update sukses
-      if (typeof loadLeaderboard === 'function') {
-        loadLeaderboard();
-      }
+      loadLeaderboard(); 
+      checkAccountStatus(); // Sinkronisasi poin profil
       
     } catch (err) {
-      console.error("Gagal update:", err);
-      Swal.fire({
-        icon: 'error',
-        title: 'Gagal',
-        text: err.message,
-        background: '#1e1e1f',
-        color: '#fff'
-      });
+      Swal.fire({ icon: 'error', title: 'Gagal', text: err.message, background: '#1e1e1f', color: '#fff' });
     }
+  }
+};
+
+/**
+ * INITIALIZATION
+ */
+supabaseClient.auth.onAuthStateChange(() => {
+  checkAccountStatus();
+});
+
+document.addEventListener("DOMContentLoaded", () => {
+  checkAccountStatus();
+});
+
+// BLOG SYSTEM (Bagian bawah tetap sama)
+window.currentBlogId = null;
+window.showBlogDetail = async function(id, title, text) {
+  window.currentBlogId = id;
+  document.getElementById('blog-list-container').style.display = 'none';
+  document.getElementById('blog-detail-container').style.display = 'block';
+  document.getElementById('detail-title').innerText = title;
+  document.getElementById('detail-text').innerText = text;
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+  const { data: { user } } = await supabaseClient.auth.getUser();
+  const formArea = document.getElementById('comment-form-area');
+  if (!user) {
+    formArea.innerHTML = `<p style="color: var(--orange-yellow-crayola); font-size: 14px; margin-bottom: 30px;">Please login to join the conversation.</p>`;
+  } else {
+    formArea.innerHTML = `
+      <textarea id="comment-input" class="form-input" placeholder="Write your comment..." required style="min-height: 80px; margin-bottom: 15px; resize: vertical;"></textarea>
+      <button class="form-btn" onclick="postComment()" style="width: max-content; padding: 10px 20px;">
+        <ion-icon name="paper-plane-outline"></ion-icon><span>Post Comment</span>
+      </button>`;
+  }
+  loadComments(id);
+};
+
+window.closeBlogDetail = function() {
+  window.currentBlogId = null;
+  document.getElementById('blog-list-container').style.display = 'block';
+  document.getElementById('blog-detail-container').style.display = 'none';
+};
+
+window.renderCommentHTML = function(c, currentUser) {
+  const username = c.profiles?.username || 'Anonymous';
+  const role = c.profiles?.role || 'Member';
+  const email = c.profiles?.email || 'No Email';
+  const isOwner = currentUser && currentUser.id === c.user_id;
+  const isAdmin = currentUser && currentUser.role === 'Admin';
+  return `
+    <div class="comment-item" style="margin-bottom: 30px; background: var(--onyx); padding: 20px; border-radius: 12px; border: 1px solid var(--jet);">
+      <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
+        <div>
+          <h4 class="h4" style="font-size: 16px; color: var(--orange-yellow-crayola); margin: 0;">${username}</h4>
+          <p style="font-size: 12px; color: var(--light-gray-70); margin: 2px 0 8px;">${email}</p>
+        </div>
+        <div style="text-align: right;">
+          <span style="display: block; font-size: 10px; color: #fbbf24; text-transform: uppercase; font-weight: 700; letter-spacing: 1px; margin-bottom: 4px;">${role}</span>
+          <span style="font-size: 10px; color: var(--light-gray-70);">${new Date(c.created_at).toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'})}</span>
+        </div>
+      </div>
+      <div style="border-top: 1px solid var(--jet); margin-bottom: 15px;"></div>
+      <p style="font-size: 15px; color: var(--light-gray); line-height: 1.6; margin-bottom: 15px;">${c.content}</p>
+      ${(isOwner || isAdmin) ? `<button onclick="deleteComment('${c.id}')" style="color: #ff5f5f; font-size: 12px; background: none; border: none; cursor: pointer; display: flex; align-items: center; gap: 5px; padding: 0;"><ion-icon name="trash-outline"></ion-icon> Delete Comment</button>` : ''}
+    </div>`;
+};
+
+window.loadComments = async function(blogId) {
+  const displayList = document.getElementById('comments-display-list');
+  if(!displayList) return;
+  const { data: { user } } = await supabaseClient.auth.getUser();
+  let currentUserData = null;
+  if (user) {
+    const { data: p } = await supabaseClient.from('profiles').select('role').eq('id', user.id).single();
+    currentUserData = { id: user.id, role: p?.role };
+  }
+  const { data: comments, error } = await supabaseClient
+    .from('comments').select(`id, content, created_at, user_id, profiles (username, role, email)`)
+    .eq('post_id', blogId).order('created_at', { ascending: false });
+  if (error) return;
+  if (!comments || comments.length === 0) {
+    displayList.innerHTML = `<p style="color: var(--light-gray-70); text-align: center;">No comments yet.</p>`;
+  } else {
+    displayList.innerHTML = comments.map(c => renderCommentHTML(c, currentUserData)).join('');
+  }
+};
+
+window.postComment = async function() {
+  const input = document.getElementById('comment-input');
+  const { data: { user } } = await supabaseClient.auth.getUser();
+  if (!user || !input.value.trim()) return;
+  const { error } = await supabaseClient.from('comments').insert([{ post_id: window.currentBlogId, user_id: user.id, content: input.value.trim() }]);
+  if (error) return Swal.fire({ icon: 'error', text: 'Failed to post comment' });
+  input.value = ''; 
+  loadComments(window.currentBlogId);
+};
+
+window.deleteComment = async function(commentId) {
+  const result = await Swal.fire({ text: "Delete this comment?", icon: 'warning', showCancelButton: true, confirmButtonColor: '#ff5f5f', background: '#1e1e1f', color: '#fff' });
+  if (result.isConfirmed) {
+    const { error } = await supabaseClient.from('comments').delete().eq('id', commentId);
+    if (error) Swal.fire({ icon: 'error', text: "Failed to delete" });
+    else loadComments(window.currentBlogId);
   }
 };
