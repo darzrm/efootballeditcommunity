@@ -512,24 +512,27 @@ async function loadLeaderboard() {
     // Munculkan kolom Manage jika admin
     if (adminTh) adminTh.style.display = isAdmin ? 'table-cell' : 'none';
 
-    // 3. Masukkan data ke tabel
+     // 3. Masukkan data ke tabel
     tableBody.innerHTML = users.map((user, index) => {
       const isTop1 = index === 0;
       return `
         <tr style="background: var(--onyx); border-bottom: 5px solid var(--smoky-black);">
-          <td style="padding: 15px; text-align: center; border-radius: 12px 0 0 12px; font-weight: bold; color: ${isTop1 ? 'var(--orange-yellow-crayola)' : 'var(--light-gray)'};">
+          <td style="padding: 15px; text-align: center; border-radius: 12px 0 0 12px; font-weight: bold; color: ${isTop1 ? 'var(--white-1)' : 'var(--light-gray)'};">
             ${index + 1}
           </td>
-          <td style="padding: 15px; color: var(--white-2);">
+          
+          <td style="padding: 15px; text-align: center; color: var(--white-2);">
             ${user.username || 'Anonymous'}
           </td>
-          <td style="padding: 15px; text-align: right; color: var(--orange-yellow-crayola); font-weight: bold;">
+          
+          <td style="padding: 15px; text-align: center; color: var(--white-1); font-weight: bold;">
             ${user.points || 0}
           </td>
+
           ${isAdmin ? `
             <td style="padding: 15px; text-align: center; border-radius: 0 12px 12px 0;">
               <button onclick="updatePoints('${user.id}', '${user.username}', ${user.points})" 
-                      style="background: transparent; color: var(--orange-yellow-crayola); border: 1px solid var(--orange-yellow-crayola); padding: 5px 10px; border-radius: 8px; font-size: 11px; cursor: pointer; font-weight: 600;">
+                      style="background: transparent; color: var(--white-1); border: 1px solid var(--white-1); padding: 5px 10px; border-radius: 8px; font-size: 11px; cursor: pointer; font-weight: 600;">
                 EDIT
               </button>
             </td>
@@ -537,6 +540,7 @@ async function loadLeaderboard() {
         </tr>
       `;
     }).join('');
+
 
   } catch (err) {
     console.error("Leaderboard Error:", err);
@@ -569,8 +573,8 @@ window.updatePoints = async function(userId, username, currentPoints) {
     color: '#fff',
     confirmButtonColor: '#ffdb70',
     showCancelButton: true,
-    confirmButtonText: 'Simpan',
-    cancelButtonText: 'Batal'
+    confirmButtonText: 'Save',
+    cancelButtonText: 'Cancel'
   });
 
   if (newPoints !== undefined && newPoints !== null && newPoints !== "") {
@@ -584,24 +588,25 @@ window.updatePoints = async function(userId, username, currentPoints) {
 
       Swal.fire({
         icon: 'success',
-        title: 'Berhasil!',
-        text: `Poin ${username} diperbarui menjadi ${newPoints}`,
+        title: 'Success!',
+        text: `${username}'s points have been updated to ${newPoints}`,
         background: '#1e1e1f',
         color: '#fff',
         timer: 1500,
         showConfirmButton: false
       });
 
-      // Refresh data tabel setelah update sukses
+
+      // Refresh table data after successful update
       if (typeof loadLeaderboard === 'function') {
         loadLeaderboard();
       }
       
     } catch (err) {
-      console.error("Gagal update:", err);
+      console.error("Update failed:", err);
       Swal.fire({
         icon: 'error',
-        title: 'Gagal',
+        title: 'Error',
         text: err.message,
         background: '#1e1e1f',
         color: '#fff'
@@ -609,6 +614,7 @@ window.updatePoints = async function(userId, username, currentPoints) {
     }
   }
 };
+
 
 // Listener untuk memantau perubahan data profil secara realtime
 supabaseClient
