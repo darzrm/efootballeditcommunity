@@ -110,6 +110,10 @@ window.addEventListener('click', async function(event) {
   if (event.target.closest('#btn-submit-username')) {
     const password = document.getElementById('confirm-password').value;
     const newName = document.getElementById('new-username').value;
+    
+    if (newName.length > 12) {
+      return Swal.fire({ icon: 'error', text: 'Username cannot exceed 12 characters!', background: '#1e1e1f', color: '#fff' });
+    }
     const { data: { user } } = await supabaseClient.auth.getUser();
 
     if (!password || !newName) {
@@ -183,6 +187,10 @@ window.addEventListener('click', async function(event) {
 
     if (!emailInput.value || !passInput.value || !nameInput.value) {
       return Swal.fire({ icon: 'warning', text: 'All fields are required for registration', background: '#1e1e1f', color: '#fff' });
+    }
+
+if (nameInput.value.length > 12) {
+      return Swal.fire({ icon: 'error', text: 'Username maximum is 12 characters', background: '#1e1e1f', color: '#fff' });
     }
 
     const { error } = await supabaseClient.auth.signUp({
