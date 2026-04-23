@@ -609,3 +609,20 @@ window.updatePoints = async function(userId, username, currentPoints) {
     }
   }
 };
+
+// Listener untuk memantau perubahan data profil secara realtime
+supabaseClient
+  .channel('profile-update')
+  .on('postgres_changes', { 
+    event: 'UPDATE', 
+    schema: 'public', 
+    table: 'profiles' 
+  }, (payload) => {
+    // Jika data yang berubah adalah milik user yang sedang login, refresh tampilan profil
+    supabaseClient.auth.getUser().then(({ data: { user } }) => {
+      if (user && payload.new.id === user.id) {
+        checkAccountStatus();
+      }
+    });
+  })
+  .subscribe();
