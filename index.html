@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="id">
 
 <head>
   <meta charset="UTF-8">
@@ -22,10 +22,10 @@
         </figure>
         <div class="info-content">
           <h1 class="name" title="eFoodico">eFoodico</h1>
-          <p class="title">Keep Improving!</p>
+          <p class="title">Terus Berkembang!</p>
         </div>
         <button class="info_more-btn" data-sidebar-btn>
-          <span>Show Contacts</span>
+          <span>Tampilkan Kontak</span>
           <ion-icon name="chevron-down"></ion-icon>
         </button>
       </div>
@@ -43,7 +43,7 @@
           <li class="contact-item">
             <div class="icon-box"><ion-icon name="phone-portrait-outline"></ion-icon></div>
             <div class="contact-info">
-              <p class="contact-title">Phone</p>
+              <p class="contact-title">Telepon</p>
               <a href="tel:+6283841129519" class="contact-link">(+62) 838-4112-9519</a>
             </div>
           </li>
@@ -60,193 +60,180 @@
     <div class="main-content">
       <nav class="navbar">
         <ul class="navbar-list">
-          <li class="navbar-item"><button class="navbar-link active" data-nav-link>Home</button></li>
-          <li class="navbar-item"><button class="navbar-link" data-nav-link>Event</button></li>
+          <li class="navbar-item"><button class="navbar-link active" data-nav-link>Beranda</button></li>
+          <li class="navbar-item"><button class="navbar-link" data-nav-link>Acara</button></li>
           <li class="navbar-item"><button class="navbar-link" data-nav-link>Blog</button></li>
-          <li class="navbar-item"><button class="navbar-link" data-nav-link>Account</button></li>
+          <li class="navbar-item"><button class="navbar-link" data-nav-link>Akun</button></li>
         </ul>
       </nav>
 
       <article class="home active" data-page="home">
-        <header><h2 class="h2 article-title">Home</h2></header>
+        <header><h2 class="h2 article-title">Beranda</h2></header>
         <section class="about-text">
-          <p>A community of efootball edit.</p>
-
+          <p>Komunitas pengedit eFootball.</p>
         </section>
       </article>
 
-<article class="event" data-page="event">
-  <header>
-    <h2 class="h2 article-title">Leaderboard</h2>
-  </header>
+      <article class="event" data-page="event">
+        <header>
+          <h2 class="h2 article-title">Papan Peringkat</h2>
+        </header>
 
-  <section class="leaderboard-section">
-    <div class="leaderboard-container" style="background: var(--eerie-black-2); border: 1px solid var(--jet); border-radius: 14px; padding: 20px; overflow-x: auto;">
-      <table style="width: 100%; border-collapse: separate; border-spacing: 0 10px;">
-        <thead>
-          <tr style="color: var(--orange-yellow-crayola); font-size: 14px; text-transform: uppercase;">
-            <th style="padding: 10px; text-align: center; width: 60px;">No</th>
-            <th style="padding: 10px; text-align: left;">Username</th>
-            <th style="padding: 10px; text-align: right;">Points</th>
-            <th id="admin-th" style="padding: 10px; text-align: center; display: none;">Manage</th>
-          </tr>
-        </thead>
-        <tbody id="leaderboard-body">
-          </tbody>
-      </table>
-    </div>
-  </section>
-</article>
-
-
-
-
-
-  <article class="blog" data-page="blog">
-  <header>
-    <h2 class="h2 article-title">Blog</h2>
-  </header>
-
-  <section id="blog-list-container">
-    <ul class="blog-posts-list">
-      <li class="blog-post-item" onclick="showBlogDetail('1', 'Hello From EEC', 'Tepat pada hari ini, komunitas EEC resmi berdiri sebagai wadah bagi para desainer eFootball untuk berbagi dan meningkatkan kreativitas bersama.')">
-        <a href="javascript:void(0)">
-          <figure class="blog-banner-box">
-            <img src="./assets/images/b1.jpg" alt="Blog Image" loading="lazy">
-          </figure>
-          <div class="blog-content">
-            <div class="blog-meta">
-              <p class="blog-category">Announcement</p>
-              <span class="dot"></span>
-              <time datetime="2023-09-07">Sept 7, 2023</time>
-            </div>
-            <h3 class="h3 blog-item-title">Hello From EEC</h3>
-            <p class="blog-text">Tepat pada hari ini, komunitas EEC resmi berdiri sebagai wadah bagi para desainer eFootball untuk berbagi dan meningkatkan kreativitas bersama.</p>
+        <section class="leaderboard-section">
+          <div class="leaderboard-container" style="background: var(--eerie-black-2); border: 1px solid var(--jet); border-radius: 14px; padding: 20px; overflow-x: auto;">
+            <table style="width: 100%; border-collapse: separate; border-spacing: 0 10px;">
+              <thead>
+                <tr style="color: var(--orange-yellow-crayola); font-size: 14px; text-transform: uppercase;">
+                  <th style="padding: 10px; text-align: center; width: 60px;">No</th>
+                  <th style="padding: 10px; text-align: center;">Nama</th>
+                  <th style="padding: 10px; text-align: center;">Poin</th>
+                  <th id="admin-th" style="padding: 10px; text-align: center; display: none;">Kelola</th>
+                </tr>
+              </thead>
+              <tbody id="leaderboard-body">
+              </tbody>
+            </table>
           </div>
-        </a>
-      </li>
-    </ul>
-  </section>
+        </section>
+      </article>
 
-  <section id="blog-detail-container" style="display: none;">
-    <button class="form-btn" onclick="closeBlogDetail()" style="margin-bottom: 25px; padding: 10px 20px; width: max-content;">
-      <ion-icon name="arrow-back-outline"></ion-icon> <span>Back to Feed</span>
-    </button>
+      <article class="blog" data-page="blog">
+        <header>
+          <h2 class="h2 article-title">Blog</h2>
+        </header>
 
-    <div class="blog-content-full">
-      <h2 class="h2" id="detail-title" style="color: var(--orange-yellow-crayola); margin-bottom: 15px;"></h2>
-      <p id="detail-text" style="color: var(--light-gray); line-height: 1.8; margin-bottom: 40px; font-size: 15px;"></p>
-    </div>
+        <section id="blog-list-container">
+          <ul class="blog-posts-list">
+            <li class="blog-post-item" onclick="showBlogDetail('1', 'Halo Dari EEC', 'Tepat pada hari ini, komunitas EEC resmi berdiri sebagai wadah bagi para desainer eFootball untuk berbagi dan meningkatkan kreativitas bersama.')">
+              <a href="javascript:void(0)">
+                <figure class="blog-banner-box">
+                  <img src="./assets/images/b1.jpg" alt="EEC" loading="lazy">
+                </figure>
+                <div class="blog-content">
+                  <div class="blog-meta">
+                    <p class="blog-category">Informasi</p>
+                    <span class="dot"></span>
+                    <time datetime="2023-09-07">7 September 2023</time>
+                  </div>
+                  <h3 class="h3 blog-item-title">Hello, eFoodico!</h3>
+                  <p class="blog-text">Tepat pada hari ini, komunitas EEC resmi berdiri sebagai wadah bagi para desainer eFootball untuk berbagi dan meningkatkan kreativitas bersama.</p>
+                </div>
+              </a>
+            </li>
+          </ul>
+        </section>
 
-    <div class="comment-section" style="border-top: 1px solid var(--jet); padding-top: 30px;">
-      <h3 class="h3" style="margin-bottom: 20px;">Comments</h3>
-      
-      <div id="comment-form-area" class="contact-form" style="margin-bottom: 40px;">
-        <textarea id="comment-input" class="form-input" placeholder="Tulis komentar anda..." required style="min-height: 80px; margin-bottom: 15px; resize: vertical;"></textarea>
-        <button class="form-btn" onclick="postComment()" style="width: max-content; padding: 10px 20px;">
-          <ion-icon name="paper-plane-outline"></ion-icon><span>Post Comment</span>
-        </button>
-      </div>
-
-      <div id="comments-display-list">
-        </div>
-    </div>
-  </section>
-</article>
-
-
-   
-<article class="account" data-page="account">
-  <header>
-    <h2 class="h2 article-title">Account</h2>
-  </header>
-
-  <section id="guest-container" style="text-align: center; padding: 60px 20px;">
-    <div class="contact-form">
-      <h3 class="h3 form-title">Community Access</h3>
-      <p style="color: var(--light-gray); margin-bottom: 30px; line-height: 1.8;">
-        You are not registered on eFoodico.<br> 
-        Please login or create an account to access your personal dashboard.
-      </p>
-      <button class="form-btn" id="btn-start-auth" style="margin: 0 auto; padding: 12px 40px; justify-content: center;">
-        <span>Get Started</span>
-      </button>
-    </div>
-  </section>
-
-  <section id="auth-container" style="display: none;">
-    <div class="contact-form">
-      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
-        <h3 class="h3 form-title" style="margin: 0;">Access Portal</h3>
-        <button id="btn-cancel-auth" style="color: var(--light-gray); font-size: 24px; background: none; border: none; cursor: pointer;">
-          <ion-icon name="close-outline"></ion-icon>
-        </button>
-      </div>
-      
-      <div class="form">
-        <div class="input-wrapper">
-          <input type="text" id="auth-username" class="form-input" placeholder="Username (For Registration Only)">
-          <input type="email" id="auth-email" class="form-input" placeholder="Email Address" required>
-          <input type="password" id="auth-password" class="form-input" placeholder="Password" required>
-        </div>
-
-        <div style="display: flex; gap: 15px; margin-top: 25px;">
-          <button class="form-btn" type="button" id="login-btn-final" style="flex: 1; justify-content: center;">
-            <span>Login</span>
+        <section id="blog-detail-container" style="display: none;">
+          <button class="form-btn" onclick="closeBlogDetail()" style="margin-bottom: 25px; padding: 10px 20px; width: max-content;">
+            <ion-icon name="arrow-back-outline"></ion-icon> <span>Kembali ke Feed</span>
           </button>
-          <button class="form-btn" type="button" id="register-btn-final" style="flex: 1; justify-content: center; background: var(--onyx); border: 1px solid var(--jet);">
-            <span>Register</span>
-          </button>
-        </div>
 
-        <p style="margin-top: 20px; text-align: center; font-size: 13px; color: var(--light-gray);">
-          Forgot your password? 
-   <span id="btn-reset-password" style="color: var(--orange-yellow-crayola); cursor: pointer; font-weight: 500; text-decoration: underline;">
-  Reset here
-</span>
+          <div class="blog-content-full">
+            <h2 class="h2" id="detail-title" style="color: var(--orange-yellow-crayola); margin-bottom: 15px;"></h2>
+            <p id="detail-text" style="color: var(--light-gray); line-height: 1.8; margin-bottom: 40px; font-size: 15px;"></p>
+          </div>
 
-        </p>
-      </div>
+          <div class="comment-section" style="border-top: 1px solid var(--jet); padding-top: 30px;">
+            <h3 class="h3" style="margin-bottom: 20px;">Komentar</h3>
+            
+            <div id="comment-form-area" class="contact-form" style="margin-bottom: 40px;">
+              <textarea id="comment-input" class="form-input" placeholder="Tulis komentar anda..." required style="min-height: 80px; margin-bottom: 15px; resize: vertical;"></textarea>
+              <button class="form-btn" onclick="postComment()" style="width: max-content; padding: 10px 20px;">
+                <ion-icon name="paper-plane-outline"></ion-icon><span>Kirim Komentar</span>
+              </button>
+            </div>
+
+            <div id="comments-display-list">
+            </div>
+          </div>
+        </section>
+      </article>
+
+      <article class="account" data-page="account">
+        <header>
+          <h2 class="h2 article-title">Akun</h2>
+        </header>
+
+        <section id="guest-container" style="text-align: center; padding: 60px 20px;">
+          <div class="contact-form">
+            <h3 class="h3 form-title">Akses Komunitas</h3>
+            <p style="color: var(--light-gray); margin-bottom: 30px; line-height: 1.8;">
+              Anda belum terdaftar di eFoodico.<br> 
+              Silakan login atau buat akun untuk mengakses dasbor pribadi Anda.
+            </p>
+            <button class="form-btn" id="btn-start-auth" style="margin: 0 auto; padding: 12px 40px; justify-content: center;">
+              <span>Mulai Sekarang</span>
+            </button>
+          </div>
+        </section>
+
+        <section id="auth-container" style="display: none;">
+          <div class="contact-form">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;">
+              <h3 class="h3 form-title" style="margin: 0;">Portal Akses</h3>
+              <button id="btn-cancel-auth" style="color: var(--light-gray); font-size: 24px; background: none; border: none; cursor: pointer;">
+                <ion-icon name="close-outline"></ion-icon>
+              </button>
+            </div>
+            
+            <div class="form">
+              <div class="input-wrapper">
+                <input type="text" id="auth-username" class="form-input" placeholder="Nama Pengguna (Hanya Pendaftaran)">
+                <input type="email" id="auth-email" class="form-input" placeholder="Alamat Email" required>
+                <input type="password" id="auth-password" class="form-input" placeholder="Kata Sandi" required>
+              </div>
+
+              <div style="display: flex; gap: 15px; margin-top: 25px;">
+                <button class="form-btn" type="button" id="login-btn-final" style="flex: 1; justify-content: center;">
+                  <span>Masuk</span>
+                </button>
+                <button class="form-btn" type="button" id="register-btn-final" style="flex: 1; justify-content: center; background: var(--onyx); border: 1px solid var(--jet);">
+                  <span>Daftar</span>
+                </button>
+              </div>
+
+              <p style="margin-top: 20px; text-align: center; font-size: 13px; color: var(--light-gray);">
+                Lupa kata sandi? 
+                <span id="btn-reset-password" style="color: var(--orange-yellow-crayola); cursor: pointer; font-weight: 500; text-decoration: underline;">
+                  Reset di sini
+                </span>
+              </p>
+            </div>
+          </div>
+        </section>
+
+        <section id="profile-container" style="display: none;">
+          <div class="contact-form" style="text-align: center;">
+            <div id="user-info-display"></div>
+            
+            <div id="edit-username-section" style="display: none; background: var(--onyx); padding: 20px; border-radius: 12px; border: 1px solid var(--jet); margin-bottom: 20px;">
+              <div class="input-wrapper" style="margin-bottom: 15px;">
+                <input type="password" id="confirm-password" class="form-input" placeholder="Kata Sandi Saat Ini" style="text-align: center;">
+                <input type="text" id="new-username" class="form-input" placeholder="Masukkan Nama Pengguna Baru" style="text-align: center;" required>
+              </div>
+              <button class="form-btn" id="btn-submit-username" style="width: 100%; justify-content: center;">
+                <span>Konfirmasi Perubahan</span>
+              </button>
+            </div>
+
+            <div style="display: flex; flex-direction: column; gap: 10px;">
+              <button class="form-btn" id="btn-show-edit" style="width: 100%; justify-content: center; background: var(--onyx); border: 1px solid var(--jet);">
+                <span>Ubah Nama Pengguna</span>
+              </button>
+              <button class="form-btn" id="logout-btn-final" style="color: #ff5f5f; border-color: rgba(255, 95, 95, 0.2); width: 100%; justify-content: center;">
+                <span>Keluar Akun</span>
+              </button>
+            </div>
+          </div>
+        </section>
+      </article>
     </div>
-  </section>
-
- <section id="profile-container" style="display: none;">
-  <div class="contact-form" style="text-align: center;">
-    
-    <div id="user-info-display"></div>
-    
-    <div id="edit-username-section" style="display: none; background: var(--onyx); padding: 20px; border-radius: 12px; border: 1px solid var(--jet); margin-bottom: 20px;">
-      <div class="input-wrapper" style="margin-bottom: 15px;">
-        <input type="password" id="confirm-password" class="form-input" placeholder="Current Password" style="text-align: center;">
-        <input type="text" id="new-username" class="form-input" placeholder="Enter New Username" style="text-align: center;" required>
-      </div>
-      <button class="form-btn" id="btn-submit-username" style="width: 100%; justify-content: center;">
-        <span>Confirm Update</span>
-      </button>
-    </div>
-
-    <div style="display: flex; flex-direction: column; gap: 10px;">
-      <button class="form-btn" id="btn-show-edit" style="width: 100%; justify-content: center; background: var(--onyx); border: 1px solid var(--jet);">
-        <span>Change Username</span>
-      </button>
-     
-      <button class="form-btn" id="logout-btn-final" style="color: #ff5f5f; border-color: rgba(255, 95, 95, 0.2); width: 100%; justify-content: center;">
-        <span>Logout Account</span>
-      </button>
-    </div>
-
-  </div>
-</section>
-
+  </main>
   
   <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
   <script src="./assets/js/script.js"></script>
-
   <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
   <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
-
 </body>
 </html>
