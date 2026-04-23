@@ -476,37 +476,9 @@ supabaseClient.auth.onAuthStateChange(() => {
   checkAccountStatus();
 });
 
-document.addEventListener("DOMContentLoaded", async () => {
-  // Cek apakah ada token pemulihan di URL
-  if (window.location.hash.includes("type=recovery")) {
-    // Beri sedikit jeda agar Supabase selesai mengolah session
-    setTimeout(() => {
-      triggerResetPopup();
-    }, 1000);
-  }
+document.addEventListener("DOMContentLoaded", () => {
   checkAccountStatus();
 });
-
-// Pisahkan fungsi popup agar bisa dipanggil kapan saja
-async function triggerResetPopup() {
-  const { value: newPassword } = await Swal.fire({
-    title: 'Reset Your Password',
-    input: 'password',
-    inputLabel: 'Enter your new password',
-    // ... setting sweetalert lainnya sesuai kode kamu ...
-  });
-
-  if (newPassword) {
-    const { error } = await supabaseClient.auth.updateUser({ password: newPassword });
-    if (error) {
-      Swal.fire({ icon: 'error', text: error.message });
-    } else {
-      await Swal.fire({ icon: 'success', text: 'Password updated successfully!' });
-      window.location.hash = ''; 
-      window.location.reload(); // Refresh untuk membersihkan session lama
-    }
-  }
-}
 
 
 /**
@@ -567,4 +539,110 @@ async function loadLeaderboard() {
             ${user.username || 'Anonymous'}
           </td>
           
-          <td s
+          <td style="padding: 15px; text-align: center; color: var(--white-1); font-weight: bold;">
+            ${user.points || 0}
+          </td>
+
+          ${isAdmin ? `
+            <td style="padding: 15px; text-align: center; border-radius: 0 12px 12px 0;">
+              <button onclick="updatePoints('${user.id}', '${user.username}', ${user.points})" 
+                      style="background: transparent; color: var(--white-1); border: 1px solid var(--white-1); padding: 5px 10px; border-radius: 8px; font-size: 11px; cursor: pointer; font-weight: 600;">
+                EDIT
+              </button>
+            </td>
+          ` : `<td style="border-radius: 0 12px 12px 0;"></td>`}
+        </tr>
+      `;
+    }).join('');
+
+
+  } catch (err) {
+    console.error("Leaderboard Error:", err);
+    tableBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:red; padding:20px;">Error: ${err.message}</td></tr>`;
+  }
+}
+
+document.querySelectorAll("[data-nav-link]").forEach(link => {
+  link.addEventListener("click", function() {
+    // Kita cek teks tombolnya, pastikan cocok dengan "Event"
+    const tabName = this.innerText.toLowerCase().trim();
+    if (tabName === "event") {
+      loadLeaderboard();
+    }
+  });
+});
+
+/**
+ * FUNGSI UPDATE POINTS (WAJIB GLOBAL)
+ * Menggunakan window agar bisa dipanggil oleh onclick di HTML
+ */
+window.updatePoints = async function(userId, username, currentPoints) {
+  console.log("Mencoba update poin untuk:", username); // Untuk cek di console F12
+
+  const { value: newPoints } = await Swal.fire({
+    title: `Update Points: ${username}`,
+    input: 'number',
+    inputValue: currentPoints,
+    background: '#1e1e1f',
+    color: '#fff',
+    confirmButtonColor: '#ffdb70',
+    showCancelButton: true,
+    confirmButtonText: 'Save',
+    cancelButtonText: 'Cancel'
+  });
+
+  if (newPoints !== undefined && newPoints !== null && newPoints !== "") {
+    try {
+      const { error } = await supabaseClient
+        .from('profiles')
+        .update({ points: parseInt(newPoints) })
+        .eq('id', userId);
+
+      if (error) throw error;
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Success!',
+        text: `${username}'s points have been updated to ${newPoints}`,
+        background: '#1e1e1f',
+        color: '#fff',
+        timer: 1500,
+        showConfirmButton: false
+      });
+
+
+      // Refresh table data after successful update
+      if (typeof loadLeaderboard === 'function') {
+        loadLeaderboard();
+      }
+      
+    } catch (err) {
+      console.error("Update failed:", err);
+      Swal.fire({
+        icon: 'error',
+        title: 'Error',
+        text: err.message,
+        background: '#1e1e1f',
+        color: '#fff'
+      });
+    }
+  }
+};
+
+
+// Listener untuk memantau perubahan data profil secara realtime
+supabaseClient
+  .channel('profile-update')
+  .on('postgres_changes', { 
+    event: 'UPDATE', 
+    schema: 'public', 
+    table: 'profiles' 
+  }, (payload) => {
+    // Jika data yang berubah adalah milik user yang sedang login, refresh tampilan profil
+    supabaseClient.auth.getUser().then(({ data: { user } }) => {
+      if (user && payload.new.id === user.id) {
+        checkAccountStatus();
+      }
+    });
+  })
+  .subscribe();
