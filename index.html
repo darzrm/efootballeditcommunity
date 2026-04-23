@@ -82,18 +82,17 @@
 
   <section class="leaderboard-section">
     <div class="leaderboard-container" style="background: var(--eerie-black-2); border: 1px solid var(--jet); border-radius: 14px; padding: 20px; overflow-x: auto;">
-      <table style="width: 100%; border-collapse: separate; border-spacing: 0 10px;">
-        <thead>
-          <tr style="color: var(--orange-yellow-crayola); font-size: 14px; text-transform: uppercase;">
-            <th style="padding: 10px; text-align: center; width: 60px;">No</th>
-            <th style="padding: 10px; text-align: left;">Username</th>
-            <th style="padding: 10px; text-align: right;">Points</th>
-            <th id="admin-th" style="padding: 10px; text-align: center; display: none;">Manage</th>
-          </tr>
-        </thead>
-        <tbody id="leaderboard-body">
-          </tbody>
-      </table>
+      <table style="width: 100%; border-collapse: collapse; margin-top: 20px;">
+  <thead>
+    <tr style="color: var(--orange-yellow-crayola);">
+      <th style="border: 1px solid var(--jet); padding: 10px;">No</th>
+      <th style="border: 1px solid var(--jet); padding: 10px;">Username</th>
+      <th style="border: 1px solid var(--jet); padding: 10px;">Points</th>
+      <th id="admin-th" style="border: 1px solid var(--jet); padding: 10px; display: none;">Manage</th>
+    </tr>
+  </thead>
+  <tbody id="leaderboard-body"></tbody>
+</table>
     </div>
   </section>
 </article>
