@@ -287,8 +287,13 @@ async function checkAccountStatus() {
       .eq('id', user.id)
       .single();
 
+    // ... kode sebelumnya di checkAccountStatus ...
+
     const userRole = profileData?.role || 'Member';
     const displayName = profileData?.username || user.user_metadata.display_name || 'Member';
+    // AMBIL DATA POIN DARI DATABASE:
+    const userPoints = profileData?.points || 0; 
+
     const date = new Date(user.created_at).toLocaleDateString('en-US', {
       day: 'numeric', month: 'long', year: 'numeric'
     });
@@ -307,7 +312,7 @@ async function checkAccountStatus() {
           </div>
           <div style="background: var(--onyx); padding: 15px; border-radius: 12px; border: 1px solid var(--jet);">
             <p style="font-size: 10px; color: var(--light-gray); text-transform: uppercase;">Points</p>
-            <p style="font-size: 20px; font-weight: 600; color: #fbbf24;">0</p>
+            <p style="font-size: 20px; font-weight: 600; color: #fbbf24;">${userPoints}</p>
           </div>
           <div style="background: var(--onyx); padding: 15px; border-radius: 12px; border: 1px solid var(--jet);">
             <p style="font-size: 10px; color: var(--light-gray); text-transform: uppercase;">Role</p>
@@ -316,6 +321,7 @@ async function checkAccountStatus() {
         </div>
       `;
     }
+// ... sisa kode ...
     
     if (window.currentBlogId) loadComments(window.currentBlogId);
   } else {
