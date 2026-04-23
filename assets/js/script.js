@@ -547,3 +547,59 @@ document.querySelectorAll("[data-nav-link]").forEach(link => {
     }
   });
 });
+
+/**
+ * FUNGSI UPDATE POINTS (WAJIB GLOBAL)
+ * Menggunakan window agar bisa dipanggil oleh onclick di HTML
+ */
+window.updatePoints = async function(userId, username, currentPoints) {
+  console.log("Mencoba update poin untuk:", username); // Untuk cek di console F12
+
+  const { value: newPoints } = await Swal.fire({
+    title: `Update Points: ${username}`,
+    input: 'number',
+    inputValue: currentPoints,
+    background: '#1e1e1f',
+    color: '#fff',
+    confirmButtonColor: '#ffdb70',
+    showCancelButton: true,
+    confirmButtonText: 'Simpan',
+    cancelButtonText: 'Batal'
+  });
+
+  if (newPoints !== undefined && newPoints !== null && newPoints !== "") {
+    try {
+      const { error } = await supabaseClient
+        .from('profiles')
+        .update({ points: parseInt(newPoints) })
+        .eq('id', userId);
+
+      if (error) throw error;
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Berhasil!',
+        text: `Poin ${username} diperbarui menjadi ${newPoints}`,
+        background: '#1e1e1f',
+        color: '#fff',
+        timer: 1500,
+        showConfirmButton: false
+      });
+
+      // Refresh data tabel setelah update sukses
+      if (typeof loadLeaderboard === 'function') {
+        loadLeaderboard();
+      }
+      
+    } catch (err) {
+      console.error("Gagal update:", err);
+      Swal.fire({
+        icon: 'error',
+        title: 'Gagal',
+        text: err.message,
+        background: '#1e1e1f',
+        color: '#fff'
+      });
+    }
+  }
+};
