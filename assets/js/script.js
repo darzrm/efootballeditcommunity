@@ -265,20 +265,11 @@ supabaseClient.auth.onAuthStateChange(async (event, session) => {
 
   
   // 7. Logout Action
-if (event.target.closest('#logout-btn-final')) {
-  Swal.fire({
-    icon: 'success',
-    title: 'Logout Successful',
-    text: 'You have been logged out',
-    background: '#1e1e1f',
-    color: '#fff',
-    confirmButtonColor: '#ff4444',  // Merah
-    iconColor: '#ff4444'
-  }).then(async () => {
+  if (event.target.closest('#logout-btn-final')) {
     await supabaseClient.auth.signOut();
     location.reload();
-  });
-}
+  }
+});
 
 /**
  * UI ENGINE: Fetch Role & Persistent Login
