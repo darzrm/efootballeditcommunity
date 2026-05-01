@@ -87,7 +87,7 @@ for (let i = 0; i < navigationLinks.length; i++) {
 
 // --- SUPABASE INITIALIZATION ---
 const SUPABASE_URL = 'https://xhbmfsrwpebyunjxxmio.supabase.co';
-const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhoYm1mc3J3cGVieXVuanh4bWlvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NzkzOTksImV4cCI6MjA5MjA1NTM5OX0.EiFkHOoS2kegWrmPG9BP_nSaBqV3FKWbTZF-jWJupe0';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InhoYm1mc3J3cGVieXVuanh4bWlvIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzY0NzkzOTksImV4cCI6MjA5MjA1NTM5OX0.EiFkHOoS2kegW[...]
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 /**
@@ -342,6 +342,37 @@ if (user) {
  */
 window.currentBlogId = null;
 
+/**
+ * COMMENT COOLDOWN SYSTEM
+ * Tracks last comment time per blog post to prevent spam
+ */
+function getCommentCooldownKey(blogId, userId) {
+  return `comment_cooldown_${blogId}_${userId}`;
+}
+
+function getLastCommentTime(blogId, userId) {
+  const key = getCommentCooldownKey(blogId, userId);
+  const stored = localStorage.getItem(key);
+  return stored ? parseInt(stored) : 0;
+}
+
+function setLastCommentTime(blogId, userId) {
+  const key = getCommentCooldownKey(blogId, userId);
+  localStorage.setItem(key, Date.now().toString());
+}
+
+function getTimeUntilCanComment(blogId, userId) {
+  const lastTime = getLastCommentTime(blogId, userId);
+  const now = Date.now();
+  const cooldownMs = 60000; // 1 menit = 60000 ms
+  const timeSinceLastComment = now - lastTime;
+  
+  if (timeSinceLastComment < cooldownMs) {
+    return Math.ceil((cooldownMs - timeSinceLastComment) / 1000); // Kembalikan detik
+  }
+  return 0;
+}
+
 window.showBlogDetail = async function(id, title, text) {
   window.currentBlogId = id;
   document.getElementById('blog-list-container').style.display = 'none';
@@ -359,13 +390,50 @@ window.showBlogDetail = async function(id, title, text) {
   } else {
     formArea.innerHTML = `
       <textarea id="comment-input" class="form-input" placeholder="Write your comment..." required style="min-height: 80px; margin-bottom: 15px; resize: vertical;"></textarea>
-      <button class="form-btn" onclick="postComment()" style="width: max-content; padding: 10px 20px;">
+      <button class="form-btn" id="post-comment-btn" onclick="postComment()" style="width: max-content; padding: 10px 20px;">
         <ion-icon name="paper-plane-outline"></ion-icon><span>Post Comment</span>
       </button>
+      <div id="cooldown-timer" style="color: var(--light-gray-70); font-size: 12px; margin-top: 10px; display: none;"></div>
     `;
+    updateCommentButtonState(id, user.id);
   }
   loadComments(id);
 };
+
+function updateCommentButtonState(blogId, userId) {
+  const timeLeft = getTimeUntilCanComment(blogId, userId);
+  const btn = document.getElementById('post-comment-btn');
+  const timerDiv = document.getElementById('cooldown-timer');
+  
+  if (!btn || !timerDiv) return;
+  
+  if (timeLeft > 0) {
+    btn.disabled = true;
+    btn.style.opacity = '0.5';
+    btn.style.cursor = 'not-allowed';
+    timerDiv.textContent = `⏱️ Wait ${timeLeft} second${timeLeft !== 1 ? 's' : ''} before posting another comment`;
+    timerDiv.style.display = 'block';
+    
+    // Update timer setiap 1 detik
+    const interval = setInterval(() => {
+      const updated = getTimeUntilCanComment(blogId, userId);
+      if (updated > 0) {
+        timerDiv.textContent = `⏱️ Wait ${updated} second${updated !== 1 ? 's' : ''} before posting another comment`;
+      } else {
+        btn.disabled = false;
+        btn.style.opacity = '1';
+        btn.style.cursor = 'pointer';
+        timerDiv.style.display = 'none';
+        clearInterval(interval);
+      }
+    }, 1000);
+  } else {
+    btn.disabled = false;
+    btn.style.opacity = '1';
+    btn.style.cursor = 'pointer';
+    timerDiv.style.display = 'none';
+  }
+}
 
 window.closeBlogDetail = function() {
   window.currentBlogId = null;
@@ -444,13 +512,45 @@ window.loadComments = async function(blogId) {
 window.postComment = async function() {
   const input = document.getElementById('comment-input');
   const { data: { user } } = await supabaseClient.auth.getUser();
+  
   if (!user || !input.value.trim()) return;
+
+  // Check cooldown
+  const timeLeft = getTimeUntilCanComment(window.currentBlogId, user.id);
+  if (timeLeft > 0) {
+    return Swal.fire({ 
+      icon: 'warning', 
+      text: `Please wait ${timeLeft} second${timeLeft !== 1 ? 's' : ''} before posting another comment`, 
+      background: '#1e1e1f', 
+      color: '#fff' 
+    });
+  }
+
   const { error } = await supabaseClient
     .from('comments')
     .insert([{ post_id: window.currentBlogId, user_id: user.id, content: input.value.trim() }]);
-  if (error) return Swal.fire({ icon: 'error', text: 'Failed to post comment' });
-  input.value = ''; 
+  
+  if (error) {
+    return Swal.fire({ icon: 'error', text: 'Failed to post comment', background: '#1e1e1f', color: '#fff' });
+  }
+  
+  // Set cooldown timestamp
+  setLastCommentTime(window.currentBlogId, user.id);
+  
+  input.value = '';
   loadComments(window.currentBlogId);
+  
+  // Update button state
+  updateCommentButtonState(window.currentBlogId, user.id);
+  
+  Swal.fire({ 
+    icon: 'success', 
+    text: 'Comment posted successfully!', 
+    background: '#1e1e1f', 
+    color: '#fff',
+    timer: 1500,
+    showConfirmButton: false
+  });
 };
 
 window.deleteComment = async function(commentId) {
@@ -464,7 +564,7 @@ window.deleteComment = async function(commentId) {
   });
   if (result.isConfirmed) {
     const { error } = await supabaseClient.from('comments').delete().eq('id', commentId);
-    if (error) Swal.fire({ icon: 'error', text: "Failed to delete" });
+    if (error) Swal.fire({ icon: 'error', text: "Failed to delete", background: '#1e1e1f', color: '#fff' });
     else loadComments(window.currentBlogId);
   }
 };
