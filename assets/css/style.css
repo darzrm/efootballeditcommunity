@@ -1190,7 +1190,6 @@ textarea.form-input::-webkit-resizer { display: none; }
   padding: 13px 20px;
   border-radius: 14px;
   font-size: var(--fs-6);
-  text-transform: capitalize;
   box-shadow: var(--shadow-3);
   z-index: 1;
   transition: var(--transition-1);
@@ -1894,4 +1893,286 @@ textarea.form-input::-webkit-resizer { display: none; }
 .form-btn:hover {
   transform: translateY(-2px);
   filter: brightness(1.1);
+}
+/* Styling QnA Accordion */
+.qna-answer {
+  max-height: 0;
+  overflow: hidden;
+  transition: max-height 0.3s ease-out;
+  /* Ganti background: var(--jet); menjadi transparent */
+  background: transparent; 
+  border-radius: 0 0 12px 12px;
+  margin-top: -5px;
+}
+
+.qna-answer p {
+  padding: 15px 20px;
+  font-size: 14px;
+  color: var(--light-gray);
+  line-height: 1.6;
+  /* Tambahkan sedikit border agar teks tetap memiliki pemisah yang halus */
+  border-left: 1px solid var(--jet);
+  border-right: 1px solid var(--jet);
+  border-bottom: 1px solid var(--jet);
+  border-radius: 0 0 12px 12px;
+}
+
+.qna-item.active .qna-answer {
+  max-height: 200px;
+  /* Hapus border di sini karena sudah dipindah ke elemen <p> agar lebih rapi */
+}
+
+/*-----------------------------------*\
+  #FIX BUTTON HOVER & ACTIVE STATE
+\*-----------------------------------*/
+
+/* Mengubah hover tombol agar tidak putih solid, tapi gradasi gelap ke terang */
+.info_more-btn:hover,
+.info_more-btn:focus,
+.form-btn:hover,
+.form-btn:focus {
+  background: var(--border-gradient-onyx); /* Kembali ke border asli */
+  filter: brightness(1.2); /* Memberikan efek cahaya tanpa merusak warna */
+  transform: translateY(-2px);
+}
+
+.info_more-btn:hover::before,
+.info_more-btn:focus::before,
+.form-btn:hover::before,
+.form-btn:focus::before {
+  /* Gradasi dari abu-abu tua ke hitam transparan agar senada dengan background */
+  background: linear-gradient(
+    135deg, 
+    hsla(0, 0%, 100%, 0.15) 0%, 
+    hsla(0, 0%, 0%, 0) 100%
+  ), var(--eerie-black-1);
+}
+
+/* Pastikan teks tetap putih saat di-hover */
+.form-btn:hover {
+  color: var(--white-1);
+}
+
+/* Transisi halus agar tidak kaku */
+.form-btn, .info_more-btn {
+  transition: all 0.3s ease;
+}
+
+/*-----------------------------------*\
+  #ULTIMATE MONOCHROME OVERRIDE
+\*-----------------------------------*/
+
+:root {
+  /* Paksa semua variabel warna kuning menjadi Putih/Silver */
+  --orange-yellow-crayola: hsl(0, 0%, 100%) !important;
+  --vegas-gold: hsl(0, 0%, 80%) !important;
+  --text-gradient-yellow: linear-gradient(to right, #ffffff, #888888) !important;
+  
+  /* Seleksi teks */
+  --selection-bg: var(--white-1);
+}
+
+/* Fix Ikon yang masih kuning */
+ion-icon, 
+.icon-box ion-icon,
+.social-link ion-icon,
+.project-item-icon-box ion-icon {
+  color: var(--white-1) !important;
+}
+
+/* Fix Ikon pada tombol Show Contact */
+.info_more-btn ion-icon {
+  color: var(--white-1) !important;
+}
+
+/* Fix Border dan Garis bawah (Article Title) */
+.article-title::after {
+  background: var(--white-1) !important;
+}
+
+/* Fix State Aktif pada Filter dan Navbar */
+.filter-item button.active,
+.navbar-link.active {
+  color: var(--white-1) !important;
+}
+
+/* Perbaikan Hover Tombol agar tetap gelap (Gradient Hitam-Abu) */
+.info_more-btn:hover::before,
+.form-btn:hover::before {
+  background: linear-gradient(135deg, rgba(255,255,255,0.1) 0%, rgba(0,0,0,0) 100%), var(--eerie-black-1) !important;
+}
+
+/* Form Input Focus */
+.form-input:focus {
+  border-color: var(--white-1) !important;
+}
+
+/*-----------------------------------*\
+  #FINAL MONOCHROME SWEEP (SAPU JAGAT)
+\*-----------------------------------*/
+
+/* 1. Paksa semua variabel warna ke Putih/Abu */
+:root {
+  --orange-yellow-crayola: hsl(0, 0%, 100%) !important;
+  --vegas-gold: hsl(0, 0%, 70%) !important;
+}
+
+/* 2. Cari semua elemen yang punya atribut style warna kuning (Inline Style Fix) */
+[style*="color: #ffdb70"], 
+[style*="color: rgb(255, 219, 112)"],
+[style*="color: var(--orange-yellow-crayola)"] {
+  color: var(--white-1) !important;
+}
+
+/* 3. Target khusus untuk label Role di Kolom Komentar */
+/* Ini akan menangkap teks seperti Admin/Member meskipun class-nya berbeda */
+.comment-item span, 
+.comment-item b, 
+.comment-item strong,
+.item-content span {
+  color: var(--white-1) !important;
+}
+
+/* 4. Fix Ikon yang masih kuning di Sidebar & Mobile */
+.info_more-btn ion-icon,
+.social-item ion-icon,
+.contact-item ion-icon {
+  color: var(--white-1) !important;
+}
+
+/* 5. Khusus Tombol Show Contact agar tidak kuning saat aktif */
+.info_more-btn::before {
+  background: var(--bg-gradient-jet) !important;
+}
+
+.info_more-btn:hover {
+  background: var(--bg-gradient-onyx) !important;
+}
+
+/* 6. Pastikan sisa gradasi kuning di perbatasan (border) hilang */
+.sidebar, .navbar, .content-card, .comment-item {
+  border-image-source: var(--border-gradient-onyx) !important;
+}
+
+.comment-item time, 
+.comment-item span:last-child {
+  color: var(--light-gray-70) !important;
+  opacity: 0.7; /* Tambahkan opacity untuk meredupkan warna putihnya */
+}
+
+
+/* Pengecualian agar ikon di dalam tombol delete tetap merah */
+button[style*="color: #ff5f5f"] ion-icon,
+button[onclick*="deleteComment"] ion-icon {
+  color: #ff5f5f !important;
+}
+
+/*-----------------------------------*\
+  #PREMIUM MONOCHROME FOOTER
+\*-----------------------------------*/
+
+.section-footer {
+  margin-top: 60px;
+  padding-bottom: 30px;
+  opacity: 0.8;
+}
+
+.footer-divider {
+  width: 100%;
+  height: 1px;
+  background: linear-gradient(to right, transparent, var(--jet), transparent);
+  margin-bottom: 25px;
+}
+
+.footer-container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 15px;
+}
+
+.footer-brand {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.brand-name {
+  color: var(--white-1);
+  font-size: 14px;
+  font-weight: var(--fw-600);
+  letter-spacing: 2px;
+  
+}
+
+.brand-tagline {
+  color: var(--light-gray-70);
+  font-size: 10px;
+  letter-spacing: 1px;
+  margin-top: 2px;
+}
+
+.footer-info {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  color: var(--light-gray-70);
+  font-size: 11px;
+}
+
+/* Garis vertikal pemisah (bukan link, hanya dekorasi) */
+.v-line {
+  width: 1px;
+  height: 10px;
+  background: var(--jet);
+}
+
+.info-item {
+  pointer-events: none; /* Memastikan tidak bisa berinteraksi */
+  user-select: none;    /* Agar teks tidak sengaja terseleksi */
+}
+
+/* Responsif untuk tampilan desktop */
+@media (min-width: 580px) {
+  .footer-container {
+    flex-direction: row;
+    justify-content: space-between;
+  }
+  
+  .footer-brand {
+    align-items: flex-start;
+  }
+}
+
+/*-----------------------------------*\
+  #QNA MULTI-PARAGRAPH FIX
+\*-----------------------------------*/
+
+/* Mengizinkan tinggi otomatis agar bisa memuat banyak paragraf */
+.qna-item.active .qna-answer {
+  max-height: 1000px !important; /* Nilai besar agar konten tidak terpotong */
+  transition: max-height 0.5s ease-in !important;
+}
+
+/* Mengatur jarak antar paragraf di dalam jawaban */
+.qna-answer p {
+  padding: 10px 20px !important; /* Padding lebih ramping */
+  margin: 0 !important;
+  border-bottom: none !important;
+  border-radius: 0 !important;
+}
+
+/* Memberikan border hanya pada bagian paling bawah jawaban */
+.qna-answer {
+  border-left: 1px solid var(--jet) !important;
+  border-right: 1px solid var(--jet) !important;
+  border-bottom: 1px solid var(--jet) !important;
+  border-radius: 0 0 12px 12px !important;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Menghilangkan padding ganda pada paragraf terakhir */
+.qna-answer p:last-child {
+  padding-bottom: 20px !important;
 }
