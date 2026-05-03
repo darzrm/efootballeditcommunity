@@ -384,21 +384,24 @@ window.renderCommentHTML = function(c, currentUser) {
     <div class="comment-item" style="margin-bottom: 30px; background: var(--onyx); padding: 20px; border-radius: 12px; border: 1px solid var(--jet);">
       <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px;">
         <div>
-          <h4 class="h4" style="font-size: 16px; color: var(--orange-yellow-crayola); margin: 0;">${username}</h4>
-          <p style="font-size: 12px; color: var(--light-gray-70); margin: 2px 0 8px;">${email}</p>
-        </div>
-        <div style="text-align: right;">
-          <span style="display: block; font-size: 10px; color: #fbbf24; text-transform: uppercase; font-weight: 700; letter-spacing: 1px; margin-bottom: 4px;">
-            ${role}
-</span>
-<span style="font-size: 10px; color: var(--light-gray-70);">
-  ${new Date(c.created_at).toLocaleString('id-ID', {
-    hour: '2-digit', 
-    minute: '2-digit',
-    day: 'numeric',
-    month: 'short',
-    year: 'numeric'
-  })}
+<h4 class="h4" style="font-size: 16px; color: var(--white-1); margin: 0;">${username}</h4>
+<p style="font-size: 12px; color: var(--light-gray-70); margin: 2px 0 8px;">${email}</p>
+</div>
+
+<div style="text-align: right;">
+  <span style="display: block; font-size: 10px; color: var(--white-1); text-transform: uppercase; font-weight: 700; letter-spacing: 1px; margin-bottom: 4px;">
+    ${role}
+  </span>
+  
+  <span style="font-size: 10px; color: var(--light-gray-70);">
+    ${new Date(c.created_at).toLocaleString('id-ID', {
+      hour: '2-digit', 
+      minute: '2-digit',
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric'
+    })}
+
 </span>
         </div>
       </div>
@@ -407,9 +410,10 @@ window.renderCommentHTML = function(c, currentUser) {
         ${c.content}
       </p>
       ${(isOwner || isAdmin) ? `
-        <button onclick="deleteComment('${c.id}')" style="color: #ff5f5f; font-size: 12px; background: none; border: none; cursor: pointer; display: flex; align-items: center; gap: 5px; padding: 0;">
-          <ion-icon name="trash-outline"></ion-icon> Delete Comment
-        </button>
+<button onclick="deleteComment('${c.id}')" style="color: #ff5f5f; font-size: 12px; background: none; border: none; cursor: pointer; display: flex; align-items: center; gap: 5px; padding: 0;">
+  <ion-icon name="trash-outline" style="color: #ff5f5f !important;"></ion-icon> 
+  Delete Comment
+</button>
       ` : ''}
     </div>
   `;
@@ -482,95 +486,105 @@ document.addEventListener("DOMContentLoaded", () => {
 
 
 /**
- * LEADERBOARD SYSTEM (FIXED & AUTO-LOAD)
+ * LEADERBOARD SYSTEM (3 DATA TERATAS + SEE MORE)
  */
-async function loadLeaderboard() {
-  const tableBody = document.getElementById('leaderboard-body');
-  const adminTh = document.getElementById('admin-th');
-  
-  if (!tableBody) return;
+let isLeaderboardExpanded = false; 
 
-  // Beri indikasi kalau sedang loading
-  tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px; color:var(--light-gray);">Memuat data...</td></tr>';
+async function loadLeaderboard() {
+  const listContainer = document.getElementById('leaderboard-list');
+  if (!listContainer) return;
+
+  listContainer.innerHTML = '<p style="text-align:center; color:var(--light-gray); padding:20px;">Loading leaderboard...</p>';
 
   try {
-    // 1. Ambil data profil (Urutkan poin terbanyak)
     const { data: users, error: dbError } = await supabaseClient
       .from('profiles')
-      .select('id, username, points')
+      .select('id, username, email, points, role')
       .order('points', { ascending: false });
 
     if (dbError) throw dbError;
-
     if (!users || users.length === 0) {
-      tableBody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding:20px; color:var(--light-gray);">Belum ada data user.</td></tr>';
+      listContainer.innerHTML = '<p style="text-align:center; color:var(--light-gray); padding:20px;">Belum ada data member.</p>';
       return;
     }
 
-    // 2. Cek Role Admin (Case Insensitive: Admin, admin, ADMIN tetap jalan)
     let isAdmin = false;
     const { data: { session } } = await supabaseClient.auth.getSession();
-    
     if (session) {
-      const { data: profile } = await supabaseClient
-        .from('profiles')
-        .select('role')
-        .eq('id', session.user.id)
-        .single();
-      
-      if (profile?.role && profile.role.toLowerCase() === 'admin') {
-        isAdmin = true;
-      }
+      const { data: profile } = await supabaseClient.from('profiles').select('role').eq('id', session.user.id).single();
+      if (profile?.role?.toLowerCase() === 'admin') isAdmin = true;
     }
 
-    // Munculkan kolom Manage jika admin
-    if (adminTh) adminTh.style.display = isAdmin ? 'table-cell' : 'none';
+    const displayUsers = isLeaderboardExpanded ? users : users.slice(0, 3);
 
-     // 3. Masukkan data ke tabel
-    tableBody.innerHTML = users.map((user, index) => {
-      const isTop1 = index === 0;
+    let htmlContent = displayUsers.map((user, index) => {
+      const isTop3 = index < 3;
+      // PERUBAHAN: Warna rank 1, 2, 3 diubah menjadi putih (#ffffff)
+      const rankColor = isTop3 ? '#ffffff' : 'var(--white-1)';
+      
       return `
-        <tr style="background: var(--onyx); border-bottom: 5px solid var(--smoky-black);">
-          <td style="padding: 15px; text-align: center; border-radius: 12px 0 0 12px; font-weight: bold; color: ${isTop1 ? 'var(--white-1)' : 'var(--light-gray)'};">
+        <div class="leaderboard-item" style="background: var(--onyx); padding: 20px; border-radius: 14px; border: 1px solid var(--jet); display: flex; align-items: center; gap: 15px; margin-bottom: 10px;">
+          <div style="min-width: 45px; height: 45px; background: var(--jet); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 18px; color: ${rankColor}; border: 1px solid ${isTop3 ? '#ffffff' : 'transparent'};">
             ${index + 1}
-          </td>
-          
-          <td style="padding: 15px; text-align: center; color: var(--white-2);">
-            ${user.username || 'Anonymous'}
-          </td>
-          
-          <td style="padding: 15px; text-align: center; color: var(--white-1); font-weight: bold;">
-            ${user.points || 0}
-          </td>
-
-          ${isAdmin ? `
-            <td style="padding: 15px; text-align: center; border-radius: 0 12px 12px 0;">
+          </div>
+          <div style="flex-grow: 1; min-width: 0;"> 
+            <h4 class="h4" style="font-size: 16px; color: var(--white-1); margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+              ${user.username || 'Anonymous'}
+            </h4>
+            <p style="font-size: 12px; color: var(--light-gray-70); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;">
+              ${user.email || 'No Email'}
+            </p>
+          </div>
+          <div style="display: flex; flex-direction: column; align-items: center; gap: 8px; min-width: 80px;">
+            <div style="background: var(--jet); min-width: 70px; height: 45px; border-radius: 10px; border: 1px solid var(--white-1); display: flex; flex-direction: column; align-items: center; justify-content: center;">
+              <span style="font-size: 9px; color: var(--light-gray-70); text-transform: uppercase; line-height: 1;">Pts</span>
+              <span style="font-weight: 700; color: var(--white-1); font-size: 16px; line-height: 1.2;">${user.points || 0}</span>
+            </div>
+            ${isAdmin ? `
               <button onclick="updatePoints('${user.id}', '${user.username}', ${user.points})" 
-                      style="background: transparent; color: var(--white-1); border: 1px solid var(--white-1); padding: 5px 10px; border-radius: 8px; font-size: 11px; cursor: pointer; font-weight: 600;">
-                EDIT
+                      style="color: var(--white-1); background: none; border: none; cursor: pointer; font-size: 10px; text-decoration: underline; padding: 0; opacity: 0.7;">
+                Edit Points
               </button>
-            </td>
-          ` : `<td style="border-radius: 0 12px 12px 0;"></td>`}
-        </tr>
+            ` : ''}
+          </div>
+        </div>
       `;
     }).join('');
 
+    if (users.length > 3) {
+      // PERUBAHAN: Warna border dan teks tombol diubah menjadi putih (#ffffff)
+      htmlContent += `
+        <div style="text-align: center; margin-top: 15px;">
+          <button onclick="toggleLeaderboard()" class="form-btn" style="margin: 0 auto; padding: 10px 25px; background: var(--jet); border: 1px solid #ffffff; color: #ffffff; font-size: 13px;">
+            <span>${isLeaderboardExpanded ? 'See Less' : 'See More'}</span>
+            <ion-icon name="${isLeaderboardExpanded ? 'chevron-up-outline' : 'chevron-down-outline'}"></ion-icon>
+          </button>
+        </div>
+      `;
+    }
 
+    listContainer.innerHTML = htmlContent;
   } catch (err) {
-    console.error("Leaderboard Error:", err);
-    tableBody.innerHTML = `<tr><td colspan="4" style="text-align:center; color:red; padding:20px;">Error: ${err.message}</td></tr>`;
+    listContainer.innerHTML = `<p style="text-align:center; color:#ff5f5f; padding:20px;">Error: ${err.message}</p>`;
   }
 }
 
+window.toggleLeaderboard = function() {
+  isLeaderboardExpanded = !isLeaderboardExpanded;
+  loadLeaderboard();
+};
+
 document.querySelectorAll("[data-nav-link]").forEach(link => {
   link.addEventListener("click", function() {
-    // Kita cek teks tombolnya, pastikan cocok dengan "Event"
     const tabName = this.innerText.toLowerCase().trim();
     if (tabName === "event") {
+      isLeaderboardExpanded = false; 
       loadLeaderboard();
     }
   });
 });
+
+
 
 /**
  * FUNGSI UPDATE POINTS (WAJIB GLOBAL)
@@ -646,3 +660,24 @@ supabaseClient
     });
   })
   .subscribe();
+
+/**
+ * QnA ACCORDION SYSTEM (SLIDE EFFECT)
+ */
+const qnaButtons = document.querySelectorAll('.qna-btn');
+
+qnaButtons.forEach(btn => {
+  btn.addEventListener('click', function() {
+    const parent = this.parentElement;
+    
+    // Toggle class active pada item yang diklik
+    parent.classList.toggle('active');
+    
+    // Opsional: Tutup pertanyaan lain jika satu dibuka (Mode tunggal)
+    document.querySelectorAll('.qna-item').forEach(item => {
+      if (item !== parent) {
+        item.classList.remove('active');
+      }
+    });
+  });
+});
