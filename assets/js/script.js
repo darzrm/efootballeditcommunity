@@ -519,14 +519,22 @@ async function loadLeaderboard() {
 
     let htmlContent = displayUsers.map((user, index) => {
       const isTop3 = index < 3;
-      // PERUBAHAN: Warna rank 1, 2, 3 diubah menjadi putih (#ffffff)
       const rankColor = isTop3 ? '#ffffff' : 'var(--white-1)';
       
+      // Logika baru untuk menampilkan teks Admin di bawah angka rank
+      const isAdminRole = user.role?.toLowerCase() === 'admin';
+
       return `
         <div class="leaderboard-item" style="background: var(--onyx); padding: 20px; border-radius: 14px; border: 1px solid var(--jet); display: flex; align-items: center; gap: 15px; margin-bottom: 10px;">
-          <div style="min-width: 45px; height: 45px; background: var(--jet); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 18px; color: ${rankColor}; border: 1px solid ${isTop3 ? '#ffffff' : 'transparent'};">
-            ${index + 1}
+          <div style="display: flex; flex-direction: column; align-items: center; min-width: 45px; gap: 4px;">
+            <div style="width: 45px; height: 45px; background: var(--jet); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 18px; color: ${rankColor}; border: 1px solid ${isTop3 ? '#ffffff' : 'transparent'};">
+              ${index + 1}
+            </div>
+            ${isAdminRole ? `
+              <span style="font-size: 9px; color: #ffffff; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Admin</span>
+            ` : ''}
           </div>
+          
           <div style="flex-grow: 1; min-width: 0;"> 
             <h4 class="h4" style="font-size: 16px; color: var(--white-1); margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
               ${user.username || 'Anonymous'}
@@ -535,6 +543,7 @@ async function loadLeaderboard() {
               ${user.email || 'No Email'}
             </p>
           </div>
+
           <div style="display: flex; flex-direction: column; align-items: center; gap: 8px; min-width: 80px;">
             <div style="background: var(--jet); min-width: 70px; height: 45px; border-radius: 10px; border: 1px solid var(--white-1); display: flex; flex-direction: column; align-items: center; justify-content: center;">
               <span style="font-size: 9px; color: var(--light-gray-70); text-transform: uppercase; line-height: 1;">Pts</span>
@@ -551,17 +560,26 @@ async function loadLeaderboard() {
       `;
     }).join('');
 
+
     if (users.length > 3) {
-      // PERUBAHAN: Warna border dan teks tombol diubah menjadi putih (#ffffff)
+      // Desain tombol redup (outline gelap) tapi tulisan tetap putih terang
       htmlContent += `
         <div style="text-align: center; margin-top: 15px;">
-          <button onclick="toggleLeaderboard()" class="form-btn" style="margin: 0 auto; padding: 10px 25px; background: var(--jet); border: 1px solid #ffffff; color: #ffffff; font-size: 13px;">
+          <button onclick="toggleLeaderboard()" class="form-btn" 
+            style="margin: 0 auto; 
+                   padding: 10px 25px; 
+                   background: transparent; 
+                   border: 1px solid var(--jet); 
+                   color: #ffffff; 
+                   font-size: 13px;
+                   opacity: 0.8;">
             <span>${isLeaderboardExpanded ? 'See Less' : 'See More'}</span>
             <ion-icon name="${isLeaderboardExpanded ? 'chevron-up-outline' : 'chevron-down-outline'}"></ion-icon>
           </button>
         </div>
       `;
     }
+
 
     listContainer.innerHTML = htmlContent;
   } catch (err) {
@@ -680,4 +698,24 @@ qnaButtons.forEach(btn => {
       }
     });
   });
+});
+
+document.addEventListener("DOMContentLoaded", function() {
+  const popup = document.getElementById('join-popup');
+  const closeBtn = document.getElementById('close-popup');
+
+  // Munculkan bar setelah 2 detik agar tidak mengejutkan
+  setTimeout(() => {
+    popup.classList.add('active');
+  }, 2000);
+
+  // Fungsi tutup
+  closeBtn.addEventListener('click', () => {
+    popup.classList.remove('active');
+  });
+
+  // Otomatis hilang setelah 10 detik (opsional, agar tidak mengganggu terus)
+  setTimeout(() => {
+    popup.classList.remove('active');
+  }, 12000);
 });
