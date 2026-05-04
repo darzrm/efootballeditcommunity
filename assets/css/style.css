@@ -2176,3 +2176,105 @@ button[onclick*="deleteComment"] ion-icon {
 .qna-answer p:last-child {
   padding-bottom: 20px !important;
 }
+
+.join-popup-container {
+  position: fixed;
+  bottom: 85px; /* Menghindari navigasi bawah (navbar mobile biasanya 60-70px) */
+  left: 50%;
+  transform: translateX(-50%) translateY(100px); /* Mulai dari bawah layar */
+  width: 90%;
+  max-width: 500px;
+  z-index: 999;
+  visibility: hidden;
+  opacity: 0;
+  transition: all 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+.join-popup-container.active {
+  visibility: visible;
+  opacity: 1;
+  transform: translateX(-50%) translateY(0); /* Muncul ke atas */
+}
+
+.join-popup-content {
+  background: hsl(240, 2%, 13%);
+  backdrop-filter: blur(10px);
+  border: 1px solid var(--jet);
+  padding: 10px 15px;
+  border-radius: 14px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+}
+
+.join-popup-left {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.join-popup-icon {
+  width: 35px;
+  height: 35px;
+  background: hsl(240, 2%, 12%);
+  color: #fff;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+
+.join-popup-title {
+  color: var(--white-1);
+  font-size: 13px;
+  font-weight: 600;
+  margin: 0;
+}
+
+.join-popup-desc {
+  color: var(--light-gray-70);
+  font-size: 10px;
+  margin: 0;
+}
+
+.join-popup-right {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.join-popup-btn {
+  background: var(--white-1);
+  color: var(--onyx);
+  padding: 6px 12px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 600;
+  transition: 0.3s;
+}
+
+.join-popup-btn:hover { background: var(--white-2); }
+
+.join-popup-close {
+  color: var(--light-gray-70);
+  font-size: 18px;
+  display: flex;
+  padding: 4px;
+  transition: 0.2s;
+}
+
+.join-popup-close:hover { color: #ff5f5f; }
+
+/* Desktop adjustment */
+@media (min-width: 1024px) {
+  .join-popup-container {
+    bottom: 30px;
+    left: 30px;
+    transform: translateX(-100px) translateY(0); /* Muncul dari samping kiri */
+  }
+  .join-popup-container.active {
+    transform: translateX(0) translateY(0);
+  }
+}
