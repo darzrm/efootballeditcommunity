@@ -437,12 +437,13 @@ window.renderCommentHTML = function(c, currentUser) {
       <p style="font-size: 15px; color: var(--light-gray); line-height: 1.6; margin-bottom: 15px;">
         ${c.content}
       </p>
-      ${(isOwner || isAdmin) ? `
+      ${(isOwner || currentUser?.role === 'Admin' || currentUser?.role === 'Owner') ? `
 <button onclick="deleteComment('${c.id}')" style="color: #ff5f5f; font-size: 12px; background: none; border: none; cursor: pointer; display: flex; align-items: center; gap: 5px; padding: 0;">
   <ion-icon name="trash-outline" style="color: #ff5f5f !important;"></ion-icon> 
   Delete Comment
 </button>
       ` : ''}
+
     </div>
   `;
 };
