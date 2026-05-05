@@ -2278,3 +2278,202 @@ button[onclick*="deleteComment"] ion-icon {
     transform: translateX(0) translateY(0);
   }
 }
+
+/*-----------------------------------*\
+  #LEADERBOARD INTERACTIVE FIX
+\*-----------------------------------*/
+
+.leaderboard-item {
+  transition: transform 0.2s ease-in-out, filter 0.2s ease-in-out;
+}
+
+.leaderboard-item:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.15);
+}
+
+
+/* SweetAlert Monochrome Override for Stats Modal */
+.swal-monochrome-popup {
+  border: 1px solid var(--jet) !important;
+  border-radius: 16px !important;
+}
+
+/*-----------------------------------*\
+\*-----------------------------------*/
+
+.auth-hero-panel {
+  position: relative;
+  overflow: hidden;
+  background: var(--eerie-black-1);
+  border: 1px solid var(--jet);
+  border-radius: 20px;
+  padding: 48px 28px 36px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+
+/* Decorative floating orbs */
+.auth-orb {
+  position: absolute;
+  border-radius: 50%;
+  pointer-events: none;
+  filter: blur(48px);
+  opacity: 0.12;
+}
+
+.auth-orb-1 {
+  width: 220px;
+  height: 220px;
+  background: hsl(220, 60%, 70%);
+  top: -60px;
+  right: -60px;
+}
+
+.auth-orb-2 {
+  width: 180px;
+  height: 180px;
+  background: hsl(160, 50%, 60%);
+  bottom: -40px;
+  left: -50px;
+}
+
+/* Icon ring */
+.auth-icon-wrap {
+  position: relative;
+  z-index: 1;
+}
+
+.auth-icon-ring {
+  width: 72px;
+  height: 72px;
+  border-radius: 20px;
+  background: var(--onyx);
+  border: 1px solid var(--jet);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 30px;
+  color: var(--white-1);
+  box-shadow: 0 8px 24px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.06);
+  margin: 0 auto;
+  animation: auth-icon-float 3s ease-in-out infinite;
+}
+
+@keyframes auth-icon-float {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+/* Title & subtitle */
+.auth-hero-text {
+  position: relative;
+  z-index: 1;
+}
+
+.auth-hero-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--white-1);
+  margin: 0 0 10px;
+  letter-spacing: -0.3px;
+}
+
+.auth-hero-sub {
+  font-size: 13px;
+  color: var(--light-gray-70);
+  line-height: 1.7;
+  max-width: 300px;
+  margin: 0 auto;
+}
+
+/* Feature pills */
+.auth-features {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  position: relative;
+  z-index: 1;
+}
+
+.auth-feature-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 14px;
+  background: var(--onyx);
+  border: 1px solid var(--jet);
+  border-radius: 100px;
+  font-size: 11px;
+  color: var(--light-gray);
+  font-weight: 500;
+  letter-spacing: 0.3px;
+}
+
+.auth-feature-pill ion-icon {
+  font-size: 13px;
+  color: var(--white-1) !important;
+}
+
+/* CTA Button */
+.auth-cta-btn {
+  position: relative;
+  z-index: 1;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 14px 36px;
+  background: var(--white-1);
+  color: var(--smoky-black);
+  border: none;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  cursor: pointer;
+  transition: all 0.25s ease;
+  width: 100%;
+  max-width: 280px;
+  box-shadow: 0 4px 20px rgba(255,255,255,0.12);
+}
+
+.auth-cta-btn:hover {
+  background: var(--white-2);
+  transform: translateY(-2px);
+  box-shadow: 0 8px 28px rgba(255,255,255,0.18);
+}
+
+.auth-cta-btn ion-icon {
+  font-size: 16px;
+  color: var(--smoky-black) !important;
+  transition: transform 0.2s;
+}
+
+.auth-cta-btn:hover ion-icon {
+  transform: translateX(4px);
+}
+
+/* Footer note */
+.auth-note {
+  font-size: 11px;
+  color: var(--light-gray-70);
+  opacity: 0.6;
+  position: relative;
+  z-index: 1;
+  margin: -8px 0 0;
+}
+
+/*-----------------------------------*\
+  #OWNER ROLE BADGE IN LEADERBOARD
+\*-----------------------------------*/
+
+/* Extra subtle glow on owner leaderboard items */
+.leaderboard-item:has([data-owner]) {
+  border-color: rgba(255,255,255,0.25) !important;
+}
+
