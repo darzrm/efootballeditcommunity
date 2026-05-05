@@ -22,8 +22,8 @@
         <ion-icon name="logo-whatsapp"></ion-icon>
       </div>
       <div class="join-popup-info">
-        <p class="join-popup-title">eFoodico</p>
-        <p class="join-popup-desc">350+ active designers</p>
+        <p class="join-popup-title">Join eFoodico Community</p>
+        <p class="join-popup-desc">350+ designers are waiting for you!</p>
       </div>
     </div>
 
@@ -228,16 +228,40 @@
     <h2 class="h2 article-title">Account</h2>
   </header>
 
-  <section id="guest-container" style="text-align: center; padding: 60px 20px;">
-    <div class="contact-form">
-      <h3 class="h3 form-title">Community Access</h3>
-      <p style="color: var(--light-gray); margin-bottom: 30px; line-height: 1.8;">
-        You are not registered on eFoodico.<br> 
-        Please login or create an account to access your personal dashboard.
-      </p>
-      <button class="form-btn" id="btn-start-auth" style="margin: 0 auto; padding: 12px 40px; justify-content: center;">
+  <section id="guest-container" style="padding: 10px 0 30px;">
+    <!-- Modern Auth Hero Panel -->
+    <div class="auth-hero-panel">
+      <!-- Decorative background elements -->
+      <div class="auth-orb auth-orb-1"></div>
+      <div class="auth-orb auth-orb-2"></div>
+      
+      <!-- Logo / Icon area -->
+      <div class="auth-icon-wrap">
+        <div class="auth-icon-ring">
+          <ion-icon name="people-outline"></ion-icon>
+        </div>
+      </div>
+
+      <!-- Text content -->
+      <div class="auth-hero-text">
+        <h3 class="auth-hero-title">Join the Community</h3>
+        <p class="auth-hero-sub">Track your progress, compete on the leaderboard, and connect with fellow eFoodico creators.</p>
+      </div>
+
+      <!-- Feature pills -->
+      <div class="auth-features">
+        <span class="auth-feature-pill"><ion-icon name="trophy-outline"></ion-icon> Leaderboard</span>
+        <span class="auth-feature-pill"><ion-icon name="chatbubble-outline"></ion-icon> Comments</span>
+        <span class="auth-feature-pill"><ion-icon name="stats-chart-outline"></ion-icon> Stats</span>
+      </div>
+
+      <!-- CTA Button -->
+      <button class="auth-cta-btn" id="btn-start-auth">
         <span>Get Started</span>
+        <ion-icon name="arrow-forward-outline"></ion-icon>
       </button>
+
+      <p class="auth-note">Free to join · No credit card required</p>
     </div>
   </section>
 
