@@ -91,6 +91,34 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
 /**
+ * LAST SEEN / ONLINE STATUS SYSTEM
+ * Update last_seen setiap 2 menit selama user aktif
+ * User dianggap Online jika last_seen < 5 menit yang lalu
+ */
+async function updateLastSeen() {
+  const { data: { user } } = await supabaseClient.auth.getUser();
+  if (!user) return;
+  await supabaseClient
+    .from('profiles')
+    .update({ last_seen: new Date().toISOString() })
+    .eq('id', user.id);
+}
+
+// Update saat halaman dibuka, lalu setiap 2 menit
+updateLastSeen();
+setInterval(updateLastSeen, 2 * 60 * 1000);
+
+// Update juga saat user melakukan aktivitas (klik / ketik)
+let lastActivityUpdate = 0;
+document.addEventListener('click', () => {
+  const now = Date.now();
+  if (now - lastActivityUpdate > 60 * 1000) {
+    lastActivityUpdate = now;
+    updateLastSeen();
+  }
+});
+
+/**
  * UNIFIED CLICK HANDLER
  */
 window.addEventListener('click', async function(event) {
@@ -499,7 +527,7 @@ async function loadLeaderboard() {
   try {
     const { data: users, error: dbError } = await supabaseClient
       .from('profiles')
-      .select('id, username, email, points, role')
+      .select('id, username, email, points, role, created_at, last_seen')
       .order('points', { ascending: false });
 
     if (dbError) throw dbError;
@@ -509,36 +537,48 @@ async function loadLeaderboard() {
     }
 
     let isAdmin = false;
+    let currentUserId = null;
     const { data: { session } } = await supabaseClient.auth.getSession();
     if (session) {
+      currentUserId = session.user.id;
       const { data: profile } = await supabaseClient.from('profiles').select('role').eq('id', session.user.id).single();
-      if (profile?.role?.toLowerCase() === 'admin') isAdmin = true;
+      const r = profile?.role?.toLowerCase();
+      if (r === 'admin' || r === 'owner') isAdmin = true;
     }
 
     const displayUsers = isLeaderboardExpanded ? users : users.slice(0, 3);
 
-    let htmlContent = displayUsers.map((user, index) => {
+        let htmlContent = displayUsers.map((user, index) => {
       const isTop3 = index < 3;
       const rankColor = isTop3 ? '#ffffff' : 'var(--white-1)';
       
-      // Logika baru untuk menampilkan teks Admin di bawah angka rank
       const isAdminRole = user.role?.toLowerCase() === 'admin';
+      const isOwnerRole = user.role?.toLowerCase() === 'owner';
+      const fiveMinAgo = new Date(Date.now() - 5 * 60 * 1000);
+      const isOnline = user.last_seen && new Date(user.last_seen) > fiveMinAgo ? 'online' : 'offline';
 
       return `
-        <div class="leaderboard-item" style="background: var(--onyx); padding: 20px; border-radius: 14px; border: 1px solid var(--jet); display: flex; align-items: center; gap: 15px; margin-bottom: 10px;">
+        <div class="leaderboard-item" 
+             onclick="showUserStats('${user.username || 'Anonymous'}', '${user.role || 'Member'}', ${user.points || 0}, ${index + 1}, '${user.email || ''}', '${user.created_at || ''}', '${user.id}', '${isOnline}')"
+             style="background: var(--onyx); padding: 20px; border-radius: 14px; border: 1px solid ${isOwnerRole ? 'rgba(255,255,255,0.3)' : 'var(--jet)'}; display: flex; align-items: center; gap: 15px; margin-bottom: 10px; cursor: pointer; transition: all 0.3s ease; ${isOwnerRole ? 'box-shadow: 0 0 0 1px rgba(255,255,255,0.1);' : ''}">
           <div style="display: flex; flex-direction: column; align-items: center; min-width: 45px; gap: 4px;">
             <div style="width: 45px; height: 45px; background: var(--jet); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 18px; color: ${rankColor}; border: 1px solid ${isTop3 ? '#ffffff' : 'transparent'};">
               ${index + 1}
             </div>
-            ${isAdminRole ? `
+            ${isOwnerRole ? `
+              <span style="font-size: 9px; color: #fff; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; background: rgba(255,255,255,0.15); padding: 1px 5px; border-radius: 4px;">Owner</span>
+            ` : isAdminRole ? `
               <span style="font-size: 9px; color: #ffffff; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;">Admin</span>
             ` : ''}
           </div>
           
           <div style="flex-grow: 1; min-width: 0;"> 
-            <h4 class="h4" style="font-size: 16px; color: var(--white-1); margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
-              ${user.username || 'Anonymous'}
-            </h4>
+            <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 2px;">
+              <h4 class="h4" style="font-size: 16px; color: var(--white-1); margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+                ${user.username || 'Anonymous'}
+              </h4>
+              <span title="${isOnline === 'online' ? 'Online' : 'Offline'}" style="display:inline-block; flex-shrink:0; width:8px; height:8px; border-radius:50%; background:${isOnline === 'online' ? '#4caf50' : '#555'}; ${isOnline === 'online' ? 'box-shadow:0 0 5px #4caf50;' : ''}"></span>
+            </div>
             <p style="font-size: 12px; color: var(--light-gray-70); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 150px;">
               ${user.email || 'No Email'}
             </p>
@@ -549,16 +589,11 @@ async function loadLeaderboard() {
               <span style="font-size: 9px; color: var(--light-gray-70); text-transform: uppercase; line-height: 1;">Pts</span>
               <span style="font-weight: 700; color: var(--white-1); font-size: 16px; line-height: 1.2;">${user.points || 0}</span>
             </div>
-            ${isAdmin ? `
-              <button onclick="updatePoints('${user.id}', '${user.username}', ${user.points})" 
-                      style="color: var(--white-1); background: none; border: none; cursor: pointer; font-size: 10px; text-decoration: underline; padding: 0; opacity: 0.7;">
-                Edit Points
-              </button>
-            ` : ''}
           </div>
         </div>
       `;
     }).join('');
+
 
 
     if (users.length > 3) {
@@ -719,3 +754,158 @@ document.addEventListener("DOMContentLoaded", function() {
     popup.classList.remove('active');
   }, 12000);
 });
+
+/**
+ * TAMPILKAN STATISTIK USER DARI LEADERBOARD
+ */
+window.showUserStats = async function(username, role, points, rank, email, createdAt, userId, onlineStatus) {
+  // Check if current logged-in user is admin or owner
+  let isAdmin = false;
+  let isOwner = false;
+  const { data: { session } } = await supabaseClient.auth.getSession();
+  if (session) {
+    const { data: profile } = await supabaseClient.from('profiles').select('role').eq('id', session.user.id).single();
+    const currentRole = profile?.role?.toLowerCase();
+    if (currentRole === 'admin') isAdmin = true;
+    if (currentRole === 'owner') { isOwner = true; isAdmin = true; } // owner also has admin power
+  }
+
+  const joinDate = createdAt
+    ? new Date(createdAt).toLocaleDateString('en-US', { day: 'numeric', month: 'long', year: 'numeric' })
+    : 'Unknown';
+
+  const isOnline = onlineStatus === 'online';
+  const statusDot = isOnline
+    ? `<span style="display:inline-block; width:9px; height:9px; border-radius:50%; background:#4caf50; margin-right:6px; box-shadow: 0 0 5px #4caf50;"></span>`
+    : `<span style="display:inline-block; width:9px; height:9px; border-radius:50%; background:#888; margin-right:6px;"></span>`;
+  const statusLabel = isOnline ? 'Online' : 'Offline';
+  const statusColor = isOnline ? '#4caf50' : '#888';
+
+  const targetIsAdmin = role?.toLowerCase() === 'admin';
+  const targetIsOwner = role?.toLowerCase() === 'owner';
+
+  // Edit Points button (admin & owner) - centered
+  const editPointsBtn = (isAdmin || isOwner) ? `
+    <div style="text-align: center; margin-top: 12px;">
+      <button onclick="Swal.close(); setTimeout(() => updatePoints('${userId}', '${username}', ${points}), 200);"
+        style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 28px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.25); background: rgba(255,255,255,0.08); color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; letter-spacing: 0.5px; transition: all 0.2s; width: 100%;">
+          Edit Points
+      </button>
+    </div>
+  ` : '';
+
+  // Toggle Admin button (owner only, can't demote owner)
+  const toggleAdminBtn = isOwner && !targetIsOwner ? `
+    <div style="text-align: center; margin-top: 8px;">
+      <button onclick="Swal.close(); setTimeout(() => toggleAdminRole('${userId}', '${username}', '${role}'), 200);"
+        style="display: inline-flex; align-items: center; justify-content: center; gap: 8px; padding: 12px 28px; border-radius: 10px; border: 1px solid ${targetIsAdmin ? 'rgba(255,95,95,0.35)' : 'rgba(100,200,100,0.35)'}; background: ${targetIsAdmin ? 'rgba(255,95,95,0.08)' : 'rgba(100,200,100,0.08)'}; color: ${targetIsAdmin ? '#ff7f7f' : '#7fdf7f'}; font-size: 13px; font-weight: 600; cursor: pointer; letter-spacing: 0.5px; transition: all 0.2s; width: 100%;">
+        ${targetIsAdmin ? '🔻 Remove Admin' : '🛡️ Make Admin'}
+      </button>
+    </div>
+  ` : '';
+
+  Swal.fire({
+    html: `
+      <div style="text-align: center; padding-bottom: 6px;">
+
+        <!-- Avatar / Rank Badge -->
+        <div style="width: 64px; height: 64px; background: var(--jet); border-radius: 16px; border: 2px solid var(--white-1); display: flex; align-items: center; justify-content: center; font-size: 26px; font-weight: 700; color: #fff; margin: 0 auto 14px;">
+          #${rank}
+        </div>
+
+        <!-- Username -->
+        <h3 style="color: #fff; font-size: 20px; font-weight: 700; margin: 0 0 4px;">${username}</h3>
+
+        <!-- Role -->
+        <p style="color: var(--light-gray-70); font-size: 11px; text-transform: uppercase; letter-spacing: 1.5px; margin: 0 0 10px;">${role}</p>
+
+        <!-- Online Status Badge -->
+        <div style="display: inline-flex; align-items: center; background: var(--jet); padding: 5px 14px; border-radius: 20px; font-size: 12px; color: ${statusColor}; font-weight: 600; margin-bottom: 20px;">
+          ${statusDot}${statusLabel}
+        </div>
+
+        <div style="border-top: 1px solid var(--jet); margin-bottom: 16px;"></div>
+
+        <!-- Stats Grid -->
+        <div style="display: flex; flex-direction: column; gap: 10px; text-align: center;">
+
+          <div style="background: var(--onyx); padding: 14px 20px; border-radius: 12px; border: 1px solid var(--jet);">
+            <p style="color: var(--light-gray-70); font-size: 10px; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 4px;">Total Points</p>
+            <p style="color: #fff; font-size: 22px; font-weight: 700; margin: 0;">${points}</p>
+          </div>
+
+          <div style="background: var(--onyx); padding: 12px 20px; border-radius: 12px; border: 1px solid var(--jet);">
+            <p style="color: var(--light-gray-70); font-size: 10px; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 4px;">Email</p>
+            <p style="color: #fff; font-size: 13px; font-weight: 500; margin: 0; word-break: break-all;">${email || '—'}</p>
+          </div>
+
+          <div style="background: var(--onyx); padding: 12px 20px; border-radius: 12px; border: 1px solid var(--jet);">
+            <p style="color: var(--light-gray-70); font-size: 10px; text-transform: uppercase; letter-spacing: 1px; margin: 0 0 4px;">Joined</p>
+            <p style="color: #fff; font-size: 13px; font-weight: 500; margin: 0;">${joinDate}</p>
+          </div>
+
+        </div>
+
+        ${editPointsBtn}
+        ${toggleAdminBtn}
+
+      </div>
+    `,
+    background: '#1e1e1f',
+    showConfirmButton: true,
+    confirmButtonText: '<span style="color: #1a1a1a; font-weight: 600;">Close</span>',
+    confirmButtonColor: '#ffffff',
+    customClass: {
+      popup: 'swal-monochrome-popup'
+    }
+  });
+};
+
+/**
+ * TOGGLE ADMIN ROLE (OWNER ONLY)
+ */
+window.toggleAdminRole = async function(userId, username, currentRole) {
+  const isCurrentlyAdmin = currentRole?.toLowerCase() === 'admin';
+  const newRole = isCurrentlyAdmin ? 'Member' : 'Admin';
+  const actionText = isCurrentlyAdmin ? 'Remove Admin from' : 'Make Admin';
+
+  const result = await Swal.fire({
+    title: `${actionText} ${username}?`,
+    text: isCurrentlyAdmin
+      ? `${username} will be demoted to Member.`
+      : `${username} will be promoted to Admin and can manage leaderboard points.`,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: isCurrentlyAdmin ? '#ff5f5f' : '#4caf50',
+    cancelButtonColor: '#444',
+    confirmButtonText: isCurrentlyAdmin ? 'Yes, Remove Admin' : 'Yes, Make Admin',
+    background: '#1e1e1f',
+    color: '#fff'
+  });
+
+  if (result.isConfirmed) {
+    try {
+      const { error } = await supabaseClient
+        .from('profiles')
+        .update({ role: newRole })
+        .eq('id', userId);
+
+      if (error) throw error;
+
+      Swal.fire({
+        icon: 'success',
+        title: 'Role Updated!',
+        text: `${username} is now ${newRole}.`,
+        background: '#1e1e1f',
+        color: '#fff',
+        timer: 1800,
+        showConfirmButton: false
+      });
+
+      if (typeof loadLeaderboard === 'function') loadLeaderboard();
+
+    } catch (err) {
+      Swal.fire({ icon: 'error', text: err.message, background: '#1e1e1f', color: '#fff' });
+    }
+  }
+};
